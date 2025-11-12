@@ -1,22 +1,25 @@
 import { Button } from "@/components/ui/button";
 import { Menu, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-hero-gradient shadow-md">
             <Sparkles className="w-5 h-5 text-primary-foreground" />
           </div>
           <span className="text-xl font-bold">
             Skill<span className="text-primary">Link</span> Africa
           </span>
-        </div>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
@@ -33,8 +36,23 @@ const Header = () => {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost">Log In</Button>
-          <Button variant="default">Sign Up</Button>
+          {user ? (
+            <>
+              <span className="text-sm text-muted-foreground">
+                {user.email}
+              </span>
+              <Button variant="ghost" onClick={signOut}>Sign Out</Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link to="/auth">Log In</Link>
+              </Button>
+              <Button variant="default" asChild>
+                <Link to="/auth">Sign Up</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -60,8 +78,23 @@ const Header = () => {
               Pricing
             </a>
             <div className="flex flex-col gap-2 pt-4 border-t">
-              <Button variant="ghost" className="w-full">Log In</Button>
-              <Button variant="default" className="w-full">Sign Up</Button>
+              {user ? (
+                <>
+                  <span className="text-sm text-muted-foreground px-3">
+                    {user.email}
+                  </span>
+                  <Button variant="ghost" className="w-full" onClick={signOut}>Sign Out</Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" className="w-full" asChild>
+                    <Link to="/auth">Log In</Link>
+                  </Button>
+                  <Button variant="default" className="w-full" asChild>
+                    <Link to="/auth">Sign Up</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </div>

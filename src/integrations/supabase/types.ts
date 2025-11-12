@@ -14,16 +14,308 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          applicant_id: string
+          created_at: string
+          id: string
+          job_id: string
+          proposal_text: string
+          status: Database["public"]["Enums"]["application_status"]
+          updated_at: string
+        }
+        Insert: {
+          applicant_id: string
+          created_at?: string
+          id?: string
+          job_id: string
+          proposal_text: string
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+        }
+        Update: {
+          applicant_id?: string
+          created_at?: string
+          id?: string
+          job_id?: string
+          proposal_text?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_applicant_id_fkey"
+            columns: ["applicant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employers: {
+        Row: {
+          company_description: string | null
+          company_name: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          verified: boolean | null
+          website: string | null
+        }
+        Insert: {
+          company_description?: string | null
+          company_name: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          verified?: boolean | null
+          website?: string | null
+        }
+        Update: {
+          company_description?: string | null
+          company_name?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          verified?: boolean | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      jobs: {
+        Row: {
+          budget_max: number
+          budget_min: number
+          created_at: string
+          description: string
+          duration_days: number | null
+          employer_id: string
+          id: string
+          milestones: Json | null
+          remote: boolean | null
+          required_skills: Json | null
+          status: Database["public"]["Enums"]["job_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          budget_max: number
+          budget_min: number
+          created_at?: string
+          description: string
+          duration_days?: number | null
+          employer_id: string
+          id?: string
+          milestones?: Json | null
+          remote?: boolean | null
+          required_skills?: Json | null
+          status?: Database["public"]["Enums"]["job_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          budget_max?: number
+          budget_min?: number
+          created_at?: string
+          description?: string
+          duration_days?: number | null
+          employer_id?: string
+          id?: string
+          milestones?: Json | null
+          remote?: boolean | null
+          required_skills?: Json | null
+          status?: Database["public"]["Enums"]["job_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_employer_id_fkey"
+            columns: ["employer_id"]
+            isOneToOne: false
+            referencedRelation: "employers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          bio: string | null
+          created_at: string
+          full_name: string
+          id: string
+          id_verified: boolean | null
+          location: string | null
+          phone_number: string | null
+          portfolio_links: Json | null
+          rating: number | null
+          skills: Json | null
+          total_gigs_completed: number | null
+          updated_at: string
+          user_id: string
+          video_intro_url: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          id_verified?: boolean | null
+          location?: string | null
+          phone_number?: string | null
+          portfolio_links?: Json | null
+          rating?: number | null
+          skills?: Json | null
+          total_gigs_completed?: number | null
+          updated_at?: string
+          user_id: string
+          video_intro_url?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          id_verified?: boolean | null
+          location?: string | null
+          phone_number?: string | null
+          portfolio_links?: Json | null
+          rating?: number | null
+          skills?: Json | null
+          total_gigs_completed?: number | null
+          updated_at?: string
+          user_id?: string
+          video_intro_url?: string | null
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount_minor_units: number
+          created_at: string
+          currency: string
+          description: string | null
+          from_user_id: string | null
+          id: string
+          job_id: string | null
+          status: Database["public"]["Enums"]["transaction_status"]
+          to_user_id: string | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at: string
+        }
+        Insert: {
+          amount_minor_units: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          from_user_id?: string | null
+          id?: string
+          job_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"]
+          to_user_id?: string | null
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+        }
+        Update: {
+          amount_minor_units?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          from_user_id?: string | null
+          id?: string
+          job_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"]
+          to_user_id?: string | null
+          type?: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          balance_minor_units: number
+          created_at: string
+          currency: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance_minor_units?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance_minor_units?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "talent" | "employer" | "admin"
+      application_status: "pending" | "accepted" | "rejected" | "completed"
+      job_status: "draft" | "open" | "in_progress" | "completed" | "cancelled"
+      transaction_status: "pending" | "completed" | "failed" | "cancelled"
+      transaction_type: "escrow" | "release" | "payout" | "refund"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +442,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["talent", "employer", "admin"],
+      application_status: ["pending", "accepted", "rejected", "completed"],
+      job_status: ["draft", "open", "in_progress", "completed", "cancelled"],
+      transaction_status: ["pending", "completed", "failed", "cancelled"],
+      transaction_type: ["escrow", "release", "payout", "refund"],
+    },
   },
 } as const
