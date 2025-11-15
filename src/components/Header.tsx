@@ -32,6 +32,16 @@ const Header = () => {
           <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Pricing
           </a>
+          {user && (
+            <>
+              <Link to="/payment-dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Payments
+              </Link>
+              <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Wallet
+              </Link>
+            </>
+          )}
         </nav>
 
         {/* Desktop CTAs */}
@@ -77,6 +87,16 @@ const Header = () => {
             <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Pricing
             </a>
+            {user && (
+              <>
+                <Link to="/payment-dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  Payments
+                </Link>
+                <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  Wallet
+                </Link>
+              </>
+            )}
             <div className="flex flex-col gap-2 pt-4 border-t">
               {user ? (
                 <>
