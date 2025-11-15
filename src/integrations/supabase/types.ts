@@ -205,9 +205,14 @@ export type Database = {
           created_at: string
           currency: string
           description: string | null
+          external_reference: string | null
           from_user_id: string | null
           id: string
           job_id: string | null
+          net_amount_minor_units: number | null
+          payment_metadata: Json | null
+          payment_provider: string | null
+          platform_fee_minor_units: number | null
           status: Database["public"]["Enums"]["transaction_status"]
           to_user_id: string | null
           type: Database["public"]["Enums"]["transaction_type"]
@@ -218,9 +223,14 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string | null
+          external_reference?: string | null
           from_user_id?: string | null
           id?: string
           job_id?: string | null
+          net_amount_minor_units?: number | null
+          payment_metadata?: Json | null
+          payment_provider?: string | null
+          platform_fee_minor_units?: number | null
           status?: Database["public"]["Enums"]["transaction_status"]
           to_user_id?: string | null
           type: Database["public"]["Enums"]["transaction_type"]
@@ -231,9 +241,14 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string | null
+          external_reference?: string | null
           from_user_id?: string | null
           id?: string
           job_id?: string | null
+          net_amount_minor_units?: number | null
+          payment_metadata?: Json | null
+          payment_provider?: string | null
+          platform_fee_minor_units?: number | null
           status?: Database["public"]["Enums"]["transaction_status"]
           to_user_id?: string | null
           type?: Database["public"]["Enums"]["transaction_type"]
