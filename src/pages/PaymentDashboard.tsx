@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DollarSign, TrendingUp, Clock, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DollarSign, TrendingUp, Clock, CheckCircle, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useReactToPrint } from "react-to-print";
 import Header from "@/components/Header";
+import { Receipt } from "@/components/Receipt";
 
 interface Transaction {
   id: string;
@@ -42,6 +46,28 @@ const PaymentDashboard = () => {
   useEffect(() => {
     if (user) {
       fetchTransactions();
+      
+      // Set up real-time subscription
+      const channel = supabase
+        .channel('payment-dashboard-transactions')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'transactions',
+            filter: `from_user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Transaction change:', payload);
+            fetchTransactions();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
@@ -106,6 +132,36 @@ const PaymentDashboard = () => {
       <Badge variant={variants[type] || "outline"}>
         {type}
       </Badge>
+    );
+  };
+
+  const ReceiptDialog = ({ transaction }: { transaction: Transaction }) => {
+    const receiptRef = useRef<HTMLDivElement>(null);
+    
+    const handlePrint = useReactToPrint({
+      contentRef: receiptRef,
+    });
+
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <FileText className="h-4 w-4 mr-2" />
+            Receipt
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Transaction Receipt</DialogTitle>
+          </DialogHeader>
+          <Receipt ref={receiptRef} transaction={transaction} userEmail={user?.email} />
+          <div className="flex justify-end pt-4">
+            <Button onClick={handlePrint}>
+              Print Receipt
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     );
   };
 
@@ -246,6 +302,9 @@ const PaymentDashboard = () => {
                         <p className="text-sm font-medium text-primary">
                           Net: {formatAmount(transaction.net_amount_minor_units, transaction.currency)}
                         </p>
+                        <div className="mt-2">
+                          <ReceiptDialog transaction={transaction} />
+                        </div>
                       </div>
                     </div>
                   ))
@@ -283,6 +342,9 @@ const PaymentDashboard = () => {
                           <p className="text-sm text-muted-foreground">
                             Fee: {formatAmount(transaction.platform_fee_minor_units, transaction.currency)}
                           </p>
+                          <div className="mt-2">
+                            <ReceiptDialog transaction={transaction} />
+                          </div>
                         </div>
                       </div>
                     ))
@@ -315,6 +377,9 @@ const PaymentDashboard = () => {
                             {formatAmount(transaction.net_amount_minor_units, transaction.currency)}
                           </p>
                           <p className="text-sm text-muted-foreground">Released to talent</p>
+                          <div className="mt-2">
+                            <ReceiptDialog transaction={transaction} />
+                          </div>
                         </div>
                       </div>
                     ))
@@ -349,6 +414,9 @@ const PaymentDashboard = () => {
                           <p className="text-xl font-bold">
                             {formatAmount(transaction.amount_minor_units, transaction.currency)}
                           </p>
+                          <div className="mt-2">
+                            <ReceiptDialog transaction={transaction} />
+                          </div>
                         </div>
                       </div>
                     ))
