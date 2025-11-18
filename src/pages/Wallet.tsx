@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Wallet as WalletIcon, ArrowDownToLine, ArrowUpFromLine, Clock } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Wallet as WalletIcon, ArrowDownToLine, ArrowUpFromLine, Clock, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useReactToPrint } from "react-to-print";
 import { usePayments } from "@/hooks/usePayments";
 import Header from "@/components/Header";
 import { toast } from "@/hooks/use-toast";
+import { Receipt } from "@/components/Receipt";
 
 interface Transaction {
   id: string;
@@ -55,6 +58,46 @@ const Wallet = () => {
     if (user) {
       fetchWalletData();
       fetchTransactions();
+      
+      // Set up real-time subscriptions
+      const walletChannel = supabase
+        .channel('wallet-updates')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'wallets',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Wallet change:', payload);
+            fetchWalletData();
+          }
+        )
+        .subscribe();
+
+      const transactionsChannel = supabase
+        .channel('wallet-transactions')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'transactions',
+            filter: `to_user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Transaction change:', payload);
+            fetchTransactions();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(walletChannel);
+        supabase.removeChannel(transactionsChannel);
+      };
     }
   }, [user]);
 
@@ -184,6 +227,50 @@ const Wallet = () => {
       <Badge variant={variants[status] || "outline"}>
         {status}
       </Badge>
+    );
+  };
+
+  const getTypeBadge = (type: string) => {
+    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+      escrow: "default",
+      release: "secondary",
+      payout: "outline",
+      refund: "destructive",
+    };
+    return (
+      <Badge variant={variants[type] || "outline"}>
+        {type}
+      </Badge>
+    );
+  };
+
+  const ReceiptDialog = ({ transaction }: { transaction: Transaction }) => {
+    const receiptRef = useRef<HTMLDivElement>(null);
+    
+    const handlePrint = useReactToPrint({
+      contentRef: receiptRef,
+    });
+
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <FileText className="h-4 w-4 mr-2" />
+            Receipt
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Transaction Receipt</DialogTitle>
+          </DialogHeader>
+          <Receipt ref={receiptRef} transaction={transaction} userEmail={user?.email} />
+          <div className="flex justify-end pt-4">
+            <Button onClick={handlePrint}>
+              Print Receipt
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     );
   };
 
@@ -387,7 +474,7 @@ const Wallet = () => {
                             })}
                           </p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right space-y-2">
                           <p className={`text-lg font-bold ${
                             transaction.type === 'release' ? 'text-green-600' : 'text-orange-600'
                           }`}>
@@ -404,6 +491,7 @@ const Wallet = () => {
                               After 10% fee
                             </p>
                           )}
+                          <ReceiptDialog transaction={transaction} />
                         </div>
                       </div>
                       {index < transactions.length - 1 && <Separator />}
