@@ -11,6 +11,9 @@ import { useNavigate } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import Header from "@/components/Header";
 import { Receipt } from "@/components/Receipt";
+import { toast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface Transaction {
   id: string;
@@ -105,6 +108,44 @@ const PaymentDashboard = () => {
 
   const formatAmount = (amount: number, currency: string) => {
     return `${(amount / 100).toFixed(2)} ${currency}`;
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(20);
+    doc.text("Payment Dashboard", 14, 20);
+    
+    // Add generated date
+    doc.setFontSize(12);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    // Prepare table data
+    const tableData = transactions.map(t => [
+      new Date(t.created_at).toLocaleDateString(),
+      t.type.toUpperCase(),
+      formatAmount(t.amount_minor_units, t.currency),
+      t.status.toUpperCase(),
+      t.jobs?.title || 'N/A',
+    ]);
+    
+    // Add table
+    autoTable(doc, {
+      head: [['Date', 'Type', 'Amount', 'Status', 'Job']],
+      body: tableData,
+      startY: 40,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [59, 130, 246] },
+    });
+    
+    // Save PDF
+    doc.save(`payment_dashboard_${new Date().toISOString().split('T')[0]}.pdf`);
+    
+    toast({
+      title: "PDF Exported",
+      description: "Your payment dashboard has been exported successfully.",
+    });
   };
 
   const getStatusBadge = (status: string) => {
@@ -255,6 +296,16 @@ const PaymentDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="flex justify-end mb-4">
+              <Button 
+                onClick={exportToPDF} 
+                variant="outline"
+                className="gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                Export PDF
+              </Button>
+            </div>
             <Tabs defaultValue="all">
               <TabsList>
                 <TabsTrigger value="all">All</TabsTrigger>

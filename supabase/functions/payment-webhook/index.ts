@@ -72,6 +72,36 @@ Deno.serve(async (req) => {
 
       console.log('Transaction marked as completed:', transaction.id);
 
+      // Send email notification
+      try {
+        const { data: profileData } = await supabaseClient
+          .from('profiles')
+          .select('full_name, user_id')
+          .eq('user_id', transaction.from_user_id)
+          .single();
+
+        if (profileData) {
+          const { data: userData } = await supabaseClient.auth.admin.getUserById(profileData.user_id);
+          
+          if (userData?.user?.email) {
+            await supabaseClient.functions.invoke('send-transaction-email', {
+              body: {
+                to: userData.user.email,
+                userName: profileData.full_name,
+                transactionType: 'payment',
+                amount: transaction.amount_minor_units,
+                currency: transaction.currency,
+                jobTitle: transaction.description,
+                transactionId: transaction.id,
+              }
+            });
+          }
+        }
+      } catch (emailError) {
+        console.error('Failed to send email notification:', emailError);
+        // Don't fail the webhook if email fails
+      }
+
       // Update job status to in_progress if it was open
       const { error: jobUpdateError } = await supabaseClient
         .from('jobs')
