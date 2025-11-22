@@ -7,12 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import Header from "@/components/Header";
-import { Search, MapPin, Briefcase, DollarSign, Star, ExternalLink, Filter, Bell } from "lucide-react";
+import { Search, MapPin, Briefcase, DollarSign, Star, ExternalLink, Filter, Bell, Bookmark } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { JobApplicationDialog } from "@/components/JobApplicationDialog";
 import { JobAlertsDialog } from "@/components/JobAlertsDialog";
+import { useJobBookmark } from "@/hooks/useJobBookmark";
+import { JobCard } from "@/components/JobCard";
 
 interface Job {
   id: string;
@@ -276,96 +278,11 @@ const JobBoard = () => {
             </Card>
           ) : (
             filteredJobs.map((job) => (
-              <Card
+              <JobCard
                 key={job.id}
-                className={`hover:shadow-lg transition-all ${
-                  job.is_featured ? "border-primary border-2" : ""
-                }`}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        {job.is_featured && (
-                          <Badge variant="default" className="gap-1">
-                            <Star className="h-3 w-3 fill-current" />
-                            Featured
-                          </Badge>
-                        )}
-                        {job.ai_scraped && (
-                          <Badge variant="secondary">AI Verified</Badge>
-                        )}
-                        {job.remote && (
-                          <Badge variant="outline">Remote</Badge>
-                        )}
-                      </div>
-                      <CardTitle className="text-2xl mb-1">{job.title}</CardTitle>
-                      <CardDescription className="flex items-center gap-4 text-base flex-wrap">
-                        <span className="flex items-center gap-2">
-                          <Briefcase className="h-4 w-4" />
-                          {getCompanyName(job)}
-                          {job.employers && job.employers.verification_level && job.employers.trust_score !== undefined && (
-                            <VerificationBadge 
-                              level={job.employers.verification_level} 
-                              trustScore={job.employers.trust_score}
-                              size="sm"
-                              showScore={false}
-                            />
-                          )}
-                        </span>
-                        {job.location && (
-                          <span className="flex items-center gap-1">
-                            <MapPin className="h-4 w-4" />
-                            {job.location}
-                          </span>
-                        )}
-                      </CardDescription>
-                    </div>
-                    <div className="text-right">
-                      <div className="flex items-center gap-1 text-2xl font-bold text-primary">
-                        <DollarSign className="h-5 w-5" />
-                        {job.budget_min} - {job.budget_max}
-                      </div>
-                      <p className="text-sm text-muted-foreground">USD</p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4 line-clamp-3">
-                    {job.description}
-                  </p>
-
-                  {(() => {
-                    const skills = getSkills(job);
-                    return skills.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {skills.slice(0, 6).map((skill, index) => (
-                          <Badge key={index} variant="outline">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {skills.length > 6 && (
-                          <Badge variant="outline">+{skills.length - 6} more</Badge>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  <div className="flex gap-2">
-                    <Button className="flex-1" onClick={() => handleApplyClick(job)}>
-                      Apply Now
-                    </Button>
-                    {job.external_url && (
-                      <Button variant="outline" asChild>
-                        <a href={job.external_url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          View Original
-                        </a>
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                job={job}
+                onApply={() => handleApplyClick(job)}
+              />
             ))
           )}
         </div>

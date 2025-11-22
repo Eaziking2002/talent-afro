@@ -63,8 +63,11 @@ const Header = () => {
           </Link>
           {user && (
             <>
-              <Link to="/payment-dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Payments
+              <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Dashboard
+              </Link>
+              <Link to="/employer/analytics" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Analytics
               </Link>
               <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Wallet
@@ -134,8 +137,11 @@ const Header = () => {
             </Link>
             {user && (
               <>
-                <Link to="/payment-dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  Payments
+                <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  Dashboard
+                </Link>
+                <Link to="/employer/analytics" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  Analytics
                 </Link>
                 <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Wallet
