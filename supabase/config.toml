@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.send-transaction-email]
 verify_jwt = false
+
+[functions.send-job-alerts]
+verify_jwt = false

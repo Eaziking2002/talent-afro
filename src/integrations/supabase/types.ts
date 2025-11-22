@@ -143,6 +143,59 @@ export type Database = {
         }
         Relationships: []
       }
+      job_alerts: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          frequency: string | null
+          id: string
+          last_sent_at: string | null
+          locations: Json | null
+          min_budget: number | null
+          profile_id: string
+          remote_only: boolean | null
+          skills: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          frequency?: string | null
+          id?: string
+          last_sent_at?: string | null
+          locations?: Json | null
+          min_budget?: number | null
+          profile_id: string
+          remote_only?: boolean | null
+          skills?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          frequency?: string | null
+          id?: string
+          last_sent_at?: string | null
+          locations?: Json | null
+          min_budget?: number | null
+          profile_id?: string
+          remote_only?: boolean | null
+          skills?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_alerts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_scraping_logs: {
         Row: {
           created_at: string | null
@@ -307,6 +360,7 @@ export type Database = {
         Row: {
           bio: string | null
           created_at: string
+          email: string | null
           full_name: string
           id: string
           id_verified: boolean | null
@@ -323,6 +377,7 @@ export type Database = {
         Insert: {
           bio?: string | null
           created_at?: string
+          email?: string | null
           full_name: string
           id?: string
           id_verified?: boolean | null
@@ -339,6 +394,7 @@ export type Database = {
         Update: {
           bio?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string
           id?: string
           id_verified?: boolean | null
