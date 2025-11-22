@@ -66,8 +66,11 @@ const Header = () => {
               <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Dashboard
               </Link>
-              <Link to="/employer/analytics" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Analytics
+              <Link to="/employer/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Employer
+              </Link>
+              <Link to="/messages" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Messages
               </Link>
               <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Wallet
@@ -140,8 +143,11 @@ const Header = () => {
                 <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Dashboard
                 </Link>
-                <Link to="/employer/analytics" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  Analytics
+                <Link to="/employer/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  Employer
+                </Link>
+                <Link to="/messages" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  Messages
                 </Link>
                 <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Wallet
