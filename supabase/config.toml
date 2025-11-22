@@ -3,6 +3,15 @@ project_id = "lgdrrlrzcoedozfjwjnr"
 [functions.payment-initialize]
 verify_jwt = true
 
+[functions.payment-manual-initialize]
+verify_jwt = true
+
+[functions.payment-proof-submit]
+verify_jwt = true
+
+[functions.payment-proof-verify]
+verify_jwt = true
+
 [functions.payment-webhook]
 verify_jwt = false
 
