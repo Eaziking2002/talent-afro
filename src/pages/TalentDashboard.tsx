@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { JobAlertsDialog } from "@/components/JobAlertsDialog";
+import JobRecommendations from "@/components/JobRecommendations";
 import type { Json } from "@/integrations/supabase/types";
 
 interface Application {
@@ -207,6 +208,11 @@ const TalentDashboard = () => {
           <p className="text-lg text-muted-foreground">
             Track your applications, saved jobs, and job alerts
           </p>
+        </div>
+
+        {/* AI Recommendations */}
+        <div className="mb-8">
+          <JobRecommendations />
         </div>
 
         <Tabs defaultValue="applications" className="space-y-6">
