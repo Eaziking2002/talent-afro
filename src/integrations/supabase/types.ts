@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notification_preferences: {
+        Row: {
+          created_at: string | null
+          id: string
+          notify_new_employers: boolean | null
+          notify_new_jobs: boolean | null
+          notify_payment_issues: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notify_new_employers?: boolean | null
+          notify_new_jobs?: boolean | null
+          notify_payment_issues?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notify_new_employers?: boolean | null
+          notify_new_jobs?: boolean | null
+          notify_payment_issues?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           applicant_id: string
@@ -65,9 +95,16 @@ export type Database = {
           company_name: string
           created_at: string
           id: string
+          successful_hires: number | null
+          total_jobs_posted: number | null
+          trust_score: number | null
           updated_at: string
           user_id: string
+          verification_date: string | null
+          verification_level: string | null
+          verification_notes: string | null
           verified: boolean | null
+          verified_by: string | null
           website: string | null
         }
         Insert: {
@@ -75,9 +112,16 @@ export type Database = {
           company_name: string
           created_at?: string
           id?: string
+          successful_hires?: number | null
+          total_jobs_posted?: number | null
+          trust_score?: number | null
           updated_at?: string
           user_id: string
+          verification_date?: string | null
+          verification_level?: string | null
+          verification_notes?: string | null
           verified?: boolean | null
+          verified_by?: string | null
           website?: string | null
         }
         Update: {
@@ -85,9 +129,16 @@ export type Database = {
           company_name?: string
           created_at?: string
           id?: string
+          successful_hires?: number | null
+          total_jobs_posted?: number | null
+          trust_score?: number | null
           updated_at?: string
           user_id?: string
+          verification_date?: string | null
+          verification_level?: string | null
+          verification_notes?: string | null
           verified?: boolean | null
+          verified_by?: string | null
           website?: string | null
         }
         Relationships: []
@@ -421,6 +472,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_employer_trust_score: {
+        Args: { employer_id: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -1,5 +1,8 @@
 project_id = "lgdrrlrzcoedozfjwjnr"
 
+[functions.notify-admin-new-jobs]
+verify_jwt = false
+
 [functions.payment-initialize]
 verify_jwt = true
 
