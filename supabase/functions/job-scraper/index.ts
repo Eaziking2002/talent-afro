@@ -194,6 +194,34 @@ Requirements:
       `Job scraping completed: ${logEntry.jobs_created} created, ${logEntry.jobs_rejected} rejected`
     );
 
+    // Send notification to admins if jobs were created
+    if (logEntry.jobs_created > 0) {
+      try {
+        const notifyResponse = await fetch(
+          `${Deno.env.get('SUPABASE_URL')}/functions/v1/notify-admin-new-jobs`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
+            },
+            body: JSON.stringify({
+              jobsCreated: logEntry.jobs_created,
+              jobsRejected: logEntry.jobs_rejected,
+              scrapeTimestamp: new Date().toISOString()
+            })
+          }
+        );
+        
+        if (notifyResponse.ok) {
+          console.log('Admin notification sent successfully');
+        }
+      } catch (notifyError) {
+        console.error('Failed to send admin notification:', notifyError);
+        // Don't fail the main operation if notification fails
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,

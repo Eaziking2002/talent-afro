@@ -13,6 +13,7 @@ import ManualPayment from "./pages/ManualPayment";
 import AdminPaymentVerification from "./pages/AdminPaymentVerification";
 import JobBoard from "./pages/JobBoard";
 import AdminJobManagement from "./pages/AdminJobManagement";
+import AdminEmployerVerification from "./pages/AdminEmployerVerification";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/admin/payment-verification" element={<AdminPaymentVerification />} />
             <Route path="/jobs" element={<JobBoard />} />
             <Route path="/admin/jobs" element={<AdminJobManagement />} />
+            <Route path="/admin/employers" element={<AdminEmployerVerification />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

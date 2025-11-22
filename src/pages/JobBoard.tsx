@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 import { Search, MapPin, Briefcase, DollarSign, Star, ExternalLink, Filter } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
+import { VerificationBadge } from "@/components/VerificationBadge";
 
 interface Job {
   id: string;
@@ -27,7 +28,11 @@ interface Job {
   external_url: string | null;
   verification_status: string | null;
   created_at: string;
-  employers?: { company_name: string };
+  employers?: { 
+    company_name: string;
+    verification_level?: "unverified" | "basic" | "verified" | "premium";
+    trust_score?: number;
+  };
 }
 
 const JobBoard = () => {
@@ -267,10 +272,18 @@ const JobBoard = () => {
                         )}
                       </div>
                       <CardTitle className="text-2xl mb-1">{job.title}</CardTitle>
-                      <CardDescription className="flex items-center gap-4 text-base">
-                        <span className="flex items-center gap-1">
+                      <CardDescription className="flex items-center gap-4 text-base flex-wrap">
+                        <span className="flex items-center gap-2">
                           <Briefcase className="h-4 w-4" />
                           {getCompanyName(job)}
+                          {job.employers && job.employers.verification_level && job.employers.trust_score !== undefined && (
+                            <VerificationBadge 
+                              level={job.employers.verification_level} 
+                              trustScore={job.employers.trust_score}
+                              size="sm"
+                              showScore={false}
+                            />
+                          )}
                         </span>
                         {job.location && (
                           <span className="flex items-center gap-1">

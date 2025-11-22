@@ -1,12 +1,35 @@
 import { Button } from "@/components/ui/button";
 import { Menu, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { NavLink } from "@/components/NavLink";
+import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    checkAdminStatus();
+  }, [user]);
+
+  const checkAdminStatus = async () => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .single();
+
+    setIsAdmin(!!data);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -46,6 +69,16 @@ const Header = () => {
               <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Wallet
               </Link>
+              {isAdmin && (
+                <>
+                  <NavLink to="/admin/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    Admin: Jobs
+                  </NavLink>
+                  <NavLink to="/admin/employers" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    Admin: Employers
+                  </NavLink>
+                </>
+              )}
             </>
           )}
         </nav>
@@ -107,6 +140,16 @@ const Header = () => {
                 <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Wallet
                 </Link>
+                {isAdmin && (
+                  <>
+                    <NavLink to="/admin/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                      Admin: Jobs
+                    </NavLink>
+                    <NavLink to="/admin/employers" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                      Admin: Employers
+                    </NavLink>
+                  </>
+                )}
               </>
             )}
             <div className="flex flex-col gap-2 pt-4 border-t">
