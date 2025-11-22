@@ -92,51 +92,105 @@ export type Database = {
         }
         Relationships: []
       }
+      job_scraping_logs: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          execution_time_ms: number | null
+          id: string
+          jobs_created: number | null
+          jobs_found: number | null
+          jobs_rejected: number | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          jobs_created?: number | null
+          jobs_found?: number | null
+          jobs_rejected?: number | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          jobs_created?: number | null
+          jobs_found?: number | null
+          jobs_rejected?: number | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
+          ai_scraped: boolean | null
           budget_max: number
           budget_min: number
+          company_name: string | null
           created_at: string
           description: string
           duration_days: number | null
           employer_id: string
+          external_url: string | null
+          featured_until: string | null
           id: string
+          is_featured: boolean | null
           milestones: Json | null
           remote: boolean | null
           required_skills: Json | null
+          source: string | null
           status: Database["public"]["Enums"]["job_status"]
           title: string
           updated_at: string
+          verification_status: string | null
         }
         Insert: {
+          ai_scraped?: boolean | null
           budget_max: number
           budget_min: number
+          company_name?: string | null
           created_at?: string
           description: string
           duration_days?: number | null
           employer_id: string
+          external_url?: string | null
+          featured_until?: string | null
           id?: string
+          is_featured?: boolean | null
           milestones?: Json | null
           remote?: boolean | null
           required_skills?: Json | null
+          source?: string | null
           status?: Database["public"]["Enums"]["job_status"]
           title: string
           updated_at?: string
+          verification_status?: string | null
         }
         Update: {
+          ai_scraped?: boolean | null
           budget_max?: number
           budget_min?: number
+          company_name?: string | null
           created_at?: string
           description?: string
           duration_days?: number | null
           employer_id?: string
+          external_url?: string | null
+          featured_until?: string | null
           id?: string
+          is_featured?: boolean | null
           milestones?: Json | null
           remote?: boolean | null
           required_skills?: Json | null
+          source?: string | null
           status?: Database["public"]["Enums"]["job_status"]
           title?: string
           updated_at?: string
+          verification_status?: string | null
         }
         Relationships: [
           {

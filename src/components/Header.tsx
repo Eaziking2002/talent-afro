@@ -35,6 +35,9 @@ const Header = () => {
           <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             FAQ
           </a>
+          <Link to="/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Jobs
+          </Link>
           {user && (
             <>
               <Link to="/payment-dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -93,6 +96,9 @@ const Header = () => {
             <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               FAQ
             </a>
+            <Link to="/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Jobs
+            </Link>
             {user && (
               <>
                 <Link to="/payment-dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
