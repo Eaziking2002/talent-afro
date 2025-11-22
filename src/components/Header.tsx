@@ -32,6 +32,9 @@ const Header = () => {
           <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Pricing
           </a>
+          <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            FAQ
+          </a>
           {user && (
             <>
               <Link to="/payment-dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -86,6 +89,9 @@ const Header = () => {
             </a>
             <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Pricing
+            </a>
+            <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              FAQ
             </a>
             {user && (
               <>
