@@ -9,6 +9,7 @@ import { Slider } from "@/components/ui/slider";
 import Header from "@/components/Header";
 import { Search, MapPin, Briefcase, DollarSign, Star, ExternalLink, Filter } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import type { Json } from "@/integrations/supabase/types";
 
 interface Job {
   id: string;
@@ -18,13 +19,13 @@ interface Job {
   location: string | null;
   budget_min: number;
   budget_max: number;
-  required_skills: string[];
-  remote: boolean;
+  required_skills: Json | null;
+  remote: boolean | null;
   status: string;
-  is_featured: boolean;
-  ai_scraped: boolean;
+  is_featured: boolean | null;
+  ai_scraped: boolean | null;
   external_url: string | null;
-  verification_status: string;
+  verification_status: string | null;
   created_at: string;
   employers?: { company_name: string };
 }
@@ -94,6 +95,12 @@ const JobBoard = () => {
     return job.company_name || job.employers?.company_name || "Company";
   };
 
+  const getSkills = (job: Job): string[] => {
+    if (!job.required_skills) return [];
+    if (Array.isArray(job.required_skills)) return job.required_skills as string[];
+    return [];
+  };
+
   const filteredJobs = jobs.filter((job) => {
     const matchesSearch =
       searchQuery === "" ||
@@ -117,7 +124,7 @@ const JobBoard = () => {
   });
 
   const uniqueLocations = Array.from(
-    new Set(jobs.map((job) => job.location).filter(Boolean))
+    new Set(jobs.map((job) => job.location).filter((loc): loc is string => Boolean(loc)))
   );
 
   if (loading) {
@@ -287,18 +294,21 @@ const JobBoard = () => {
                     {job.description}
                   </p>
 
-                  {job.required_skills && job.required_skills.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {job.required_skills.slice(0, 6).map((skill, index) => (
-                        <Badge key={index} variant="outline">
-                          {skill}
-                        </Badge>
-                      ))}
-                      {job.required_skills.length > 6 && (
-                        <Badge variant="outline">+{job.required_skills.length - 6} more</Badge>
-                      )}
-                    </div>
-                  )}
+                  {(() => {
+                    const skills = getSkills(job);
+                    return skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {skills.slice(0, 6).map((skill, index) => (
+                          <Badge key={index} variant="outline">
+                            {skill}
+                          </Badge>
+                        ))}
+                        {skills.length > 6 && (
+                          <Badge variant="outline">+{skills.length - 6} more</Badge>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   <div className="flex gap-2">
                     <Button className="flex-1">Apply Now</Button>

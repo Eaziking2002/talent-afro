@@ -139,6 +139,7 @@ export type Database = {
           featured_until: string | null
           id: string
           is_featured: boolean | null
+          location: string | null
           milestones: Json | null
           remote: boolean | null
           required_skills: Json | null
@@ -161,6 +162,7 @@ export type Database = {
           featured_until?: string | null
           id?: string
           is_featured?: boolean | null
+          location?: string | null
           milestones?: Json | null
           remote?: boolean | null
           required_skills?: Json | null
@@ -183,6 +185,7 @@ export type Database = {
           featured_until?: string | null
           id?: string
           is_featured?: boolean | null
+          location?: string | null
           milestones?: Json | null
           remote?: boolean | null
           required_skills?: Json | null
