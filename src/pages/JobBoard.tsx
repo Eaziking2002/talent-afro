@@ -7,10 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import Header from "@/components/Header";
-import { Search, MapPin, Briefcase, DollarSign, Star, ExternalLink, Filter } from "lucide-react";
+import { Search, MapPin, Briefcase, DollarSign, Star, ExternalLink, Filter, Bell } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
 import { VerificationBadge } from "@/components/VerificationBadge";
+import { JobApplicationDialog } from "@/components/JobApplicationDialog";
+import { JobAlertsDialog } from "@/components/JobAlertsDialog";
 
 interface Job {
   id: string;
@@ -43,6 +45,13 @@ const JobBoard = () => {
   const [selectedType, setSelectedType] = useState("all");
   const [budgetRange, setBudgetRange] = useState([0, 10000]);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Application dialog state
+  const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<{ id: string; title: string; companyName: string } | null>(null);
+  
+  // Job alerts dialog state
+  const [jobAlertsDialogOpen, setJobAlertsDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchJobs();
@@ -132,6 +141,15 @@ const JobBoard = () => {
     new Set(jobs.map((job) => job.location).filter((loc): loc is string => Boolean(loc)))
   );
 
+  const handleApplyClick = (job: Job) => {
+    setSelectedJob({
+      id: job.id,
+      title: job.title,
+      companyName: getCompanyName(job),
+    });
+    setApplicationDialogOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -149,9 +167,19 @@ const JobBoard = () => {
       <main className="flex-1 container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold mb-2">Find Your Next Opportunity</h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <h1 className="text-4xl font-bold">Find Your Next Opportunity</h1>
+            <Button
+              onClick={() => setJobAlertsDialogOpen(true)}
+              variant="outline"
+              className="gap-2"
+            >
+              <Bell className="h-4 w-4" />
+              Job Alerts
+            </Button>
+          </div>
           <p className="text-lg text-muted-foreground">
-            Browse {jobs.length} verified job opportunities across Africa
+            Browse {jobs.length} verified job opportunities across Africa and worldwide
           </p>
         </div>
 
@@ -324,7 +352,9 @@ const JobBoard = () => {
                   })()}
 
                   <div className="flex gap-2">
-                    <Button className="flex-1">Apply Now</Button>
+                    <Button className="flex-1" onClick={() => handleApplyClick(job)}>
+                      Apply Now
+                    </Button>
                     {job.external_url && (
                       <Button variant="outline" asChild>
                         <a href={job.external_url} target="_blank" rel="noopener noreferrer">
@@ -340,6 +370,23 @@ const JobBoard = () => {
           )}
         </div>
       </main>
+
+      {/* Application Dialog */}
+      {selectedJob && (
+        <JobApplicationDialog
+          open={applicationDialogOpen}
+          onOpenChange={setApplicationDialogOpen}
+          jobId={selectedJob.id}
+          jobTitle={selectedJob.title}
+          companyName={selectedJob.companyName}
+        />
+      )}
+
+      {/* Job Alerts Dialog */}
+      <JobAlertsDialog
+        open={jobAlertsDialogOpen}
+        onOpenChange={setJobAlertsDialogOpen}
+      />
     </div>
   );
 };
