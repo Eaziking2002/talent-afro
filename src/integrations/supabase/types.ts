@@ -185,7 +185,7 @@ export type Database = {
           created_at: string
           description: string
           duration_days: number | null
-          employer_id: string
+          employer_id: string | null
           external_url: string | null
           featured_until: string | null
           id: string
@@ -208,7 +208,7 @@ export type Database = {
           created_at?: string
           description: string
           duration_days?: number | null
-          employer_id: string
+          employer_id?: string | null
           external_url?: string | null
           featured_until?: string | null
           id?: string
@@ -231,7 +231,7 @@ export type Database = {
           created_at?: string
           description?: string
           duration_days?: number | null
-          employer_id?: string
+          employer_id?: string | null
           external_url?: string | null
           featured_until?: string | null
           id?: string
