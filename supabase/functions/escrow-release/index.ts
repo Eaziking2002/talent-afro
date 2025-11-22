@@ -118,6 +118,44 @@ Deno.serve(async (req) => {
       throw releaseError;
     }
 
+    console.log('Release transaction created successfully:', releaseTransaction);
+
+    // Send email notification to talent
+    try {
+      const { data: talentProfileData, error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .select('full_name, user_id')
+        .eq('user_id', talentProfile.user_id)
+        .single();
+
+      if (talentProfileData && !profileError) {
+        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(talentProfileData.user_id);
+        
+        if (userData?.user?.email) {
+          const { data: jobData } = await supabaseAdmin
+            .from('jobs')
+            .select('title')
+            .eq('id', jobId)
+            .single();
+
+          await supabaseAdmin.functions.invoke('send-transaction-email', {
+            body: {
+              to: userData.user.email,
+              userName: talentProfileData.full_name,
+              transactionType: 'release',
+              amount: escrowTransaction.net_amount_minor_units,
+              currency: escrowTransaction.currency,
+              jobTitle: jobData?.title,
+              transactionId: releaseTransaction.id,
+            }
+          });
+        }
+      }
+    } catch (emailError) {
+      console.error('Failed to send email notification:', emailError);
+      // Don't fail the release if email fails
+    }
+
     // Update talent's wallet balance
     const { data: wallet, error: walletError } = await supabaseAdmin
       .from('wallets')

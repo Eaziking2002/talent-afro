@@ -15,6 +15,8 @@ import { usePayments } from "@/hooks/usePayments";
 import Header from "@/components/Header";
 import { toast } from "@/hooks/use-toast";
 import { Receipt } from "@/components/Receipt";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface Transaction {
   id: string;
@@ -230,6 +232,45 @@ const Wallet = () => {
     );
   };
 
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(20);
+    doc.text("Transaction History", 14, 20);
+    
+    // Add wallet info
+    doc.setFontSize(12);
+    doc.text(`Wallet Balance: ${formatAmount(wallet?.balance_minor_units || 0, wallet?.currency || 'USD')}`, 14, 30);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 37);
+    
+    // Prepare table data
+    const tableData = transactions.map(t => [
+      new Date(t.created_at).toLocaleDateString(),
+      t.type.toUpperCase(),
+      formatAmount(t.amount_minor_units, t.currency),
+      t.status.toUpperCase(),
+      t.jobs?.title || 'N/A',
+    ]);
+    
+    // Add table
+    autoTable(doc, {
+      head: [['Date', 'Type', 'Amount', 'Status', 'Job']],
+      body: tableData,
+      startY: 45,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [59, 130, 246] },
+    });
+    
+    // Save PDF
+    doc.save(`transactions_${new Date().toISOString().split('T')[0]}.pdf`);
+    
+    toast({
+      title: "PDF Exported",
+      description: "Your transaction history has been exported successfully.",
+    });
+  };
+
   const getTypeBadge = (type: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
       escrow: "default",
@@ -440,6 +481,16 @@ const Wallet = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="flex justify-end mb-4">
+                <Button 
+                  onClick={exportToPDF} 
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  Export PDF
+                </Button>
+              </div>
               <div className="space-y-4">
                 {transactions.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">
