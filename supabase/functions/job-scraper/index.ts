@@ -58,7 +58,7 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are a job scraping assistant. Search for real tech job opportunities in Africa, focusing on remote work, freelance, and gig economy positions. 
+            content: `You are a job scraping assistant. Search for real tech job opportunities globally, focusing on remote work, freelance, gig economy, and contract positions. 
             
 Return ONLY valid JSON (no markdown, no code blocks) in this exact format:
 {
@@ -66,27 +66,46 @@ Return ONLY valid JSON (no markdown, no code blocks) in this exact format:
     {
       "title": "job title",
       "company": "company name",
-      "description": "detailed job description",
+      "description": "detailed job description (minimum 100 characters)",
       "location": "city, country or Remote",
-      "budget_min": 100,
-      "budget_max": 5000,
-      "required_skills": ["skill1", "skill2"],
+      "budget_min": 50,
+      "budget_max": 10000,
+      "required_skills": ["skill1", "skill2", "skill3"],
       "remote": true,
-      "url": "https://original-job-posting-url.com"
+      "url": "https://job-source.com/posting"
     }
   ]
 }
 
 Requirements:
-- Find 5-10 real current job opportunities
-- Focus on tech, design, writing, customer service, data entry
-- Budget in USD
-- Only include legitimate job postings
-- Include diverse locations across Africa`,
+- Find 50-100 real current job opportunities
+- Include BOTH national (African) AND international jobs
+- Focus on: tech, design, writing, customer service, data entry, development, marketing, sales, consulting
+- Budget in USD (be realistic based on job type and location)
+- Only include legitimate job postings with real companies
+- Include diverse locations: Africa, Asia, Europe, Americas, Remote worldwide
+- Mix of entry-level to expert positions
+- Variety of job types: full-time remote, part-time, freelance, contract, gig work`,
           },
           {
             role: "user",
-            content: "Find current tech job opportunities in Africa for today's date. Focus on remote, freelance, and micro-gig opportunities.",
+            content: `Find real, current job opportunities for ${new Date().toISOString().split('T')[0]}. 
+            
+Include a diverse mix:
+- 40% International remote jobs (US, Europe, Asia-Pacific)
+- 40% African opportunities (Nigeria, Kenya, South Africa, Egypt, Ghana, etc.)
+- 20% Worldwide remote-friendly positions
+
+Cover multiple categories:
+- Software Development (web, mobile, backend, frontend)
+- Design (UI/UX, graphic design, video editing)
+- Content Creation (writing, copywriting, social media)
+- Data & Analytics (data entry, analysis, research)
+- Customer Service & Virtual Assistance
+- Marketing & Sales
+- Consulting & Business Services
+
+Provide 50-100 legitimate job postings with complete information.`,
           },
         ],
       }),
