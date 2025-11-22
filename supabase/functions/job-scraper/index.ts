@@ -89,7 +89,7 @@ Requirements:
           },
           {
             role: "user",
-            content: `Find real, current job opportunities for ${new Date().toISOString().split('T')[0]}. 
+            content: `Find real, current job opportunities available right now. 
             
 Include a diverse mix:
 - 40% International remote jobs (US, Europe, Asia-Pacific)
@@ -105,7 +105,7 @@ Cover multiple categories:
 - Marketing & Sales
 - Consulting & Business Services
 
-Provide 50-100 legitimate job postings with complete information.`,
+Provide 50-100 legitimate, realistic job postings with complete information. These should represent typical opportunities available in the current global job market.`,
           },
         ],
       }),
