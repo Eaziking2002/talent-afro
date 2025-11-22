@@ -148,6 +148,53 @@ export type Database = {
           },
         ]
       }
+      payment_proofs: {
+        Row: {
+          bank_details: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          proof_url: string
+          transaction_id: string
+          updated_at: string | null
+          user_id: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          bank_details?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          proof_url: string
+          transaction_id: string
+          updated_at?: string | null
+          user_id: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          bank_details?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          proof_url?: string
+          transaction_id?: string
+          updated_at?: string | null
+          user_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_proofs_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           bio: string | null
