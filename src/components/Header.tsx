@@ -98,8 +98,14 @@ const Header = () => {
                   <NavLink to="/certifications" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                     Certifications
                   </NavLink>
+                  <NavLink to="/admin/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    Admin Dashboard
+                  </NavLink>
                 </>
               )}
+              <NavLink to="/talents" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Talents
+              </NavLink>
             </>
           )}
         </nav>
