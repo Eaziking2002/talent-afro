@@ -27,6 +27,11 @@ import NotificationCenter from "./pages/NotificationCenter";
 import SkillsMarketplace from "./pages/SkillsMarketplace";
 import MyServices from "./pages/MyServices";
 import BulkContractImport from "./pages/BulkContractImport";
+import AdvancedAnalytics from "./pages/AdvancedAnalytics";
+import TalentVerification from "./pages/TalentVerification";
+import AdminVerification from "./pages/AdminVerification";
+import ChatRoom from "./pages/ChatRoom";
+import ChatRooms from "./pages/ChatRooms";
 import TalentDashboard from "./pages/TalentDashboard";
 import EmployerAnalytics from "./pages/EmployerAnalytics";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -54,7 +59,8 @@ const App = () => (
             <Route path="/dashboard" element={<TalentDashboard />} />
             <Route path="/employer/analytics" element={<EmployerAnalytics />} />
             <Route path="/employer/dashboard" element={<EmployerDashboard />} />
-            <Route path="/messages" element={<Messages />} />
+            <Route path="/messages" element={<ChatRooms />} />
+            <Route path="/chat" element={<ChatRoom />} />
             <Route path="/admin/jobs" element={<AdminJobManagement />} />
             <Route path="/admin/employers" element={<AdminEmployerVerification />} />
             <Route path="/admin/disputes" element={<AdminDisputeResolution />} />
@@ -70,6 +76,10 @@ const App = () => (
             <Route path="/marketplace" element={<SkillsMarketplace />} />
             <Route path="/my-services" element={<MyServices />} />
             <Route path="/bulk-contracts" element={<BulkContractImport />} />
+            <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
+            <Route path="/verification" element={<TalentVerification />} />
+            <Route path="/admin/verification" element={<AdminVerification />} />
+            <Route path="/chat" element={<ChatRoom />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
