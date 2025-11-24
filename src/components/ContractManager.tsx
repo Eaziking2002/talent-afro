@@ -23,6 +23,8 @@ interface Contract {
   currency: string;
   start_date: string | null;
   end_date: string | null;
+  employer_id: string;
+  talent_id: string;
   jobs: { title: string };
 }
 
@@ -106,12 +108,42 @@ export const ContractManager = () => {
 
   const updateMilestoneStatus = async (milestoneId: string, newStatus: string) => {
     try {
+      const milestone = milestones.find((m) => m.id === milestoneId);
+      if (!milestone) throw new Error("Milestone not found");
+
       const { error } = await supabase
         .from('milestones')
         .update({ status: newStatus })
         .eq('id', milestoneId);
 
       if (error) throw error;
+
+      // Send email notification if milestone approved
+      if (newStatus === "approved" && selectedContractData) {
+        const contract = contracts.find((c) => c.id === selectedContract);
+        const isEmployer = contract && userId === contract.employer_id;
+        const otherPartyId = isEmployer ? contract.talent_id : contract.employer_id;
+
+        const { data: otherPartyProfile } = await supabase
+          .from("profiles")
+          .select("email, full_name")
+          .eq("id", otherPartyId)
+          .single();
+
+        if (otherPartyProfile?.email) {
+          await supabase.functions.invoke("send-transaction-email", {
+            body: {
+              to: otherPartyProfile.email,
+              userName: otherPartyProfile.full_name,
+              transactionType: "payment_released",
+              amount: milestone.amount_minor_units / 100,
+              currency: selectedContractData.currency,
+              jobTitle: selectedContractData.jobs?.title,
+              transactionId: milestoneId,
+            },
+          });
+        }
+      }
 
       toast({
         title: "Success",
@@ -144,6 +176,31 @@ export const ContractManager = () => {
       });
 
       if (error) throw error;
+
+      // Send email notification to other party
+      const contract = contracts.find((c) => c.id === selectedContract);
+      if (contract) {
+        const isEmployer = userId === contract.employer_id;
+        const otherPartyId = isEmployer ? contract.talent_id : contract.employer_id;
+
+        const { data: otherPartyProfile } = await supabase
+          .from("profiles")
+          .select("email, full_name")
+          .eq("id", otherPartyId)
+          .single();
+
+        if (otherPartyProfile?.email) {
+          await supabase.functions.invoke("send-transaction-email", {
+            body: {
+              to: otherPartyProfile.email,
+              userName: otherPartyProfile.full_name,
+              transactionType: "dispute_raised",
+              jobTitle: contract.jobs?.title,
+              disputeReason,
+            },
+          });
+        }
+      }
 
       toast({
         title: "Success",
