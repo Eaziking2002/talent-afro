@@ -4,11 +4,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, AlertCircle, Clock, FileText, MessageSquare, Bell, BellOff } from "lucide-react";
+import { CheckCircle, AlertCircle, Clock, FileText, MessageSquare, Bell, BellOff, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { ContractChat } from "./ContractChat";
 import { RatingPrompt } from "./RatingPrompt";
+import { InvoiceGenerator } from "./InvoiceGenerator";
+import { ContractRenewalDialog } from "./ContractRenewalDialog";
 import { useNotifications } from "@/hooks/useNotifications";
 import {
   Dialog,
@@ -37,6 +39,9 @@ interface Milestone {
   amount_minor_units: number;
   due_date: string | null;
   status: string;
+  created_at: string;
+  updated_at: string;
+  contract_id: string;
 }
 
 export const ContractManager = () => {
@@ -53,6 +58,8 @@ export const ContractManager = () => {
     revieweeId: string;
     revieweeName: string;
   } | null>(null);
+  const [showRenewalDialog, setShowRenewalDialog] = useState(false);
+  const [renewalContract, setRenewalContract] = useState<any>(null);
   const { toast } = useToast();
   const { permission, requestPermission } = useNotifications(userId);
 
@@ -169,6 +176,14 @@ export const ContractManager = () => {
             setShowRatingPrompt(true);
           }
         }
+        // Check if all milestones approved and prompt for renewal
+        const allMilestonesApproved = await checkAllMilestonesApproved(contract.id);
+        if (allMilestonesApproved && isEmployer) {
+          setTimeout(() => {
+            setRenewalContract(contract);
+            setShowRenewalDialog(true);
+          }, 2000);
+        }
       }
 
       toast({
@@ -244,6 +259,15 @@ export const ContractManager = () => {
     } finally {
       setRaisingDispute(false);
     }
+  };
+
+  const checkAllMilestonesApproved = async (contractId: string): Promise<boolean> => {
+    const { data } = await supabase
+      .from("milestones")
+      .select("status")
+      .eq("contract_id", contractId);
+
+    return (data || []).every((m) => m.status === "approved");
   };
 
   const getStatusBadge = (status: string) => {
@@ -337,6 +361,39 @@ export const ContractManager = () => {
                     <BellOff className="w-4 h-4" />
                   )}
                 </Button>
+                
+                {selectedContractData.status === "completed" && (
+                  <>
+                    <InvoiceGenerator
+                      invoiceData={{
+                        contractId: selectedContractData.id,
+                        jobTitle: selectedContractData.jobs.title,
+                        employerName: "Employer",
+                        talentName: "Talent",
+                        currency: selectedContractData.currency,
+                        milestones: milestones,
+                        totalAmount: selectedContractData.total_amount_minor_units,
+                        startDate: selectedContractData.start_date || new Date().toISOString(),
+                        endDate: selectedContractData.end_date || new Date().toISOString(),
+                        platformFee: Math.round(selectedContractData.total_amount_minor_units * 0.05),
+                      }}
+                    />
+                    {contracts.find((c) => c.id === selectedContract)?.employer_id === userId && (
+                      <Button
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => {
+                          setRenewalContract(selectedContractData);
+                          setShowRenewalDialog(true);
+                        }}
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        Renew Contract
+                      </Button>
+                    )}
+                  </>
+                )}
+                
                 <Dialog open={showDisputeDialog} onOpenChange={setShowDisputeDialog}>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="gap-2">
@@ -455,6 +512,19 @@ export const ContractManager = () => {
           revieweeId={ratingData.revieweeId}
           revieweeName={ratingData.revieweeName}
           reviewerId={userId}
+        />
+      )}
+
+      {showRenewalDialog && renewalContract && (
+        <ContractRenewalDialog
+          isOpen={showRenewalDialog}
+          onClose={() => {
+            setShowRenewalDialog(false);
+            setRenewalContract(null);
+            fetchContracts();
+          }}
+          originalContract={renewalContract}
+          talentName="Talent"
         />
       )}
     </div>
