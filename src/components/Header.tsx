@@ -78,6 +78,9 @@ const Header = () => {
               <Link to="/bulk-contracts" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Bulk Import
               </Link>
+              <Link to="/verification" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Verification
+              </Link>
               <Link to="/messages" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Messages
               </Link>
@@ -109,6 +112,12 @@ const Header = () => {
                   </NavLink>
                   <NavLink to="/admin/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                     Admin Dashboard
+                  </NavLink>
+                  <NavLink to="/advanced-analytics" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    Advanced Analytics
+                  </NavLink>
+                  <NavLink to="/admin/verification" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    Verification Review
                   </NavLink>
                 </>
               )}

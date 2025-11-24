@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Award, Star, CheckCircle, ExternalLink, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
+import { VerificationBadges } from "@/components/VerificationBadges";
 
 export default function TalentShowcase() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -121,9 +122,7 @@ export default function TalentShowcase() {
                     <div className="flex-1">
                       <CardTitle className="flex items-center gap-2">
                         {talent.full_name}
-                        {talent.id_verified && (
-                          <CheckCircle className="h-4 w-4 text-blue-500" />
-                        )}
+                        <VerificationBadges talentId={talent.id} inline />
                       </CardTitle>
                       {talent.location && (
                         <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">

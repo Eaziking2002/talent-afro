@@ -44,6 +44,30 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_snapshots: {
+        Row: {
+          created_at: string
+          id: string
+          metric_data: Json
+          metric_type: string
+          snapshot_date: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metric_data: Json
+          metric_type: string
+          snapshot_date: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metric_data?: Json
+          metric_type?: string
+          snapshot_date?: string
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           applicant_id: string
@@ -135,6 +159,114 @@ export type Database = {
             columns: ["talent_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          edited_at: string | null
+          file_name: string | null
+          file_type: string | null
+          file_url: string | null
+          id: string
+          message_text: string | null
+          message_type: string
+          reactions: Json | null
+          replied_to: string | null
+          room_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          file_name?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          message_text?: string | null
+          message_type?: string
+          reactions?: Json | null
+          replied_to?: string | null
+          room_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          file_name?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          message_text?: string | null
+          message_type?: string
+          reactions?: Json | null
+          replied_to?: string | null
+          room_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_replied_to_fkey"
+            columns: ["replied_to"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_rooms: {
+        Row: {
+          application_id: string | null
+          contract_id: string | null
+          created_at: string
+          id: string
+          participant_ids: string[]
+          room_type: string
+          updated_at: string
+        }
+        Insert: {
+          application_id?: string | null
+          contract_id?: string | null
+          created_at?: string
+          id?: string
+          participant_ids: string[]
+          room_type?: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string | null
+          contract_id?: string | null
+          created_at?: string
+          id?: string
+          participant_ids?: string[]
+          room_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_rooms_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_rooms_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
             referencedColumns: ["id"]
           },
         ]
@@ -1539,6 +1671,35 @@ export type Database = {
           },
         ]
       }
+      typing_indicators: {
+        Row: {
+          id: string
+          room_id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          room_id: string
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          room_id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "typing_indicators_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1559,6 +1720,97 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      verification_badges: {
+        Row: {
+          badge_level: string | null
+          badge_type: string
+          expires_at: string | null
+          id: string
+          issued_at: string
+          issued_by: string
+          metadata: Json | null
+          talent_id: string
+        }
+        Insert: {
+          badge_level?: string | null
+          badge_type: string
+          expires_at?: string | null
+          id?: string
+          issued_at?: string
+          issued_by: string
+          metadata?: Json | null
+          talent_id: string
+        }
+        Update: {
+          badge_level?: string | null
+          badge_type?: string
+          expires_at?: string | null
+          id?: string
+          issued_at?: string
+          issued_by?: string
+          metadata?: Json | null
+          talent_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_badges_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verification_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          documents: Json | null
+          id: string
+          request_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          talent_id: string
+          updated_at: string
+          verification_data: Json
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          documents?: Json | null
+          id?: string
+          request_type: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          talent_id: string
+          updated_at?: string
+          verification_data?: Json
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          documents?: Json | null
+          id?: string
+          request_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          talent_id?: string
+          updated_at?: string
+          verification_data?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_requests_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       video_calls: {
         Row: {
