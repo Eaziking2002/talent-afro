@@ -82,6 +82,8 @@ const Header = () => {
                   </NavLink>
               <NavLink to="/admin/disputes">Admin: Disputes</NavLink>
               <NavLink to="/analytics">Analytics</NavLink>
+              <NavLink to="/leaderboard">Leaderboard</NavLink>
+              <NavLink to="/templates">Templates</NavLink>
                   <NavLink to="/admin/disputes" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                     Admin: Disputes
                   </NavLink>
@@ -167,6 +169,12 @@ const Header = () => {
                     </NavLink>
                     <NavLink to="/analytics" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                       Analytics
+                    </NavLink>
+                    <NavLink to="/leaderboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                      Leaderboard
+                    </NavLink>
+                    <NavLink to="/templates" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                      Templates
                     </NavLink>
                   </>
                 )}

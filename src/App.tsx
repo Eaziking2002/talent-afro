@@ -16,6 +16,9 @@ import AdminJobManagement from "./pages/AdminJobManagement";
 import AdminEmployerVerification from "./pages/AdminEmployerVerification";
 import AdminDisputeResolution from "./pages/AdminDisputeResolution";
 import ContractAnalytics from "./pages/ContractAnalytics";
+import Leaderboard from "./pages/Leaderboard";
+import ContractTemplates from "./pages/ContractTemplates";
+import ResetPassword from "./pages/ResetPassword";
 import TalentDashboard from "./pages/TalentDashboard";
 import EmployerAnalytics from "./pages/EmployerAnalytics";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -48,6 +51,9 @@ const App = () => (
             <Route path="/admin/employers" element={<AdminEmployerVerification />} />
           <Route path="/admin/disputes" element={<AdminDisputeResolution />} />
           <Route path="/analytics" element={<ContractAnalytics />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/templates" element={<ContractTemplates />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

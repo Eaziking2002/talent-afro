@@ -99,6 +99,7 @@ export type Database = {
           id: string
           message_text: string
           read_at: string | null
+          response_time_minutes: number | null
           sender_id: string
         }
         Insert: {
@@ -110,6 +111,7 @@ export type Database = {
           id?: string
           message_text: string
           read_at?: string | null
+          response_time_minutes?: number | null
           sender_id: string
         }
         Update: {
@@ -121,6 +123,7 @@ export type Database = {
           id?: string
           message_text?: string
           read_at?: string | null
+          response_time_minutes?: number | null
           sender_id?: string
         }
         Relationships: [
@@ -129,6 +132,53 @@ export type Database = {
             columns: ["contract_id"]
             isOneToOne: false
             referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_templates: {
+        Row: {
+          created_at: string | null
+          default_currency: string | null
+          default_duration_days: number | null
+          default_terms: string | null
+          description: string | null
+          employer_id: string
+          id: string
+          milestones: Json | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          default_currency?: string | null
+          default_duration_days?: number | null
+          default_terms?: string | null
+          description?: string | null
+          employer_id: string
+          id?: string
+          milestones?: Json | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          default_currency?: string | null
+          default_duration_days?: number | null
+          default_terms?: string | null
+          description?: string | null
+          employer_id?: string
+          id?: string
+          milestones?: Json | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_templates_employer_id_fkey"
+            columns: ["employer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -142,7 +192,9 @@ export type Database = {
           end_date: string | null
           escrow_status: string | null
           id: string
+          is_renewal: boolean | null
           job_id: string
+          parent_contract_id: string | null
           start_date: string | null
           status: string
           talent_id: string
@@ -158,7 +210,9 @@ export type Database = {
           end_date?: string | null
           escrow_status?: string | null
           id?: string
+          is_renewal?: boolean | null
           job_id: string
+          parent_contract_id?: string | null
           start_date?: string | null
           status?: string
           talent_id: string
@@ -174,7 +228,9 @@ export type Database = {
           end_date?: string | null
           escrow_status?: string | null
           id?: string
+          is_renewal?: boolean | null
           job_id?: string
+          parent_contract_id?: string | null
           start_date?: string | null
           status?: string
           talent_id?: string
@@ -195,6 +251,13 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_parent_contract_id_fkey"
+            columns: ["parent_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
             referencedColumns: ["id"]
           },
         ]
