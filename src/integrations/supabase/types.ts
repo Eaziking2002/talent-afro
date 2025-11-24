@@ -89,6 +89,41 @@ export type Database = {
           },
         ]
       }
+      contract_messages: {
+        Row: {
+          contract_id: string
+          created_at: string
+          id: string
+          message_text: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          id?: string
+          message_text: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          id?: string
+          message_text?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_messages_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contracts: {
         Row: {
           application_id: string
