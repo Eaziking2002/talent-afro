@@ -545,6 +545,7 @@ export type Database = {
           company_name: string
           created_at: string
           id: string
+          last_active_at: string | null
           successful_hires: number | null
           total_jobs_posted: number | null
           total_reviews: number | null
@@ -564,6 +565,7 @@ export type Database = {
           company_name: string
           created_at?: string
           id?: string
+          last_active_at?: string | null
           successful_hires?: number | null
           total_jobs_posted?: number | null
           total_reviews?: number | null
@@ -583,6 +585,7 @@ export type Database = {
           company_name?: string
           created_at?: string
           id?: string
+          last_active_at?: string | null
           successful_hires?: number | null
           total_jobs_posted?: number | null
           total_reviews?: number | null
@@ -1175,6 +1178,7 @@ export type Database = {
           full_name: string
           id: string
           id_verified: boolean | null
+          last_active_at: string | null
           location: string | null
           phone_number: string | null
           portfolio_links: Json | null
@@ -1194,6 +1198,7 @@ export type Database = {
           full_name: string
           id?: string
           id_verified?: boolean | null
+          last_active_at?: string | null
           location?: string | null
           phone_number?: string | null
           portfolio_links?: Json | null
@@ -1213,6 +1218,7 @@ export type Database = {
           full_name?: string
           id?: string
           id_verified?: boolean | null
+          last_active_at?: string | null
           location?: string | null
           phone_number?: string | null
           portfolio_links?: Json | null
@@ -1299,6 +1305,133 @@ export type Database = {
             columns: ["contract_id"]
             isOneToOne: false
             referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_searches: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      service_listings: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          currency: string
+          delivery_days: number
+          description: string
+          id: string
+          price_minor_units: number
+          requirements: string | null
+          talent_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          created_at?: string
+          currency?: string
+          delivery_days: number
+          description: string
+          id?: string
+          price_minor_units: number
+          requirements?: string | null
+          talent_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          currency?: string
+          delivery_days?: number
+          description?: string
+          id?: string
+          price_minor_units?: number
+          requirements?: string | null
+          talent_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_listings_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_purchases: {
+        Row: {
+          amount_minor_units: number
+          buyer_id: string
+          created_at: string
+          currency: string
+          id: string
+          requirements_text: string | null
+          seller_id: string
+          service_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_minor_units: number
+          buyer_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          requirements_text?: string | null
+          seller_id: string
+          service_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_minor_units?: number
+          buyer_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          requirements_text?: string | null
+          seller_id?: string
+          service_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_purchases_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_listings"
             referencedColumns: ["id"]
           },
         ]
@@ -1505,6 +1638,14 @@ export type Database = {
     Functions: {
       calculate_employer_trust_score: {
         Args: { employer_id: string }
+        Returns: number
+      }
+      calculate_reputation_with_decay: {
+        Args: {
+          base_rating: number
+          last_active: string
+          total_reviews: number
+        }
         Returns: number
       }
       check_milestone_dependencies: {
