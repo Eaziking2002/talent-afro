@@ -233,6 +233,65 @@ export type Database = {
           },
         ]
       }
+      contract_negotiations: {
+        Row: {
+          counter_offer_amount_minor_units: number | null
+          counter_offer_milestones: Json | null
+          counter_offer_terms: string | null
+          created_at: string | null
+          currency: string
+          employer_id: string
+          id: string
+          job_id: string
+          proposed_amount_minor_units: number
+          proposed_milestones: Json | null
+          proposed_terms: string | null
+          status: string
+          talent_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          counter_offer_amount_minor_units?: number | null
+          counter_offer_milestones?: Json | null
+          counter_offer_terms?: string | null
+          created_at?: string | null
+          currency?: string
+          employer_id: string
+          id?: string
+          job_id: string
+          proposed_amount_minor_units: number
+          proposed_milestones?: Json | null
+          proposed_terms?: string | null
+          status?: string
+          talent_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          counter_offer_amount_minor_units?: number | null
+          counter_offer_milestones?: Json | null
+          counter_offer_terms?: string | null
+          created_at?: string | null
+          currency?: string
+          employer_id?: string
+          id?: string
+          job_id?: string
+          proposed_amount_minor_units?: number
+          proposed_milestones?: Json | null
+          proposed_terms?: string | null
+          status?: string
+          talent_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_negotiations_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contract_templates: {
         Row: {
           created_at: string | null
@@ -886,6 +945,38 @@ export type Database = {
             columns: ["contract_id"]
             isOneToOne: false
             referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      negotiation_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          message_text: string
+          negotiation_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message_text: string
+          negotiation_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message_text?: string
+          negotiation_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "negotiation_messages_negotiation_id_fkey"
+            columns: ["negotiation_id"]
+            isOneToOne: false
+            referencedRelation: "contract_negotiations"
             referencedColumns: ["id"]
           },
         ]
