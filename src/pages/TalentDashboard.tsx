@@ -5,12 +5,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
-import { Briefcase, Bookmark, Bell, ExternalLink, Trash2, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Briefcase, Bookmark, Bell, ExternalLink, Trash2, Clock, CheckCircle, XCircle, FileBox } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { JobAlertsDialog } from "@/components/JobAlertsDialog";
 import JobRecommendations from "@/components/JobRecommendations";
+import { PortfolioUpload } from "@/components/PortfolioUpload";
+import { PortfolioGallery } from "@/components/PortfolioGallery";
+import { ContractManager } from "@/components/ContractManager";
 import type { Json } from "@/integrations/supabase/types";
 
 interface Application {
@@ -53,6 +56,7 @@ const TalentDashboard = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [jobAlertsDialogOpen, setJobAlertsDialogOpen] = useState(false);
+  const [profileId, setProfileId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -77,6 +81,8 @@ const TalentDashboard = () => {
         navigate("/profile-setup");
         return;
       }
+
+      setProfileId(profile.id);
 
       // Fetch applications
       const { data: apps, error: appsError } = await supabase
@@ -216,7 +222,7 @@ const TalentDashboard = () => {
         </div>
 
         <Tabs defaultValue="applications" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto">
             <TabsTrigger value="applications" className="gap-2">
               <Briefcase className="h-4 w-4" />
               Applications ({applications.length})
@@ -228,6 +234,14 @@ const TalentDashboard = () => {
             <TabsTrigger value="alerts" className="gap-2">
               <Bell className="h-4 w-4" />
               Job Alerts
+            </TabsTrigger>
+            <TabsTrigger value="portfolio" className="gap-2">
+              <FileBox className="h-4 w-4" />
+              Portfolio
+            </TabsTrigger>
+            <TabsTrigger value="contracts" className="gap-2">
+              <FileBox className="h-4 w-4" />
+              Contracts
             </TabsTrigger>
           </TabsList>
 
@@ -373,6 +387,20 @@ const TalentDashboard = () => {
                 </Button>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Portfolio Tab */}
+          <TabsContent value="portfolio" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">My Portfolio</h2>
+              {profileId && <PortfolioUpload profileId={profileId} onUploadComplete={fetchDashboardData} />}
+            </div>
+            {profileId && <PortfolioGallery profileId={profileId} isOwner={true} />}
+          </TabsContent>
+
+          {/* Contracts Tab */}
+          <TabsContent value="contracts">
+            <ContractManager />
           </TabsContent>
         </Tabs>
       </main>

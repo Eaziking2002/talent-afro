@@ -89,14 +89,164 @@ export type Database = {
           },
         ]
       }
+      contracts: {
+        Row: {
+          application_id: string
+          created_at: string
+          currency: string
+          employer_id: string
+          end_date: string | null
+          id: string
+          job_id: string
+          start_date: string | null
+          status: string
+          talent_id: string
+          terms: string | null
+          total_amount_minor_units: number
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          currency?: string
+          employer_id: string
+          end_date?: string | null
+          id?: string
+          job_id: string
+          start_date?: string | null
+          status?: string
+          talent_id: string
+          terms?: string | null
+          total_amount_minor_units: number
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          currency?: string
+          employer_id?: string
+          end_date?: string | null
+          id?: string
+          job_id?: string
+          start_date?: string | null
+          status?: string
+          talent_id?: string
+          terms?: string | null
+          total_amount_minor_units?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deliverables: {
+        Row: {
+          description: string
+          file_url: string | null
+          id: string
+          milestone_id: string
+          reviewed_at: string | null
+          status: string
+          submitted_at: string
+          submitted_by: string
+        }
+        Insert: {
+          description: string
+          file_url?: string | null
+          id?: string
+          milestone_id: string
+          reviewed_at?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by: string
+        }
+        Update: {
+          description?: string
+          file_url?: string | null
+          id?: string
+          milestone_id?: string
+          reviewed_at?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliverables_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "milestones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disputes: {
+        Row: {
+          contract_id: string
+          created_at: string
+          id: string
+          raised_by: string
+          reason: string
+          resolution: string | null
+          resolved_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          id?: string
+          raised_by: string
+          reason: string
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          id?: string
+          raised_by?: string
+          reason?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employers: {
         Row: {
+          average_rating: number | null
           company_description: string | null
           company_name: string
           created_at: string
           id: string
           successful_hires: number | null
           total_jobs_posted: number | null
+          total_reviews: number | null
           trust_score: number | null
           updated_at: string
           user_id: string
@@ -108,12 +258,14 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          average_rating?: number | null
           company_description?: string | null
           company_name: string
           created_at?: string
           id?: string
           successful_hires?: number | null
           total_jobs_posted?: number | null
+          total_reviews?: number | null
           trust_score?: number | null
           updated_at?: string
           user_id: string
@@ -125,12 +277,14 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          average_rating?: number | null
           company_description?: string | null
           company_name?: string
           created_at?: string
           id?: string
           successful_hires?: number | null
           total_jobs_posted?: number | null
+          total_reviews?: number | null
           trust_score?: number | null
           updated_at?: string
           user_id?: string
@@ -421,6 +575,50 @@ export type Database = {
           },
         ]
       }
+      milestones: {
+        Row: {
+          amount_minor_units: number
+          contract_id: string
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount_minor_units: number
+          contract_id: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount_minor_units?: number
+          contract_id?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_proofs: {
         Row: {
           bank_details: string | null
@@ -468,8 +666,56 @@ export type Database = {
           },
         ]
       }
+      portfolio_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number | null
+          file_type: string
+          file_url: string
+          id: string
+          profile_id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          profile_id: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          profile_id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_items_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          average_rating: number | null
           bio: string | null
           created_at: string
           email: string | null
@@ -482,11 +728,13 @@ export type Database = {
           rating: number | null
           skills: Json | null
           total_gigs_completed: number | null
+          total_reviews: number | null
           updated_at: string
           user_id: string
           video_intro_url: string | null
         }
         Insert: {
+          average_rating?: number | null
           bio?: string | null
           created_at?: string
           email?: string | null
@@ -499,11 +747,13 @@ export type Database = {
           rating?: number | null
           skills?: Json | null
           total_gigs_completed?: number | null
+          total_reviews?: number | null
           updated_at?: string
           user_id: string
           video_intro_url?: string | null
         }
         Update: {
+          average_rating?: number | null
           bio?: string | null
           created_at?: string
           email?: string | null
@@ -516,11 +766,53 @@ export type Database = {
           rating?: number | null
           skills?: Json | null
           total_gigs_completed?: number | null
+          total_reviews?: number | null
           updated_at?: string
           user_id?: string
           video_intro_url?: string | null
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          contract_id: string
+          created_at: string
+          id: string
+          rating: number
+          review_text: string | null
+          reviewee_id: string
+          reviewer_id: string
+          updated_at: string
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          id?: string
+          rating: number
+          review_text?: string | null
+          reviewee_id: string
+          reviewer_id: string
+          updated_at?: string
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          review_text?: string | null
+          reviewee_id?: string
+          reviewer_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {
@@ -607,6 +899,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      video_calls: {
+        Row: {
+          application_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          initiator_id: string
+          recipient_id: string
+          room_id: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          initiator_id: string
+          recipient_id: string
+          room_id: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          initiator_id?: string
+          recipient_id?: string
+          room_id?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_calls_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wallets: {
         Row: {
