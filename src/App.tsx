@@ -14,6 +14,7 @@ import AdminPaymentVerification from "./pages/AdminPaymentVerification";
 import JobBoard from "./pages/JobBoard";
 import AdminJobManagement from "./pages/AdminJobManagement";
 import AdminEmployerVerification from "./pages/AdminEmployerVerification";
+import AdminDisputeResolution from "./pages/AdminDisputeResolution";
 import TalentDashboard from "./pages/TalentDashboard";
 import EmployerAnalytics from "./pages/EmployerAnalytics";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/messages" element={<Messages />} />
             <Route path="/admin/jobs" element={<AdminJobManagement />} />
             <Route path="/admin/employers" element={<AdminEmployerVerification />} />
+            <Route path="/admin/disputes" element={<AdminDisputeResolution />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -4,8 +4,17 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, AlertCircle, Clock, FileText } from "lucide-react";
+import { CheckCircle, AlertCircle, Clock, FileText, MessageSquare } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
+import { ContractChat } from "./ContractChat";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Contract {
   id: string;
@@ -31,6 +40,10 @@ export const ContractManager = () => {
   const [selectedContract, setSelectedContract] = useState<string | null>(null);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [disputeReason, setDisputeReason] = useState("");
+  const [raisingDispute, setRaisingDispute] = useState(false);
+  const [showDisputeDialog, setShowDisputeDialog] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -47,6 +60,8 @@ export const ContractManager = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      setUserId(user.id);
 
       const { data, error } = await supabase
         .from('contracts')
@@ -100,7 +115,9 @@ export const ContractManager = () => {
 
       toast({
         title: "Success",
-        description: "Milestone status updated",
+        description: newStatus === "approved" 
+          ? "Milestone approved! Payment has been released automatically." 
+          : "Milestone status updated",
       });
 
       if (selectedContract) {
@@ -112,6 +129,37 @@ export const ContractManager = () => {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const raiseDispute = async () => {
+    if (!disputeReason.trim() || !selectedContract) return;
+
+    try {
+      setRaisingDispute(true);
+      const { error } = await supabase.from("disputes").insert({
+        contract_id: selectedContract,
+        raised_by: userId!,
+        reason: disputeReason,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Dispute raised successfully. An admin will review it soon.",
+      });
+
+      setShowDisputeDialog(false);
+      setDisputeReason("");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setRaisingDispute(false);
     }
   };
 
@@ -183,63 +231,120 @@ export const ContractManager = () => {
       </div>
 
       {selectedContractData && (
-        <Card className="p-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-4">Contract Progress</h2>
-            <Progress value={progress} className="mb-2" />
-            <p className="text-sm text-muted-foreground">
-              {completedMilestones} of {milestones.length} milestones completed
-            </p>
-          </div>
+        <>
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold mb-4">Contract Progress</h2>
+                <Progress value={progress} className="mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  {completedMilestones} of {milestones.length} milestones completed
+                </p>
+              </div>
+              <Dialog open={showDisputeDialog} onOpenChange={setShowDisputeDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <AlertCircle className="w-4 h-4" />
+                    Raise Dispute
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Raise a Dispute</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Describe the issue you're experiencing with this contract. An admin will review and help mediate.
+                    </p>
+                    <Textarea
+                      value={disputeReason}
+                      onChange={(e) => setDisputeReason(e.target.value)}
+                      placeholder="Describe the issue..."
+                      rows={4}
+                    />
+                    <Button
+                      onClick={raiseDispute}
+                      disabled={raisingDispute || !disputeReason.trim()}
+                      className="w-full"
+                    >
+                      {raisingDispute ? "Submitting..." : "Submit Dispute"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Milestones</h3>
-            {milestones.map((milestone) => (
-              <Card key={milestone.id} className="p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    {getStatusIcon(milestone.status)}
-                    <div>
-                      <h4 className="font-semibold">{milestone.title}</h4>
-                      {milestone.description && (
-                        <p className="text-sm text-muted-foreground">{milestone.description}</p>
-                      )}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Milestones</h3>
+              {milestones.map((milestone) => (
+                <Card key={milestone.id} className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      {getStatusIcon(milestone.status)}
+                      <div>
+                        <h4 className="font-semibold">{milestone.title}</h4>
+                        {milestone.description && (
+                          <p className="text-sm text-muted-foreground">{milestone.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-medium">
+                        {(milestone.amount_minor_units / 100).toFixed(2)} {selectedContractData.currency}
+                      </div>
+                      {getStatusBadge(milestone.status)}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-medium">
-                      {(milestone.amount_minor_units / 100).toFixed(2)} {selectedContractData.currency}
-                    </div>
-                    {getStatusBadge(milestone.status)}
+                  {milestone.due_date && (
+                    <p className="text-sm text-muted-foreground">
+                      Due: {new Date(milestone.due_date).toLocaleDateString()}
+                    </p>
+                  )}
+                  <div className="flex gap-2 mt-4">
+                    {milestone.status === 'pending' && (
+                      <Button
+                        size="sm"
+                        onClick={() => updateMilestoneStatus(milestone.id, 'in_progress')}
+                      >
+                        Start Work
+                      </Button>
+                    )}
+                    {milestone.status === 'in_progress' && (
+                      <Button
+                        size="sm"
+                        onClick={() => updateMilestoneStatus(milestone.id, 'submitted')}
+                      >
+                        Submit for Review
+                      </Button>
+                    )}
+                    {milestone.status === 'submitted' && (
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => updateMilestoneStatus(milestone.id, 'approved')}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          Approve & Release Payment
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => updateMilestoneStatus(milestone.id, 'rejected')}
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    )}
                   </div>
-                </div>
-                {milestone.due_date && (
-                  <p className="text-sm text-muted-foreground">
-                    Due: {new Date(milestone.due_date).toLocaleDateString()}
-                  </p>
-                )}
-                <div className="flex gap-2 mt-4">
-                  {milestone.status === 'pending' && (
-                    <Button
-                      size="sm"
-                      onClick={() => updateMilestoneStatus(milestone.id, 'in_progress')}
-                    >
-                      Start Work
-                    </Button>
-                  )}
-                  {milestone.status === 'in_progress' && (
-                    <Button
-                      size="sm"
-                      onClick={() => updateMilestoneStatus(milestone.id, 'submitted')}
-                    >
-                      Submit for Review
-                    </Button>
-                  )}
-                </div>
-              </Card>
-            ))}
-          </div>
-        </Card>
+                </Card>
+              ))}
+            </div>
+          </Card>
+
+          {userId && (
+            <ContractChat contractId={selectedContract} currentUserId={userId} />
+          )}
+        </>
       )}
     </div>
   );
