@@ -693,6 +693,48 @@ export type Database = {
           },
         ]
       }
+      job_matches: {
+        Row: {
+          created_at: string | null
+          id: string
+          job_id: string
+          match_reasons: Json | null
+          match_score: number
+          talent_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          job_id: string
+          match_reasons?: Json | null
+          match_score: number
+          talent_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          job_id?: string
+          match_reasons?: Json | null
+          match_score?: number
+          talent_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_matches_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_matches_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_scraping_logs: {
         Row: {
           created_at: string | null
@@ -910,6 +952,7 @@ export type Database = {
           amount_minor_units: number
           contract_id: string
           created_at: string
+          depends_on: string | null
           description: string | null
           due_date: string | null
           id: string
@@ -921,6 +964,7 @@ export type Database = {
           amount_minor_units: number
           contract_id: string
           created_at?: string
+          depends_on?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
@@ -932,6 +976,7 @@ export type Database = {
           amount_minor_units?: number
           contract_id?: string
           created_at?: string
+          depends_on?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
@@ -945,6 +990,13 @@ export type Database = {
             columns: ["contract_id"]
             isOneToOne: false
             referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "milestones_depends_on_fkey"
+            columns: ["depends_on"]
+            isOneToOne: false
+            referencedRelation: "milestones"
             referencedColumns: ["id"]
           },
         ]
@@ -980,6 +1032,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_read: boolean | null
+          metadata: Json | null
+          related_id: string | null
+          related_type: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_read?: boolean | null
+          metadata?: Json | null
+          related_id?: string | null
+          related_type?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_read?: boolean | null
+          metadata?: Json | null
+          related_id?: string | null
+          related_type?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       payment_proofs: {
         Row: {
@@ -1415,6 +1506,10 @@ export type Database = {
       calculate_employer_trust_score: {
         Args: { employer_id: string }
         Returns: number
+      }
+      check_milestone_dependencies: {
+        Args: { milestone_id: string }
+        Returns: boolean
       }
       has_role: {
         Args: {

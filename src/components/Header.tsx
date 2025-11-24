@@ -106,6 +106,9 @@ const Header = () => {
               <NavLink to="/talents" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Talents
               </NavLink>
+              <Link to="/notifications" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative">
+                Notifications
+              </Link>
             </>
           )}
         </nav>
