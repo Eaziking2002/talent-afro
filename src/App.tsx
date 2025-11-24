@@ -23,6 +23,7 @@ import ReferralRewards from "./pages/ReferralRewards";
 import TalentCertifications from "./pages/TalentCertifications";
 import AdminDashboard from "./pages/AdminDashboard";
 import TalentShowcase from "./pages/TalentShowcase";
+import NotificationCenter from "./pages/NotificationCenter";
 import TalentDashboard from "./pages/TalentDashboard";
 import EmployerAnalytics from "./pages/EmployerAnalytics";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/certifications" element={<TalentCertifications />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/talents" element={<TalentShowcase />} />
+            <Route path="/notifications" element={<NotificationCenter />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
