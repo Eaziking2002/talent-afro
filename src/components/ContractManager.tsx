@@ -4,10 +4,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, AlertCircle, Clock, FileText, MessageSquare } from "lucide-react";
+import { CheckCircle, AlertCircle, Clock, FileText, MessageSquare, Bell, BellOff } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { ContractChat } from "./ContractChat";
+import { RatingPrompt } from "./RatingPrompt";
+import { useNotifications } from "@/hooks/useNotifications";
 import {
   Dialog,
   DialogContent,
@@ -46,7 +48,13 @@ export const ContractManager = () => {
   const [disputeReason, setDisputeReason] = useState("");
   const [raisingDispute, setRaisingDispute] = useState(false);
   const [showDisputeDialog, setShowDisputeDialog] = useState(false);
+  const [showRatingPrompt, setShowRatingPrompt] = useState(false);
+  const [ratingData, setRatingData] = useState<{
+    revieweeId: string;
+    revieweeName: string;
+  } | null>(null);
   const { toast } = useToast();
+  const { permission, requestPermission } = useNotifications(userId);
 
   useEffect(() => {
     fetchContracts();
@@ -118,7 +126,7 @@ export const ContractManager = () => {
 
       if (error) throw error;
 
-      // Send email notification if milestone approved
+      // Send email notification and show rating prompt if milestone approved
       if (newStatus === "approved" && selectedContractData) {
         const contract = contracts.find((c) => c.id === selectedContract);
         const isEmployer = contract && userId === contract.employer_id;
@@ -142,6 +150,24 @@ export const ContractManager = () => {
               transactionId: milestoneId,
             },
           });
+        }
+
+        // Check if user has already reviewed
+        if (contract) {
+          const { data: existingReview } = await supabase
+            .from("reviews")
+            .select("id")
+            .eq("contract_id", contract.id)
+            .eq("reviewer_id", userId!)
+            .single();
+
+          if (!existingReview && otherPartyProfile) {
+            setRatingData({
+              revieweeId: otherPartyId,
+              revieweeName: otherPartyProfile.full_name,
+            });
+            setShowRatingPrompt(true);
+          }
         }
       }
 
@@ -298,37 +324,51 @@ export const ContractManager = () => {
                   {completedMilestones} of {milestones.length} milestones completed
                 </p>
               </div>
-              <Dialog open={showDisputeDialog} onOpenChange={setShowDisputeDialog}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="gap-2">
-                    <AlertCircle className="w-4 h-4" />
-                    Raise Dispute
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Raise a Dispute</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      Describe the issue you're experiencing with this contract. An admin will review and help mediate.
-                    </p>
-                    <Textarea
-                      value={disputeReason}
-                      onChange={(e) => setDisputeReason(e.target.value)}
-                      placeholder="Describe the issue..."
-                      rows={4}
-                    />
-                    <Button
-                      onClick={raiseDispute}
-                      disabled={raisingDispute || !disputeReason.trim()}
-                      className="w-full"
-                    >
-                      {raisingDispute ? "Submitting..." : "Submit Dispute"}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={requestPermission}
+                  title={permission === "granted" ? "Notifications enabled" : "Enable notifications"}
+                >
+                  {permission === "granted" ? (
+                    <Bell className="w-4 h-4" />
+                  ) : (
+                    <BellOff className="w-4 h-4" />
+                  )}
+                </Button>
+                <Dialog open={showDisputeDialog} onOpenChange={setShowDisputeDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      Raise Dispute
                     </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Raise a Dispute</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <p className="text-sm text-muted-foreground">
+                        Describe the issue you're experiencing with this contract. An admin will review and help mediate.
+                      </p>
+                      <Textarea
+                        value={disputeReason}
+                        onChange={(e) => setDisputeReason(e.target.value)}
+                        placeholder="Describe the issue..."
+                        rows={4}
+                      />
+                      <Button
+                        onClick={raiseDispute}
+                        disabled={raisingDispute || !disputeReason.trim()}
+                        className="w-full"
+                      >
+                        {raisingDispute ? "Submitting..." : "Submit Dispute"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -402,6 +442,20 @@ export const ContractManager = () => {
             <ContractChat contractId={selectedContract} currentUserId={userId} />
           )}
         </>
+      )}
+
+      {showRatingPrompt && ratingData && selectedContract && userId && (
+        <RatingPrompt
+          isOpen={showRatingPrompt}
+          onClose={() => {
+            setShowRatingPrompt(false);
+            setRatingData(null);
+          }}
+          contractId={selectedContract}
+          revieweeId={ratingData.revieweeId}
+          revieweeName={ratingData.revieweeName}
+          reviewerId={userId}
+        />
       )}
     </div>
   );
