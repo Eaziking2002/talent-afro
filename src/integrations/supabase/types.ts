@@ -93,6 +93,9 @@ export type Database = {
         Row: {
           contract_id: string
           created_at: string
+          file_name: string | null
+          file_type: string | null
+          file_url: string | null
           id: string
           message_text: string
           read_at: string | null
@@ -101,6 +104,9 @@ export type Database = {
         Insert: {
           contract_id: string
           created_at?: string
+          file_name?: string | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           message_text: string
           read_at?: string | null
@@ -109,6 +115,9 @@ export type Database = {
         Update: {
           contract_id?: string
           created_at?: string
+          file_name?: string | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           message_text?: string
           read_at?: string | null
@@ -131,6 +140,7 @@ export type Database = {
           currency: string
           employer_id: string
           end_date: string | null
+          escrow_status: string | null
           id: string
           job_id: string
           start_date: string | null
@@ -146,6 +156,7 @@ export type Database = {
           currency?: string
           employer_id: string
           end_date?: string | null
+          escrow_status?: string | null
           id?: string
           job_id: string
           start_date?: string | null
@@ -161,6 +172,7 @@ export type Database = {
           currency?: string
           employer_id?: string
           end_date?: string | null
+          escrow_status?: string | null
           id?: string
           job_id?: string
           start_date?: string | null

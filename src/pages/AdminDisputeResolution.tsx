@@ -129,6 +129,30 @@ const AdminDisputeResolution = () => {
 
       if (error) throw error;
 
+      // Send email notification if resolved
+      if (newStatus === "resolved") {
+        const dispute = disputes.find((d) => d.id === disputeId);
+        if (dispute) {
+          const { data: raisedByProfile } = await supabase
+            .from("profiles")
+            .select("email, full_name")
+            .eq("id", dispute.raised_by)
+            .single();
+
+          if (raisedByProfile?.email) {
+            await supabase.functions.invoke("send-transaction-email", {
+              body: {
+                to: raisedByProfile.email,
+                userName: raisedByProfile.full_name,
+                transactionType: "dispute_resolved",
+                jobTitle: dispute.contracts.jobs.title,
+                disputeResolution: resolution,
+              },
+            });
+          }
+        }
+      }
+
       toast({
         title: "Success",
         description: `Dispute ${newStatus}`,

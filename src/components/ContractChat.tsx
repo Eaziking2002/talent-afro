@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Send, MessageSquare } from "lucide-react";
+import { Send, MessageSquare, Paperclip, FileText, Image as ImageIcon, Download } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -13,6 +13,9 @@ interface Message {
   sender_id: string;
   message_text: string;
   created_at: string;
+  file_url?: string;
+  file_name?: string;
+  file_type?: string;
   sender?: {
     full_name: string;
   };
@@ -28,7 +31,9 @@ export const ContractChat = ({ contractId, currentUserId }: ContractChatProps) =
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -111,6 +116,54 @@ export const ContractChat = ({ contractId, currentUserId }: ContractChatProps) =
     return () => {
       supabase.removeChannel(channel);
     };
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${contractId}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("contract-files")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("contract-files")
+        .getPublicUrl(filePath);
+
+      const { error: messageError } = await supabase.from("contract_messages").insert({
+        contract_id: contractId,
+        sender_id: currentUserId,
+        message_text: `Shared a file: ${file.name}`,
+        file_url: publicUrl,
+        file_name: file.name,
+        file_type: file.type,
+      });
+
+      if (messageError) throw messageError;
+
+      toast({
+        title: "Success",
+        description: "File uploaded successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   const sendMessage = async (e: React.FormEvent) => {
@@ -200,6 +253,30 @@ export const ContractChat = ({ contractId, currentUserId }: ContractChatProps) =
                           {message.sender?.full_name || "Unknown User"}
                         </p>
                         <p className="text-sm">{message.message_text}</p>
+                        {message.file_url && (
+                          <div className="mt-2 flex items-center gap-2 p-2 bg-background/50 rounded border">
+                            {message.file_type?.startsWith("image/") ? (
+                              <ImageIcon className="w-4 h-4" />
+                            ) : (
+                              <FileText className="w-4 h-4" />
+                            )}
+                            <a
+                              href={message.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm hover:underline flex-1 truncate"
+                            >
+                              {message.file_name}
+                            </a>
+                            <a
+                              href={message.file_url}
+                              download={message.file_name}
+                              className="text-sm hover:underline"
+                            >
+                              <Download className="w-4 h-4" />
+                            </a>
+                          </div>
+                        )}
                       </div>
                       <p className="text-xs text-muted-foreground mt-1 px-2">
                         {new Date(message.created_at).toLocaleTimeString([], {
@@ -217,13 +294,29 @@ export const ContractChat = ({ contractId, currentUserId }: ContractChatProps) =
         </ScrollArea>
 
         <form onSubmit={sendMessage} className="flex gap-2 mt-4">
+          <input
+            ref={fileInputRef}
+            type="file"
+            onChange={handleFileUpload}
+            className="hidden"
+            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading || sending}
+          >
+            <Paperclip className="w-4 h-4" />
+          </Button>
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
-            disabled={sending}
+            disabled={sending || uploading}
           />
-          <Button type="submit" disabled={sending || !newMessage.trim()}>
+          <Button type="submit" disabled={sending || uploading || !newMessage.trim()}>
             <Send className="w-4 h-4" />
           </Button>
         </form>
