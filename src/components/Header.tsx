@@ -61,13 +61,22 @@ const Header = () => {
           <Link to="/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Jobs
           </Link>
+          <Link to="/marketplace" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Marketplace
+          </Link>
           {user && (
             <>
+              <Link to="/my-services" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                My Services
+              </Link>
               <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Dashboard
               </Link>
               <Link to="/employer/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Employer
+              </Link>
+              <Link to="/bulk-contracts" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Bulk Import
               </Link>
               <Link to="/messages" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Messages

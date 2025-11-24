@@ -15,8 +15,10 @@ import { JobApplicationDialog } from "@/components/JobApplicationDialog";
 import { JobAlertsDialog } from "@/components/JobAlertsDialog";
 import { useJobBookmark } from "@/hooks/useJobBookmark";
 import { JobCard } from "@/components/JobCard";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
-interface Job {
+  interface Job {
   id: string;
   title: string;
   company_name: string | null;
@@ -36,6 +38,7 @@ interface Job {
     company_name: string;
     verification_level?: "unverified" | "basic" | "verified" | "premium";
     trust_score?: number;
+    average_rating?: number;
   };
 }
 
@@ -47,6 +50,10 @@ const JobBoard = () => {
   const [selectedType, setSelectedType] = useState("all");
   const [budgetRange, setBudgetRange] = useState([0, 10000]);
   const [showFilters, setShowFilters] = useState(false);
+  const [savedSearches, setSavedSearches] = useState<any[]>([]);
+  const [showSaveSearch, setShowSaveSearch] = useState(false);
+  const [searchName, setSearchName] = useState("");
+  const [ratingFilter, setRatingFilter] = useState("0");
   
   // Application dialog state
   const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
@@ -57,6 +64,7 @@ const JobBoard = () => {
 
   useEffect(() => {
     fetchJobs();
+    fetchSavedSearches();
 
     // Subscribe to real-time updates
     const channel = supabase
@@ -79,6 +87,67 @@ const JobBoard = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const fetchSavedSearches = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("saved_searches")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (data) setSavedSearches(data);
+  };
+
+  const saveCurrentSearch = async () => {
+    if (!searchName.trim()) {
+      toast({ title: "Error", description: "Please enter a name for this search", variant: "destructive" });
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Error", description: "Please sign in to save searches", variant: "destructive" });
+      return;
+    }
+
+    const filters = {
+      searchQuery,
+      selectedLocation,
+      selectedType,
+      budgetRange,
+      ratingFilter
+    };
+
+    const { error } = await supabase
+      .from("saved_searches")
+      .insert({
+        user_id: user.id,
+        name: searchName,
+        filters
+      });
+
+    if (error) {
+      toast({ title: "Error", description: "Failed to save search", variant: "destructive" });
+    } else {
+      toast({ title: "Success", description: "Search saved successfully!" });
+      setShowSaveSearch(false);
+      setSearchName("");
+      fetchSavedSearches();
+    }
+  };
+
+  const loadSavedSearch = (search: any) => {
+    const filters = search.filters;
+    setSearchQuery(filters.searchQuery || "");
+    setSelectedLocation(filters.selectedLocation || "all");
+    setSelectedType(filters.selectedType || "all");
+    setBudgetRange(filters.budgetRange || [0, 10000]);
+    setRatingFilter(filters.ratingFilter || "0");
+    toast({ title: "Success", description: `Loaded search: ${search.name}` });
+  };
 
   const fetchJobs = async () => {
     try {
@@ -136,7 +205,11 @@ const JobBoard = () => {
     const matchesBudget =
       job.budget_min >= budgetRange[0] && job.budget_max <= budgetRange[1];
 
-    return matchesSearch && matchesLocation && matchesType && matchesBudget;
+    const matchesRating =
+      ratingFilter === "0" ||
+      (job.employers?.average_rating || 0) >= parseFloat(ratingFilter);
+
+    return matchesSearch && matchesLocation && matchesType && matchesBudget && matchesRating;
   });
 
   const uniqueLocations = Array.from(
@@ -169,16 +242,33 @@ const JobBoard = () => {
       <main className="flex-1 container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="mb-8 text-center">
-          <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="flex items-center justify-center gap-4 mb-4 flex-wrap">
             <h1 className="text-4xl font-bold">Find Your Next Opportunity</h1>
-            <Button
-              onClick={() => setJobAlertsDialogOpen(true)}
-              variant="outline"
-              className="gap-2"
-            >
+            <Button onClick={() => setJobAlertsDialogOpen(true)} variant="outline" className="gap-2">
               <Bell className="h-4 w-4" />
               Job Alerts
             </Button>
+            <Button variant="outline" onClick={() => setShowSaveSearch(true)}>
+              <Bookmark className="h-4 w-4 mr-2" />
+              Save Search
+            </Button>
+            {savedSearches.length > 0 && (
+              <Select onValueChange={(id) => {
+                const search = savedSearches.find(s => s.id === id);
+                if (search) loadSavedSearch(search);
+              }}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Load saved search" />
+                </SelectTrigger>
+                <SelectContent>
+                  {savedSearches.map((search) => (
+                    <SelectItem key={search.id} value={search.id}>
+                      {search.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
           <p className="text-lg text-muted-foreground">
             Browse {jobs.length} verified job opportunities across Africa and worldwide
@@ -245,6 +335,21 @@ const JobBoard = () => {
                   </div>
 
                   <div>
+                    <label className="text-sm font-medium mb-2 block">Minimum Rating</label>
+                    <Select value={ratingFilter} onValueChange={setRatingFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Rating" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Ratings</SelectItem>
+                        <SelectItem value="3">3+ Stars</SelectItem>
+                        <SelectItem value="4">4+ Stars</SelectItem>
+                        <SelectItem value="4.5">4.5+ Stars</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
                     <label className="text-sm font-medium mb-2 block">
                       Budget Range: ${budgetRange[0]} - ${budgetRange[1]}
                     </label>
@@ -304,6 +409,31 @@ const JobBoard = () => {
         open={jobAlertsDialogOpen}
         onOpenChange={setJobAlertsDialogOpen}
       />
+
+      {/* Save Search Dialog */}
+      <Dialog open={showSaveSearch} onOpenChange={setShowSaveSearch}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save Search</DialogTitle>
+            <DialogDescription>
+              Save your current search filters for quick access later
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Search Name</Label>
+              <Input
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                placeholder="e.g., Remote Design Jobs"
+              />
+            </div>
+            <Button onClick={saveCurrentSearch} className="w-full">
+              Save Search
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

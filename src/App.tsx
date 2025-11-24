@@ -24,6 +24,9 @@ import TalentCertifications from "./pages/TalentCertifications";
 import AdminDashboard from "./pages/AdminDashboard";
 import TalentShowcase from "./pages/TalentShowcase";
 import NotificationCenter from "./pages/NotificationCenter";
+import SkillsMarketplace from "./pages/SkillsMarketplace";
+import MyServices from "./pages/MyServices";
+import BulkContractImport from "./pages/BulkContractImport";
 import TalentDashboard from "./pages/TalentDashboard";
 import EmployerAnalytics from "./pages/EmployerAnalytics";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -64,6 +67,9 @@ const App = () => (
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/talents" element={<TalentShowcase />} />
             <Route path="/notifications" element={<NotificationCenter />} />
+            <Route path="/marketplace" element={<SkillsMarketplace />} />
+            <Route path="/my-services" element={<MyServices />} />
+            <Route path="/bulk-contracts" element={<BulkContractImport />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
