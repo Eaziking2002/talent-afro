@@ -11,6 +11,7 @@ import { ContractChat } from "./ContractChat";
 import { RatingPrompt } from "./RatingPrompt";
 import { InvoiceGenerator } from "./InvoiceGenerator";
 import { ContractRenewalDialog } from "./ContractRenewalDialog";
+import { ContractAmendments } from "./ContractAmendments";
 import { useNotifications } from "@/hooks/useNotifications";
 import {
   Dialog,
@@ -525,6 +526,14 @@ export const ContractManager = () => {
           }}
           originalContract={renewalContract}
           talentName="Talent"
+        />
+      )}
+
+      {selectedContract && userId && (
+        <ContractAmendments
+          contractId={selectedContract}
+          userId={userId}
+          isEmployer={contracts.find((c) => c.id === selectedContract)?.employer_id === userId}
         />
       )}
     </div>
