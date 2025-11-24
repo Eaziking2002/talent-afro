@@ -19,6 +19,8 @@ import ContractAnalytics from "./pages/ContractAnalytics";
 import Leaderboard from "./pages/Leaderboard";
 import ContractTemplates from "./pages/ContractTemplates";
 import ResetPassword from "./pages/ResetPassword";
+import ReferralRewards from "./pages/ReferralRewards";
+import TalentCertifications from "./pages/TalentCertifications";
 import TalentDashboard from "./pages/TalentDashboard";
 import EmployerAnalytics from "./pages/EmployerAnalytics";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -49,11 +51,13 @@ const App = () => (
             <Route path="/messages" element={<Messages />} />
             <Route path="/admin/jobs" element={<AdminJobManagement />} />
             <Route path="/admin/employers" element={<AdminEmployerVerification />} />
-          <Route path="/admin/disputes" element={<AdminDisputeResolution />} />
-          <Route path="/analytics" element={<ContractAnalytics />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/templates" element={<ContractTemplates />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/admin/disputes" element={<AdminDisputeResolution />} />
+            <Route path="/analytics" element={<ContractAnalytics />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/templates" element={<ContractTemplates />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/referrals" element={<ReferralRewards />} />
+            <Route path="/certifications" element={<TalentCertifications />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

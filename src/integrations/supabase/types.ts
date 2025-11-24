@@ -89,6 +89,103 @@ export type Database = {
           },
         ]
       }
+      certifications: {
+        Row: {
+          certificate_name: string
+          certificate_url: string
+          created_at: string | null
+          expiry_date: string | null
+          id: string
+          issue_date: string | null
+          talent_id: string
+          updated_at: string | null
+          verified: boolean | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          certificate_name: string
+          certificate_url: string
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string | null
+          talent_id: string
+          updated_at?: string | null
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          certificate_name?: string
+          certificate_url?: string
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string | null
+          talent_id?: string
+          updated_at?: string | null
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certifications_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_amendments: {
+        Row: {
+          amendment_data: Json
+          amendment_type: string
+          approved_by: string | null
+          contract_id: string
+          created_at: string | null
+          id: string
+          proposed_by: string
+          rejection_reason: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          amendment_data: Json
+          amendment_type: string
+          approved_by?: string | null
+          contract_id: string
+          created_at?: string | null
+          id?: string
+          proposed_by: string
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          amendment_data?: Json
+          amendment_type?: string
+          approved_by?: string | null
+          contract_id?: string
+          created_at?: string | null
+          id?: string
+          proposed_by?: string
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_amendments_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contract_messages: {
         Row: {
           contract_id: string
@@ -299,6 +396,41 @@ export type Database = {
             columns: ["milestone_id"]
             isOneToOne: false
             referencedRelation: "milestones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispute_escalations: {
+        Row: {
+          dispute_id: string
+          escalated_at: string | null
+          escalated_to: string | null
+          escalation_notes: string | null
+          id: string
+          resolved_at: string | null
+        }
+        Insert: {
+          dispute_id: string
+          escalated_at?: string | null
+          escalated_to?: string | null
+          escalation_notes?: string | null
+          id?: string
+          resolved_at?: string | null
+        }
+        Update: {
+          dispute_id?: string
+          escalated_at?: string | null
+          escalated_to?: string | null
+          escalation_notes?: string | null
+          id?: string
+          resolved_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_escalations_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
             referencedColumns: ["id"]
           },
         ]
@@ -685,6 +817,35 @@ export type Database = {
           },
         ]
       }
+      milestone_reminders: {
+        Row: {
+          id: string
+          milestone_id: string
+          reminder_type: string
+          sent_at: string | null
+        }
+        Insert: {
+          id?: string
+          milestone_id: string
+          reminder_type: string
+          sent_at?: string | null
+        }
+        Update: {
+          id?: string
+          milestone_id?: string
+          reminder_type?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestone_reminders_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "milestones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       milestones: {
         Row: {
           amount_minor_units: number
@@ -883,6 +1044,42 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          referred_email: string
+          referred_id: string | null
+          referred_type: string
+          referrer_id: string
+          reward_credits: number | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          referred_email: string
+          referred_id?: string | null
+          referred_type: string
+          referrer_id: string
+          reward_credits?: number | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          referred_email?: string
+          referred_id?: string | null
+          referred_type?: string
+          referrer_id?: string
+          reward_credits?: number | null
+          status?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           contract_id: string
@@ -920,6 +1117,44 @@ export type Database = {
             columns: ["contract_id"]
             isOneToOne: false
             referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skill_assessments: {
+        Row: {
+          assessed_by: string
+          assessment_notes: string | null
+          assessment_score: number
+          created_at: string | null
+          id: string
+          skill_name: string
+          talent_id: string
+        }
+        Insert: {
+          assessed_by: string
+          assessment_notes?: string | null
+          assessment_score: number
+          created_at?: string | null
+          id?: string
+          skill_name: string
+          talent_id: string
+        }
+        Update: {
+          assessed_by?: string
+          assessment_notes?: string | null
+          assessment_score?: number
+          created_at?: string | null
+          id?: string
+          skill_name?: string
+          talent_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_assessments_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
