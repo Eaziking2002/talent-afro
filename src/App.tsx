@@ -32,6 +32,7 @@ import TalentVerification from "./pages/TalentVerification";
 import AdminVerification from "./pages/AdminVerification";
 import ChatRoom from "./pages/ChatRoom";
 import ChatRooms from "./pages/ChatRooms";
+import SkillGapAnalysis from "./pages/SkillGapAnalysis";
 import TalentDashboard from "./pages/TalentDashboard";
 import EmployerAnalytics from "./pages/EmployerAnalytics";
 import EmployerDashboard from "./pages/EmployerDashboard";
@@ -79,7 +80,7 @@ const App = () => (
             <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
             <Route path="/verification" element={<TalentVerification />} />
             <Route path="/admin/verification" element={<AdminVerification />} />
-            <Route path="/chat" element={<ChatRoom />} />
+            <Route path="/skill-gap-analysis" element={<SkillGapAnalysis />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

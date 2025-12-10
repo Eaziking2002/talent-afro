@@ -36,11 +36,11 @@ verify_jwt = false
 [functions.job-recommendations]
 verify_jwt = false
 
-[functions.send-job-alerts]
-verify_jwt = false
-
 [functions.webrtc-signaling]
 verify_jwt = false
 
-[functions.send-transaction-email]
+[functions.ai-job-matching]
 verify_jwt = false
+
+[functions.skill-gap-analysis]
+verify_jwt = true
