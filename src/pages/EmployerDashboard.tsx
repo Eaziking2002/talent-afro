@@ -113,12 +113,44 @@ const EmployerDashboard = () => {
 
   const updateApplicationStatus = async (applicationId: string, newStatus: "pending" | "accepted" | "rejected" | "completed") => {
     try {
+      // Get application details for notification
+      const app = applications.find(a => a.id === applicationId);
+      
       const { error } = await supabase
         .from("applications")
         .update({ status: newStatus })
         .eq("id", applicationId);
 
       if (error) throw error;
+
+      // Send notification to the applicant
+      if (app) {
+        const { data: applicantProfile } = await supabase
+          .from("profiles")
+          .select("user_id")
+          .eq("id", app.applicant_id)
+          .single();
+
+        if (applicantProfile) {
+          await supabase.from("notifications").insert({
+            user_id: applicantProfile.user_id,
+            type: "application_update",
+            title: newStatus === "accepted" 
+              ? "🎉 Application Accepted!" 
+              : newStatus === "rejected"
+              ? "Application Update"
+              : "Application Status Changed",
+            description: newStatus === "accepted"
+              ? `Congratulations! Your application for "${app.job.title}" has been accepted.`
+              : newStatus === "rejected"
+              ? `Your application for "${app.job.title}" was not selected this time.`
+              : `Your application for "${app.job.title}" status changed to ${newStatus}.`,
+            related_id: applicationId,
+            related_type: "application",
+            metadata: { status: newStatus, job_title: app.job.title }
+          });
+        }
+      }
 
       toast({
         title: "Success",

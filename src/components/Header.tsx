@@ -81,6 +81,9 @@ const Header = () => {
               <Link to="/verification" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Verification
               </Link>
+              <Link to="/skill-gap-analysis" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Skill Gap
+              </Link>
               <Link to="/messages" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Messages
               </Link>
