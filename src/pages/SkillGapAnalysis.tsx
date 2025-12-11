@@ -10,16 +10,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { 
   Target, TrendingUp, BookOpen, Award, Loader2, 
-  ChevronRight, ExternalLink, Lightbulb, BarChart3,
-  CheckCircle, AlertCircle, Sparkles
+  ChevronRight, ExternalLink, BarChart3,
+  CheckCircle, AlertCircle, GraduationCap, Briefcase
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface SkillGap {
   skill: string;
   demandLevel: "high" | "medium" | "low";
+  category: string;
   averageSalaryBoost: number;
   matchingJobs: number;
+  sampleJobs?: string[];
+  certifications: { name: string; provider: string; url: string; difficulty: string }[];
+  courses: { name: string; provider: string; url: string; duration: string; level: string }[];
+  relatedSkills?: string[];
+  isRecommended?: boolean;
 }
 
 interface CourseRecommendation {
@@ -29,6 +35,15 @@ interface CourseRecommendation {
   level: string;
   skills: string[];
   url?: string;
+  name?: string;
+}
+
+interface Certification {
+  name: string;
+  provider: string;
+  url: string;
+  difficulty: string;
+  skill: string;
 }
 
 interface AnalysisResult {
@@ -36,8 +51,11 @@ interface AnalysisResult {
   marketDemandScore: number;
   gapAnalysis: SkillGap[];
   recommendations: CourseRecommendation[];
+  certifications: Certification[];
   topPayingSkills: string[];
   improvementPotential: number;
+  matchedSkills: string[];
+  totalJobsAnalyzed: number;
 }
 
 const SkillGapAnalysis = () => {
@@ -47,7 +65,6 @@ const SkillGapAnalysis = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [highPayingJobs, setHighPayingJobs] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -59,10 +76,9 @@ const SkillGapAnalysis = () => {
 
   const fetchProfileAndJobs = async () => {
     try {
-      // Get user's profile with skills
       const { data: profile } = await supabase
         .from("profiles")
-        .select("*, skill_assessments(*), certifications(*)")
+        .select("*")
         .eq("user_id", user!.id)
         .single();
 
@@ -72,7 +88,6 @@ const SkillGapAnalysis = () => {
       }
       setProfileData(profile);
 
-      // Get high-paying jobs to analyze skill requirements
       const { data: jobs } = await supabase
         .from("jobs")
         .select("*")
@@ -80,9 +95,6 @@ const SkillGapAnalysis = () => {
         .order("budget_max", { ascending: false })
         .limit(50);
 
-      setHighPayingJobs(jobs || []);
-      
-      // Auto-run initial analysis
       await runSkillAnalysis(profile, jobs || []);
     } catch (error) {
       console.error("Error:", error);
@@ -103,8 +115,6 @@ const SkillGapAnalysis = () => {
         body: {
           profileId: profile.id,
           userSkills: profile.skills || [],
-          certifications: profile.certifications?.map((c: any) => c.certificate_name) || [],
-          assessments: profile.skill_assessments || [],
           highPayingJobs: jobs.map(j => ({
             title: j.title,
             skills: j.required_skills || [],
@@ -117,7 +127,6 @@ const SkillGapAnalysis = () => {
       setAnalysis(response.data);
     } catch (error) {
       console.error("Analysis error:", error);
-      // Fallback to local analysis if edge function fails
       performLocalAnalysis(profile, jobs);
     } finally {
       setAnalyzing(false);
@@ -127,7 +136,6 @@ const SkillGapAnalysis = () => {
   const performLocalAnalysis = (profile: any, jobs: any[]) => {
     const userSkills = (profile.skills || []).map((s: string) => s.toLowerCase());
     
-    // Count skill demand from high-paying jobs
     const skillDemand: Record<string, { count: number; totalBudget: number }> = {};
     
     jobs.forEach(job => {
@@ -142,8 +150,9 @@ const SkillGapAnalysis = () => {
       });
     });
 
-    // Find missing skills
     const gapAnalysis: SkillGap[] = [];
+    const matchedSkills: string[] = [];
+
     Object.entries(skillDemand)
       .filter(([skill]) => !userSkills.includes(skill))
       .sort((a, b) => b[1].totalBudget - a[1].totalBudget)
@@ -152,23 +161,30 @@ const SkillGapAnalysis = () => {
         gapAnalysis.push({
           skill,
           demandLevel: data.count > 10 ? "high" : data.count > 5 ? "medium" : "low",
+          category: "General",
           averageSalaryBoost: Math.round(data.totalBudget / data.count / 100) * 10,
-          matchingJobs: data.count
+          matchingJobs: data.count,
+          certifications: [],
+          courses: []
         });
       });
 
-    // Generate course recommendations
+    userSkills.forEach((skill: string) => {
+      if (skillDemand[skill]) {
+        matchedSkills.push(skill);
+      }
+    });
+
     const recommendations: CourseRecommendation[] = gapAnalysis.slice(0, 5).map(gap => ({
       title: `Master ${gap.skill.charAt(0).toUpperCase() + gap.skill.slice(1)}`,
-      provider: ["Coursera", "Udemy", "LinkedIn Learning", "Pluralsight"][Math.floor(Math.random() * 4)],
-      duration: `${Math.floor(Math.random() * 20) + 10} hours`,
+      provider: "Udemy",
+      duration: "10-20 hours",
       level: gap.demandLevel === "high" ? "Intermediate" : "Beginner",
       skills: [gap.skill],
+      url: `https://www.udemy.com/courses/search/?q=${encodeURIComponent(gap.skill)}`
     }));
 
-    // Calculate scores
-    const matchedSkillsCount = userSkills.filter((s: string) => skillDemand[s]).length;
-    const currentSkillsScore = Math.min(100, Math.round((matchedSkillsCount / Math.max(Object.keys(skillDemand).length, 1)) * 100 * 2));
+    const currentSkillsScore = Math.min(100, Math.round((matchedSkills.length / Math.max(Object.keys(skillDemand).length, 1)) * 100 * 2));
     const marketDemandScore = gapAnalysis.length > 0 ? Math.max(20, 100 - gapAnalysis.length * 8) : 100;
 
     setAnalysis({
@@ -176,22 +192,38 @@ const SkillGapAnalysis = () => {
       marketDemandScore,
       gapAnalysis,
       recommendations,
+      certifications: [],
       topPayingSkills: Object.entries(skillDemand)
         .sort((a, b) => b[1].totalBudget - a[1].totalBudget)
         .slice(0, 5)
         .map(([skill]) => skill),
-      improvementPotential: Math.min(50, gapAnalysis.reduce((acc, g) => acc + g.averageSalaryBoost / 100, 0))
+      improvementPotential: Math.min(50, gapAnalysis.reduce((acc, g) => acc + g.averageSalaryBoost / 100, 0)),
+      matchedSkills,
+      totalJobsAnalyzed: jobs.length
     });
   };
 
   const getDemandBadge = (level: string) => {
     switch (level) {
       case "high":
-        return <Badge className="bg-green-500">High Demand</Badge>;
+        return <Badge className="bg-green-500 text-white">High Demand</Badge>;
       case "medium":
-        return <Badge className="bg-yellow-500">Medium Demand</Badge>;
+        return <Badge className="bg-yellow-500 text-white">Medium Demand</Badge>;
       default:
         return <Badge variant="outline">Low Demand</Badge>;
+    }
+  };
+
+  const getDifficultyBadge = (difficulty: string) => {
+    switch (difficulty.toLowerCase()) {
+      case "beginner":
+        return <Badge variant="secondary" className="bg-green-100 text-green-800">Beginner</Badge>;
+      case "intermediate":
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Intermediate</Badge>;
+      case "advanced":
+        return <Badge variant="secondary" className="bg-red-100 text-red-800">Advanced</Badge>;
+      default:
+        return <Badge variant="outline">{difficulty}</Badge>;
     }
   };
 
@@ -218,6 +250,11 @@ const SkillGapAnalysis = () => {
           <p className="text-lg text-muted-foreground">
             Discover missing skills for high-paying jobs and get personalized learning recommendations
           </p>
+          {analysis && (
+            <p className="text-sm text-muted-foreground mt-2">
+              Based on analysis of {analysis.totalJobsAnalyzed} high-paying jobs in the market
+            </p>
+          )}
         </div>
 
         {/* Overview Cards */}
@@ -264,7 +301,7 @@ const SkillGapAnalysis = () => {
           <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Sparkles className="h-4 w-4" />
+                <Briefcase className="h-4 w-4" />
                 Earning Potential
               </CardTitle>
             </CardHeader>
@@ -282,16 +319,26 @@ const SkillGapAnalysis = () => {
               <CheckCircle className="h-5 w-5 text-green-500" />
               Your Current Skills
             </CardTitle>
-            <CardDescription>Skills from your profile</CardDescription>
+            <CardDescription>
+              Skills from your profile • {analysis?.matchedSkills?.length || 0} matching market demand
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {(profileData?.skills || []).length > 0 ? (
-                (profileData?.skills || []).map((skill: string, i: number) => (
-                  <Badge key={i} variant="secondary" className="text-sm py-1 px-3">
-                    {skill}
-                  </Badge>
-                ))
+                (profileData?.skills || []).map((skill: string, i: number) => {
+                  const isMatched = analysis?.matchedSkills?.includes(skill.toLowerCase());
+                  return (
+                    <Badge 
+                      key={i} 
+                      variant={isMatched ? "default" : "secondary"} 
+                      className={`text-sm py-1 px-3 ${isMatched ? 'bg-green-600' : ''}`}
+                    >
+                      {skill}
+                      {isMatched && <CheckCircle className="h-3 w-3 ml-1" />}
+                    </Badge>
+                  );
+                })
               ) : (
                 <p className="text-muted-foreground">
                   No skills added yet.{" "}
@@ -308,15 +355,15 @@ const SkillGapAnalysis = () => {
           <TabsList className="grid w-full grid-cols-3 lg:w-auto">
             <TabsTrigger value="gaps" className="gap-2">
               <AlertCircle className="h-4 w-4" />
-              Skill Gaps
+              Skill Gaps ({analysis?.gapAnalysis?.length || 0})
             </TabsTrigger>
             <TabsTrigger value="courses" className="gap-2">
               <BookOpen className="h-4 w-4" />
-              Courses
+              Courses ({analysis?.recommendations?.length || 0})
             </TabsTrigger>
             <TabsTrigger value="certifications" className="gap-2">
               <Award className="h-4 w-4" />
-              Certifications
+              Certifications ({analysis?.certifications?.length || 0})
             </TabsTrigger>
           </TabsList>
 
@@ -341,27 +388,60 @@ const SkillGapAnalysis = () => {
                 {analysis?.gapAnalysis.map((gap, i) => (
                   <Card key={i} className="hover:shadow-md transition-shadow">
                     <CardContent className="py-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                             <Target className="h-5 w-5 text-primary" />
                           </div>
-                          <div>
-                            <h3 className="font-semibold capitalize">{gap.skill}</h3>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-semibold capitalize">{gap.skill}</h3>
+                              {gap.isRecommended && (
+                                <Badge variant="outline" className="text-xs">Recommended</Badge>
+                              )}
+                            </div>
                             <p className="text-sm text-muted-foreground">
-                              {gap.matchingJobs} jobs require this skill
+                              {gap.matchingJobs > 0 
+                                ? `${gap.matchingJobs} jobs require this skill`
+                                : "High market demand"
+                              }
                             </p>
+                            {gap.category && (
+                              <Badge variant="outline" className="mt-1 text-xs">{gap.category}</Badge>
+                            )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 flex-wrap">
                           {getDemandBadge(gap.demandLevel)}
                           <div className="text-right">
-                            <p className="font-semibold text-green-600">+${gap.averageSalaryBoost}</p>
-                            <p className="text-xs text-muted-foreground">avg. budget boost</p>
+                            <p className="font-semibold text-green-600">+{gap.averageSalaryBoost}%</p>
+                            <p className="text-xs text-muted-foreground">salary boost</p>
                           </div>
-                          <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                          <ChevronRight className="h-5 w-5 text-muted-foreground hidden lg:block" />
                         </div>
                       </div>
+                      
+                      {/* Quick course/cert links */}
+                      {(gap.courses.length > 0 || gap.certifications.length > 0) && (
+                        <div className="mt-4 pt-4 border-t flex flex-wrap gap-2">
+                          {gap.courses.slice(0, 1).map((course, j) => (
+                            <Button key={j} variant="outline" size="sm" asChild>
+                              <a href={course.url} target="_blank" rel="noopener noreferrer">
+                                <GraduationCap className="h-3 w-3 mr-1" />
+                                Learn on {course.provider}
+                              </a>
+                            </Button>
+                          ))}
+                          {gap.certifications.slice(0, 1).map((cert, j) => (
+                            <Button key={j} variant="outline" size="sm" asChild>
+                              <a href={cert.url} target="_blank" rel="noopener noreferrer">
+                                <Award className="h-3 w-3 mr-1" />
+                                Get Certified
+                              </a>
+                            </Button>
+                          ))}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -379,18 +459,19 @@ const SkillGapAnalysis = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {analysis.topPayingSkills.map((skill, i) => (
-                      <Badge 
-                        key={i} 
-                        variant={(profileData?.skills || []).map((s: string) => s.toLowerCase()).includes(skill) ? "default" : "outline"}
-                        className="text-sm py-1 px-3 capitalize"
-                      >
-                        {skill}
-                        {(profileData?.skills || []).map((s: string) => s.toLowerCase()).includes(skill) && (
-                          <CheckCircle className="h-3 w-3 ml-1" />
-                        )}
-                      </Badge>
-                    ))}
+                    {analysis.topPayingSkills.map((skill, i) => {
+                      const hasSkill = (profileData?.skills || []).map((s: string) => s.toLowerCase()).includes(skill);
+                      return (
+                        <Badge 
+                          key={i} 
+                          variant={hasSkill ? "default" : "outline"}
+                          className={`text-sm py-1 px-3 capitalize ${hasSkill ? 'bg-green-600' : ''}`}
+                        >
+                          {skill}
+                          {hasSkill && <CheckCircle className="h-3 w-3 ml-1" />}
+                        </Badge>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
@@ -398,7 +479,7 @@ const SkillGapAnalysis = () => {
           </TabsContent>
 
           <TabsContent value="courses" className="space-y-4">
-            {analysis?.recommendations.length === 0 ? (
+            {!analysis?.recommendations || analysis.recommendations.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
                   <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -407,15 +488,15 @@ const SkillGapAnalysis = () => {
               </Card>
             ) : (
               <div className="grid md:grid-cols-2 gap-4">
-                {analysis?.recommendations.map((course, i) => (
+                {analysis.recommendations.map((course, i) => (
                   <Card key={i} className="hover:shadow-md transition-shadow">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
-                          <CardTitle className="text-lg">{course.title}</CardTitle>
+                          <CardTitle className="text-lg">{course.title || course.name}</CardTitle>
                           <CardDescription>{course.provider}</CardDescription>
                         </div>
-                        <Badge variant="secondary">{course.level}</Badge>
+                        {getDifficultyBadge(course.level)}
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -437,9 +518,13 @@ const SkillGapAnalysis = () => {
                           </a>
                         </Button>
                       ) : (
-                        <Button variant="outline" size="sm" onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(course.title + ' ' + course.provider + ' course')}`, '_blank')}>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent((course.title || course.name) + ' ' + course.provider + ' course')}`, '_blank')}
+                        >
                           <ExternalLink className="h-4 w-4 mr-2" />
-                          Find Course
+                          Search Course
                         </Button>
                       )}
                     </CardContent>
@@ -450,92 +535,52 @@ const SkillGapAnalysis = () => {
           </TabsContent>
 
           <TabsContent value="certifications" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Recommended Certifications
-                </CardTitle>
-                <CardDescription>
-                  Based on high-paying job requirements in your field
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {analysis?.gapAnalysis.slice(0, 5).map((gap, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Award className="h-8 w-8 text-primary" />
-                      <div>
-                        <h4 className="font-medium capitalize">{gap.skill} Certification</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Validates expertise in {gap.skill}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      {getDemandBadge(gap.demandLevel)}
-                      <Button variant="outline" size="sm" onClick={() => navigate("/talent-certification")}>
-                        Get Certified
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-
-                {(!analysis?.gapAnalysis || analysis.gapAnalysis.length === 0) && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Lightbulb className="h-12 w-12 mx-auto mb-4" />
-                    <p>Complete your profile skills to get certification recommendations</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Your Certifications */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Certifications</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {(profileData?.certifications || []).length > 0 ? (
-                  <div className="space-y-3">
-                    {profileData.certifications.map((cert: any) => (
-                      <div key={cert.id} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <Award className={`h-6 w-6 ${cert.verified ? 'text-green-500' : 'text-muted-foreground'}`} />
-                          <div>
-                            <p className="font-medium">{cert.certificate_name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {cert.issue_date && `Issued: ${new Date(cert.issue_date).toLocaleDateString()}`}
-                            </p>
-                          </div>
+            {!analysis?.certifications || analysis.certifications.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Award className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground">No certification recommendations available</p>
+                  <p className="text-sm text-muted-foreground mt-2">Add more skills to get certification recommendations</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {analysis.certifications.map((cert, i) => (
+                  <Card key={i} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-base">{cert.name}</CardTitle>
+                          <CardDescription>{cert.provider}</CardDescription>
                         </div>
-                        {cert.verified ? (
-                          <Badge className="bg-green-500">Verified</Badge>
-                        ) : (
-                          <Badge variant="outline">Pending Verification</Badge>
-                        )}
+                        <Award className="h-5 w-5 text-yellow-500 flex-shrink-0" />
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground text-center py-4">
-                    No certifications yet.{" "}
-                    <Button variant="link" className="p-0" onClick={() => navigate("/talent-certification")}>
-                      Add certifications
-                    </Button>
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {getDifficultyBadge(cert.difficulty)}
+                        <Badge variant="outline" className="capitalize">{cert.skill}</Badge>
+                      </div>
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <a href={cert.url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Learn More
+                        </a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 
         {/* Refresh Analysis Button */}
         <div className="mt-8 text-center">
           <Button 
-            onClick={() => runSkillAnalysis(profileData, highPayingJobs)}
+            onClick={() => fetchProfileAndJobs()} 
             disabled={analyzing}
-            size="lg"
+            variant="outline"
           >
             {analyzing ? (
               <>
@@ -544,7 +589,7 @@ const SkillGapAnalysis = () => {
               </>
             ) : (
               <>
-                <Sparkles className="h-4 w-4 mr-2" />
+                <Target className="h-4 w-4 mr-2" />
                 Refresh Analysis
               </>
             )}
