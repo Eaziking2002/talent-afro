@@ -116,6 +116,9 @@ const Header = () => {
                   <NavLink to="/admin/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                     Admin Dashboard
                   </NavLink>
+                  <NavLink to="/admin/control" className="text-sm font-medium text-primary hover:text-foreground transition-colors font-bold">
+                    Control Panel
+                  </NavLink>
                   <NavLink to="/advanced-analytics" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                     Advanced Analytics
                   </NavLink>
@@ -199,6 +202,9 @@ const Header = () => {
                 </Link>
                 {isAdmin && (
                   <>
+                    <NavLink to="/admin/control" className="text-sm font-medium text-primary hover:text-foreground transition-colors font-bold">
+                      Control Panel
+                    </NavLink>
                     <NavLink to="/admin/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                       Admin: Jobs
                     </NavLink>
