@@ -18,6 +18,12 @@ const Footer = () => {
             <p className="text-sm text-muted-foreground">
               Connecting Africa's best talent with remote opportunities and instant payouts.
             </p>
+            <a 
+              href="mailto:skilllinkafrica01@gmail.com" 
+              className="text-sm text-primary hover:underline"
+            >
+              skilllinkafrica01@gmail.com
+            </a>
           </div>
 
           {/* For Talent */}
@@ -63,8 +69,14 @@ const Footer = () => {
             <div className="flex gap-6 text-sm text-muted-foreground">
               <a href="#" className="hover:text-foreground transition-colors">Facebook</a>
               <a href="#" className="hover:text-foreground transition-colors">Twitter</a>
-              <a href="#" className="hover:text-foreground transition-colors">LinkedIn</a>
-              <a href="#" className="hover:text-foreground transition-colors">Instagram</a>
+              <a 
+                href="https://www.instagram.com/skilllink_africa/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
+                Instagram
+              </a>
             </div>
           </div>
         </div>
