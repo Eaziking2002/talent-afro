@@ -201,22 +201,22 @@ const AdminJobManagement = () => {
   const runScraper = async () => {
     setIsRunningScraper(true);
     try {
-      const { data, error } = await supabase.functions.invoke("job-scraper");
+      const { data, error } = await supabase.functions.invoke("job-aggregator");
 
       if (error) throw error;
 
       toast({
-        title: "Scraper Complete",
-        description: `Found ${data.jobs_found} jobs, created ${data.jobs_created}`,
+        title: "Job Aggregator Complete",
+        description: `Fetched ${data.total_fetched || 0} jobs, created ${data.jobs_created || 0} new jobs`,
       });
 
       fetchJobs();
       fetchScrapingLogs();
     } catch (error) {
-      console.error("Error running scraper:", error);
+      console.error("Error running job aggregator:", error);
       toast({
-        title: "Scraper Failed",
-        description: error instanceof Error ? error.message : "Failed to run scraper",
+        title: "Aggregator Failed",
+        description: error instanceof Error ? error.message : "Failed to fetch jobs",
         variant: "destructive",
       });
     } finally {
@@ -299,11 +299,11 @@ const AdminJobManagement = () => {
           </Card>
         </div>
 
-        {/* Scraper Controls */}
+        {/* Job Aggregator Controls */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>AI Job Scraper</CardTitle>
-            <CardDescription>Manually trigger the job scraping process</CardDescription>
+            <CardTitle>Job Aggregator</CardTitle>
+            <CardDescription>Fetch jobs from free APIs (Remotive, Adzuna, JSearch)</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
@@ -316,7 +316,7 @@ const AdminJobManagement = () => {
               ) : (
                 <RefreshCw className="h-4 w-4" />
               )}
-              {isRunningScraper ? "Scraping..." : "Run Scraper Now"}
+              {isRunningScraper ? "Fetching Jobs..." : "Fetch Jobs Now"}
             </Button>
           </CardContent>
         </Card>
