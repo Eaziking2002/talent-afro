@@ -22,6 +22,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ReferralRewards from "./pages/ReferralRewards";
 import TalentCertifications from "./pages/TalentCertifications";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminControlPanel from "./pages/AdminControlPanel";
 import TalentShowcase from "./pages/TalentShowcase";
 import NotificationCenter from "./pages/NotificationCenter";
 import SkillsMarketplace from "./pages/SkillsMarketplace";
@@ -72,6 +73,7 @@ const App = () => (
             <Route path="/referrals" element={<ReferralRewards />} />
             <Route path="/certifications" element={<TalentCertifications />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/control" element={<AdminControlPanel />} />
             <Route path="/talents" element={<TalentShowcase />} />
             <Route path="/notifications" element={<NotificationCenter />} />
             <Route path="/marketplace" element={<SkillsMarketplace />} />

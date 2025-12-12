@@ -27,10 +27,19 @@ verify_jwt = true
 [functions.job-scraper]
 verify_jwt = false
 
+[functions.job-aggregator]
+verify_jwt = false
+
 [functions.send-transaction-email]
 verify_jwt = false
 
 [functions.send-job-alerts]
+verify_jwt = false
+
+[functions.send-milestone-reminders]
+verify_jwt = false
+
+[functions.escalate-disputes]
 verify_jwt = false
 
 [functions.job-recommendations]
