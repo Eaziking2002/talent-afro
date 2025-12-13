@@ -67,8 +67,22 @@ const Footer = () => {
               © 2025 SkillLink Africa. All rights reserved.
             </p>
             <div className="flex gap-6 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-foreground transition-colors">Facebook</a>
-              <a href="#" className="hover:text-foreground transition-colors">Twitter</a>
+              <a 
+                href="https://www.facebook.com/profile.php?id=61584774670112" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
+                Facebook
+              </a>
+              <a 
+                href="https://x.com/SkilllinkA68742" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
+                Twitter
+              </a>
               <a 
                 href="https://www.instagram.com/skilllink_africa/" 
                 target="_blank" 
