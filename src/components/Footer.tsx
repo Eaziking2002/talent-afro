@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { Sparkles, Facebook, Twitter, Instagram } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -66,30 +66,33 @@ const Footer = () => {
             <p className="text-sm text-muted-foreground">
               © 2025 SkillLink Africa. All rights reserved.
             </p>
-            <div className="flex gap-6 text-sm text-muted-foreground">
+            <div className="flex gap-4">
               <a 
                 href="https://www.facebook.com/profile.php?id=61584774670112" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Facebook"
               >
-                Facebook
+                <Facebook className="w-5 h-5" />
               </a>
               <a 
                 href="https://x.com/SkilllinkA68742" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="X (Twitter)"
               >
-                Twitter
+                <Twitter className="w-5 h-5" />
               </a>
               <a 
                 href="https://www.instagram.com/skilllink_africa/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Instagram"
               >
-                Instagram
+                <Instagram className="w-5 h-5" />
               </a>
             </div>
           </div>
