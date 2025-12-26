@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.skill-gap-analysis]
 verify_jwt = true
+
+[functions.send-contact-email]
+verify_jwt = false
