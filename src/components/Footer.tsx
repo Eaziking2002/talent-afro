@@ -72,6 +72,39 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* Developer Section */}
+        <div className="mt-8 pt-8 border-t">
+          <h3 className="font-semibold mb-4 text-lg">Developer</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                <span className="font-semibold text-foreground">Ezekiel Sesay (Eazi)</span> — Information Systems Professional, Digital Creator & Tech Entrepreneur from Sierra Leone. Founder of SkillLink Africa, connecting Africans to remote jobs and digital opportunities.
+              </p>
+              <div className="flex flex-wrap gap-2 text-xs">
+                <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">IT & Systems</span>
+                <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">Web Development</span>
+                <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">Digital Marketing</span>
+                <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">Content Creation</span>
+              </div>
+            </div>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">Hire Me / Collaborate</p>
+              <ul className="space-y-1">
+                <li>📧 <a href="mailto:sesayezekiel81@gmail.com" className="hover:text-primary transition-colors">sesayezekiel81@gmail.com</a></li>
+                <li>📞 +232 31 570010 / +232 74 062138</li>
+                <li className="flex gap-3 pt-1">
+                  <a href="https://instagram.com/eaziking2" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                    <Instagram className="w-4 h-4" />
+                  </a>
+                  <a href="https://facebook.com/eaziking" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                    <Facebook className="w-4 h-4" />
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Bottom Bar */}
         <div className="pt-8 border-t">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
