@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Mail, Phone, MapPin, Instagram, Facebook, Send, Target, Users, Globe, Briefcase } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import ezekielPhoto from "@/assets/ezekiel-sesay.jpg";
@@ -63,13 +62,12 @@ const About = () => {
     "Remote Work & Digital Operations"
   ];
 
+  useEffect(() => {
+    document.title = "About Ezekiel Sesay | SkillLink Africa Founder";
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>About Ezekiel Sesay | SkillLink Africa Founder</title>
-        <meta name="description" content="Meet Ezekiel Sesay (Eazi), founder of SkillLink Africa. IT professional, digital creator, and tech entrepreneur connecting Africans to global opportunities." />
-      </Helmet>
-      
       <Header />
       
       <main className="container mx-auto px-4 py-12">
