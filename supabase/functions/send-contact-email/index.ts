@@ -12,22 +12,75 @@ interface ContactRequest {
   message: string;
 }
 
+// Sanitize input to prevent XSS attacks
+const sanitizeInput = (input: string): string => {
+  if (typeof input !== 'string') return '';
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .trim()
+    .slice(0, 5000); // Limit length to prevent abuse
+};
+
+// Validate email format
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 254;
+};
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Only allow POST requests
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({ error: "Method not allowed" }),
+      { status: 405, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
   try {
-    const { name, email, subject, message }: ContactRequest = await req.json();
+    const body = await req.json();
+    
+    // Extract and sanitize inputs
+    const name = sanitizeInput(body.name || '');
+    const email = sanitizeInput(body.email || '');
+    const subject = sanitizeInput(body.subject || '');
+    const message = sanitizeInput(body.message || '');
 
-    console.log("Received contact form submission:", { name, email, subject });
+    console.log("Received contact form submission:", { name, email: email.slice(0, 20) + '...', subject });
 
-    // Validate input
-    if (!name || !email || !subject || !message) {
-      console.error("Missing required fields");
+    // Validate required fields
+    if (!name || name.length < 2 || name.length > 100) {
       return new Response(
-        JSON.stringify({ error: "All fields are required" }),
+        JSON.stringify({ error: "Name must be between 2 and 100 characters" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (!email || !isValidEmail(email)) {
+      return new Response(
+        JSON.stringify({ error: "Please provide a valid email address" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (!subject || subject.length < 3 || subject.length > 200) {
+      return new Response(
+        JSON.stringify({ error: "Subject must be between 3 and 200 characters" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (!message || message.length < 10 || message.length > 5000) {
+      return new Response(
+        JSON.stringify({ error: "Message must be between 10 and 5000 characters" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -51,7 +104,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "SkillLink Africa <onboarding@resend.dev>",
         to: ["skilllinkafrica01@gmail.com"],
-        subject: `New Contact: ${subject}`,
+        subject: `New Contact: ${subject.slice(0, 100)}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
@@ -142,7 +195,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-contact-email function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "An error occurred. Please try again." }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }

@@ -1,4 +1,5 @@
 import { Sparkles, Facebook, Twitter, Instagram, Linkedin, Youtube } from "lucide-react";
+import ezekielPhoto from "@/assets/ezekiel-sesay.jpg";
 
 const TikTokIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -75,7 +76,19 @@ const Footer = () => {
         {/* Developer Section */}
         <div className="mt-8 pt-8 border-t">
           <h3 className="font-semibold mb-4 text-lg">Developer</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            {/* Photo */}
+            <div className="flex justify-center md:justify-start">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-primary shadow-lg">
+                <img 
+                  src={ezekielPhoto} 
+                  alt="Ezekiel Sesay - Developer" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+            
+            {/* Bio */}
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
                 <span className="font-semibold text-foreground">Ezekiel Sesay (Eazi)</span> — Information Systems Professional, Digital Creator & Tech Entrepreneur from Sierra Leone. Founder of SkillLink Africa, connecting Africans to remote jobs and digital opportunities.
@@ -87,6 +100,8 @@ const Footer = () => {
                 <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">Content Creation</span>
               </div>
             </div>
+            
+            {/* Contact */}
             <div className="space-y-2 text-sm text-muted-foreground">
               <p className="font-medium text-foreground">Hire Me / Collaborate</p>
               <ul className="space-y-1">
