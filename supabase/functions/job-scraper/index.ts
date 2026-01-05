@@ -18,6 +18,50 @@ interface JobListing {
   url: string;
 }
 
+// Rate limit helper
+async function checkRateLimit(
+  identifier: string,
+  endpoint: string,
+  maxRequests = 2,
+  windowSeconds = 3600
+): Promise<{ allowed: boolean; remaining: number; resetAt: string }> {
+  const supabaseAdmin = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+  
+  const { data, error } = await supabaseAdmin.rpc('check_rate_limit', {
+    p_identifier: identifier,
+    p_endpoint: endpoint,
+    p_max_requests: maxRequests,
+    p_window_seconds: windowSeconds,
+  }) as { data: { allowed: boolean; remaining: number; reset_at: string } | null; error: unknown };
+  
+  if (error || !data) {
+    console.error('Rate limit check error:', error);
+    return { allowed: true, remaining: maxRequests, resetAt: new Date().toISOString() };
+  }
+  
+  return {
+    allowed: data.allowed,
+    remaining: data.remaining,
+    resetAt: data.reset_at,
+  };
+}
+
+// Get client IP from request headers
+const getClientIP = (req: Request): string => {
+  const forwarded = req.headers.get('x-forwarded-for');
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  const realIP = req.headers.get('x-real-ip');
+  if (realIP) {
+    return realIP;
+  }
+  return 'system';
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -43,6 +87,34 @@ serve(async (req) => {
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // Check rate limit (2 scraping runs per hour)
+    const clientIP = getClientIP(req);
+    const rateLimitResult = await checkRateLimit(clientIP, 'job-scraper', 2, 3600);
+    if (!rateLimitResult.allowed) {
+      console.log(`Rate limit exceeded for ${clientIP} on job-scraper`);
+      logEntry.status = "failed";
+      logEntry.error_message = "Rate limit exceeded";
+      logEntry.execution_time_ms = Date.now() - startTime;
+      await supabase.from("job_scraping_logs").insert(logEntry);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: "Rate limit exceeded. Job scraping is limited to 2 runs per hour.",
+          retryAfter: rateLimitResult.resetAt
+        }),
+        { 
+          status: 429, 
+          headers: { 
+            ...corsHeaders, 
+            "Content-Type": "application/json",
+            'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+            'X-RateLimit-Reset': rateLimitResult.resetAt,
+          } 
+        }
+      );
+    }
 
     console.log("Starting AI job scraping...");
 

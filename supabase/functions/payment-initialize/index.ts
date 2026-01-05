@@ -12,6 +12,37 @@ interface PaymentRequest {
   description: string;
 }
 
+// Rate limit helper
+async function checkRateLimit(
+  identifier: string,
+  endpoint: string,
+  maxRequests = 10,
+  windowSeconds = 60
+): Promise<{ allowed: boolean; remaining: number; resetAt: string }> {
+  const supabaseAdmin = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+  
+  const { data, error } = await supabaseAdmin.rpc('check_rate_limit', {
+    p_identifier: identifier,
+    p_endpoint: endpoint,
+    p_max_requests: maxRequests,
+    p_window_seconds: windowSeconds,
+  }) as { data: { allowed: boolean; remaining: number; reset_at: string } | null; error: unknown };
+  
+  if (error || !data) {
+    console.error('Rate limit check error:', error);
+    return { allowed: true, remaining: maxRequests, resetAt: new Date().toISOString() };
+  }
+  
+  return {
+    allowed: data.allowed,
+    remaining: data.remaining,
+    resetAt: data.reset_at,
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -31,6 +62,27 @@ Deno.serve(async (req) => {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) {
       throw new Error('Unauthorized');
+    }
+
+    // Check rate limit (10 payment initializations per minute per user)
+    const rateLimitResult = await checkRateLimit(user.id, 'payment-initialize', 10, 60);
+    if (!rateLimitResult.allowed) {
+      console.log(`Rate limit exceeded for user ${user.id} on payment-initialize`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Rate limit exceeded. Please wait before making another payment request.',
+          retryAfter: rateLimitResult.resetAt
+        }),
+        { 
+          status: 429, 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+            'X-RateLimit-Reset': rateLimitResult.resetAt,
+          } 
+        }
+      );
     }
 
     const { jobId, amount, currency, description }: PaymentRequest = await req.json();
