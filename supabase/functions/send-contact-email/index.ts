@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,6 +11,40 @@ interface ContactRequest {
   email: string;
   subject: string;
   message: string;
+}
+
+// Rate limit helper using IP address
+async function checkRateLimit(
+  identifier: string,
+  endpoint: string,
+  maxRequests = 5,
+  windowSeconds = 300
+): Promise<{ allowed: boolean; remaining: number; resetAt: string }> {
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    return { allowed: true, remaining: maxRequests, resetAt: new Date().toISOString() };
+  }
+  
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const { data, error } = await supabase.rpc('check_rate_limit', {
+    p_identifier: identifier,
+    p_endpoint: endpoint,
+    p_max_requests: maxRequests,
+    p_window_seconds: windowSeconds,
+  });
+  
+  if (error) {
+    console.error('Rate limit check error:', error);
+    return { allowed: true, remaining: maxRequests, resetAt: new Date().toISOString() };
+  }
+  
+  return {
+    allowed: data.allowed,
+    remaining: data.remaining,
+    resetAt: data.reset_at,
+  };
 }
 
 // Sanitize input to prevent XSS attacks
@@ -31,6 +66,19 @@ const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email) && email.length <= 254;
 };
 
+// Get client IP from request headers
+const getClientIP = (req: Request): string => {
+  const forwarded = req.headers.get('x-forwarded-for');
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  const realIP = req.headers.get('x-real-ip');
+  if (realIP) {
+    return realIP;
+  }
+  return 'unknown';
+};
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -46,6 +94,29 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Rate limit by IP (5 contact form submissions per 5 minutes)
+    const clientIP = getClientIP(req);
+    const rateLimitResult = await checkRateLimit(clientIP, 'send-contact-email', 5, 300);
+    
+    if (!rateLimitResult.allowed) {
+      console.log(`Rate limit exceeded for IP ${clientIP} on send-contact-email`);
+      return new Response(
+        JSON.stringify({ 
+          error: "Too many requests. Please wait a few minutes before trying again.",
+          retryAfter: rateLimitResult.resetAt
+        }),
+        { 
+          status: 429, 
+          headers: { 
+            "Content-Type": "application/json", 
+            ...corsHeaders,
+            'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+            'X-RateLimit-Reset': rateLimitResult.resetAt,
+          } 
+        }
+      );
+    }
+
     const body = await req.json();
     
     // Extract and sanitize inputs
