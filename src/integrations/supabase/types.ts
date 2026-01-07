@@ -105,13 +105,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "applications_applicant_id_fkey"
-            columns: ["applicant_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "applications_job_id_fkey"
             columns: ["job_id"]
             isOneToOne: false
@@ -205,13 +198,6 @@ export type Database = {
             columns: ["talent_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "certifications_talent_id_fkey"
-            columns: ["talent_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -520,13 +506,6 @@ export type Database = {
             columns: ["employer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "contract_templates_employer_id_fkey"
-            columns: ["employer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -844,13 +823,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "job_alerts_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       job_bookmarks: {
@@ -893,13 +865,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "job_bookmarks_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       job_matches: {
@@ -940,13 +905,6 @@ export type Database = {
             columns: ["talent_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "job_matches_talent_id_fkey"
-            columns: ["talent_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1380,13 +1338,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "portfolio_items_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       profiles: {
@@ -1634,13 +1585,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "service_listings_talent_id_fkey"
-            columns: ["talent_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       service_purchases: {
@@ -1724,13 +1668,6 @@ export type Database = {
             columns: ["talent_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "skill_assessments_talent_id_fkey"
-            columns: ["talent_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1889,13 +1826,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "verification_badges_talent_id_fkey"
-            columns: ["talent_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       verification_requests: {
@@ -1944,13 +1874,6 @@ export type Database = {
             columns: ["talent_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "verification_requests_talent_id_fkey"
-            columns: ["talent_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2028,69 +1951,7 @@ export type Database = {
       }
     }
     Views: {
-      profiles_public: {
-        Row: {
-          average_rating: number | null
-          bio: string | null
-          created_at: string | null
-          email: string | null
-          full_name: string | null
-          id: string | null
-          id_verified: boolean | null
-          last_active_at: string | null
-          location: string | null
-          phone_number: string | null
-          portfolio_links: Json | null
-          rating: number | null
-          skills: Json | null
-          total_gigs_completed: number | null
-          total_reviews: number | null
-          updated_at: string | null
-          user_id: string | null
-          video_intro_url: string | null
-        }
-        Insert: {
-          average_rating?: number | null
-          bio?: string | null
-          created_at?: string | null
-          email?: never
-          full_name?: string | null
-          id?: string | null
-          id_verified?: boolean | null
-          last_active_at?: string | null
-          location?: string | null
-          phone_number?: never
-          portfolio_links?: Json | null
-          rating?: number | null
-          skills?: Json | null
-          total_gigs_completed?: number | null
-          total_reviews?: number | null
-          updated_at?: string | null
-          user_id?: string | null
-          video_intro_url?: string | null
-        }
-        Update: {
-          average_rating?: number | null
-          bio?: string | null
-          created_at?: string | null
-          email?: never
-          full_name?: string | null
-          id?: string | null
-          id_verified?: boolean | null
-          last_active_at?: string | null
-          location?: string | null
-          phone_number?: never
-          portfolio_links?: Json | null
-          rating?: number | null
-          skills?: Json | null
-          total_gigs_completed?: number | null
-          total_reviews?: number | null
-          updated_at?: string | null
-          user_id?: string | null
-          video_intro_url?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       calculate_employer_trust_score: {
@@ -2119,6 +1980,29 @@ export type Database = {
         Returns: Json
       }
       cleanup_rate_limits: { Args: never; Returns: number }
+      get_profile_safe: {
+        Args: { p_profile_id: string }
+        Returns: {
+          average_rating: number
+          bio: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          id_verified: boolean
+          last_active_at: string
+          location: string
+          phone_number: string
+          portfolio_links: Json
+          rating: number
+          skills: Json
+          total_gigs_completed: number
+          total_reviews: number
+          updated_at: string
+          user_id: string
+          video_intro_url: string
+        }[]
+      }
       has_active_contract_with: {
         Args: { _profile_user_id: string }
         Returns: boolean
