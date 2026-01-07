@@ -1985,6 +1985,7 @@ export type Database = {
         Returns: {
           average_rating: number
           bio: string
+          can_view_contact: boolean
           created_at: string
           email: string
           full_name: string
