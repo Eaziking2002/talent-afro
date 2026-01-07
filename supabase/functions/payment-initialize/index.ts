@@ -12,6 +12,48 @@ interface PaymentRequest {
   description: string;
 }
 
+// Get client IP from request headers
+function getClientIP(req: Request): string {
+  const forwarded = req.headers.get('x-forwarded-for');
+  if (forwarded) return forwarded.split(',')[0].trim();
+  const realIP = req.headers.get('x-real-ip');
+  if (realIP) return realIP;
+  return 'unknown';
+}
+
+// Check if IP is blocked
+async function checkIPBlocked(ipAddress: string): Promise<boolean> {
+  const supabaseAdmin = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+  
+  const { data, error } = await supabaseAdmin.rpc('is_ip_blocked', {
+    p_ip_address: ipAddress,
+  });
+  
+  if (error) {
+    console.error('IP block check error:', error);
+    return false;
+  }
+  
+  return data === true;
+}
+
+// Record abuse and potentially auto-block
+async function recordAbuse(ipAddress: string, reason: string): Promise<void> {
+  const supabaseAdmin = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+  
+  await supabaseAdmin.rpc('record_abuse_and_maybe_block', {
+    p_ip_address: ipAddress,
+    p_reason: reason,
+    p_threshold: 10,
+  });
+}
+
 // Rate limit helper
 async function checkRateLimit(
   identifier: string,
@@ -49,6 +91,17 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Check if IP is blocked
+    const clientIP = getClientIP(req);
+    const isBlocked = await checkIPBlocked(clientIP);
+    if (isBlocked) {
+      console.log(`Blocked IP ${clientIP} attempted payment-initialize`);
+      return new Response(
+        JSON.stringify({ error: 'Access denied' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -68,6 +121,8 @@ Deno.serve(async (req) => {
     const rateLimitResult = await checkRateLimit(user.id, 'payment-initialize', 10, 60);
     if (!rateLimitResult.allowed) {
       console.log(`Rate limit exceeded for user ${user.id} on payment-initialize`);
+      // Record abuse for rate limit violations
+      await recordAbuse(clientIP, 'Payment rate limit exceeded');
       return new Response(
         JSON.stringify({ 
           error: 'Rate limit exceeded. Please wait before making another payment request.',

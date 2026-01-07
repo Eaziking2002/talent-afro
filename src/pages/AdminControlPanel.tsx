@@ -18,6 +18,7 @@ import {
   XCircle, Eye, Edit, Trash2, RefreshCw, Download, AlertTriangle,
   Award, Star, Clock, TrendingUp, Settings, Database, Activity
 } from "lucide-react";
+import BlockedIPsManager from "@/components/BlockedIPsManager";
 
 interface User {
   id: string;
@@ -366,7 +367,7 @@ export default function AdminControlPanel() {
 
           {/* Main Tabs */}
           <Tabs defaultValue="users" className="space-y-4">
-            <TabsList className="grid grid-cols-4 w-full max-w-xl">
+            <TabsList className="grid grid-cols-5 w-full max-w-2xl">
               <TabsTrigger value="users">
                 <Users className="h-4 w-4 mr-2" />
                 Users
@@ -382,6 +383,10 @@ export default function AdminControlPanel() {
               <TabsTrigger value="badges">
                 <Award className="h-4 w-4 mr-2" />
                 Badges
+              </TabsTrigger>
+              <TabsTrigger value="security">
+                <Shield className="h-4 w-4 mr-2" />
+                Security
               </TabsTrigger>
             </TabsList>
 
@@ -635,6 +640,11 @@ export default function AdminControlPanel() {
                   </p>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Security Tab */}
+            <TabsContent value="security">
+              <BlockedIPsManager />
             </TabsContent>
           </Tabs>
         </div>

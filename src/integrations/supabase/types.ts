@@ -113,6 +113,45 @@ export type Database = {
           },
         ]
       }
+      blocked_ips: {
+        Row: {
+          abuse_count: number
+          blocked_at: string
+          blocked_by: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          ip_address: string
+          is_permanent: boolean
+          last_abuse_at: string
+          reason: string | null
+        }
+        Insert: {
+          abuse_count?: number
+          blocked_at?: string
+          blocked_by?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          ip_address: string
+          is_permanent?: boolean
+          last_abuse_at?: string
+          reason?: string | null
+        }
+        Update: {
+          abuse_count?: number
+          blocked_at?: string
+          blocked_by?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          ip_address?: string
+          is_permanent?: boolean
+          last_abuse_at?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
       certifications: {
         Row: {
           certificate_name: string
@@ -1947,6 +1986,11 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      is_ip_blocked: { Args: { p_ip_address: string }; Returns: boolean }
+      record_abuse_and_maybe_block: {
+        Args: { p_ip_address: string; p_reason?: string; p_threshold?: number }
+        Returns: Json
       }
     }
     Enums: {
