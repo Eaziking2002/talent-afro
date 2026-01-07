@@ -13,6 +13,41 @@ interface ContactRequest {
   message: string;
 }
 
+// Check if IP is blocked
+async function checkIPBlocked(ipAddress: string): Promise<boolean> {
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return false;
+  
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const { data, error } = await supabase.rpc('is_ip_blocked', {
+    p_ip_address: ipAddress,
+  });
+  
+  if (error) {
+    console.error('IP block check error:', error);
+    return false;
+  }
+  
+  return data === true;
+}
+
+// Record abuse and potentially auto-block
+async function recordAbuse(ipAddress: string, reason: string): Promise<void> {
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return;
+  
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  await supabase.rpc('record_abuse_and_maybe_block', {
+    p_ip_address: ipAddress,
+    p_reason: reason,
+    p_threshold: 10,
+  });
+}
+
 // Rate limit helper using IP address
 async function checkRateLimit(
   identifier: string,
@@ -94,12 +129,24 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Rate limit by IP (5 contact form submissions per 5 minutes)
+    // Check if IP is blocked
     const clientIP = getClientIP(req);
+    const isBlocked = await checkIPBlocked(clientIP);
+    if (isBlocked) {
+      console.log(`Blocked IP ${clientIP} attempted send-contact-email`);
+      return new Response(
+        JSON.stringify({ error: "Access denied" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Rate limit by IP (5 contact form submissions per 5 minutes)
     const rateLimitResult = await checkRateLimit(clientIP, 'send-contact-email', 5, 300);
     
     if (!rateLimitResult.allowed) {
       console.log(`Rate limit exceeded for IP ${clientIP} on send-contact-email`);
+      // Record abuse for rate limit violations
+      await recordAbuse(clientIP, 'Contact form rate limit exceeded');
       return new Response(
         JSON.stringify({ 
           error: "Too many requests. Please wait a few minutes before trying again.",
