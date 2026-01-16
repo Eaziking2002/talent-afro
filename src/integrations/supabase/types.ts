@@ -1291,6 +1291,13 @@ export type Database = {
             referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payment_proofs_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       portfolio_items: {
@@ -1951,7 +1958,62 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      transactions_safe: {
+        Row: {
+          amount_minor_units: number | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          from_user_id: string | null
+          id: string | null
+          job_id: string | null
+          net_amount_minor_units: number | null
+          platform_fee_minor_units: number | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          to_user_id: string | null
+          type: Database["public"]["Enums"]["transaction_type"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount_minor_units?: number | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          from_user_id?: string | null
+          id?: string | null
+          job_id?: string | null
+          net_amount_minor_units?: number | null
+          platform_fee_minor_units?: number | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          to_user_id?: string | null
+          type?: Database["public"]["Enums"]["transaction_type"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount_minor_units?: number | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          from_user_id?: string | null
+          id?: string | null
+          job_id?: string | null
+          net_amount_minor_units?: number | null
+          platform_fee_minor_units?: number | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          to_user_id?: string | null
+          type?: Database["public"]["Enums"]["transaction_type"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       calculate_employer_trust_score: {

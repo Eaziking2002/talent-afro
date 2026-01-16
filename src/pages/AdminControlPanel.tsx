@@ -97,23 +97,34 @@ export default function AdminControlPanel() {
   }
 
   async function fetchUsers() {
+    // Fetch public profile data
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, user_id, full_name, email, created_at")
+      .select("id, user_id, full_name, created_at")
       .order("created_at", { ascending: false });
 
     const { data: roles } = await supabase
       .from("user_roles")
       .select("user_id, role");
-
-    const usersWithRoles = profiles?.map(profile => ({
-      id: profile.user_id,
-      email: profile.email || 'N/A',
-      full_name: profile.full_name,
-      created_at: profile.created_at,
-      roles: roles?.filter(r => r.user_id === profile.user_id).map(r => r.role) || [],
-      status: 'active' as const
-    })) || [];
+    
+    // For admin panel, fetch private contact info for each user
+    const usersWithRoles = await Promise.all(
+      (profiles || []).map(async (profile) => {
+        // Get contact info via secure RPC (admin has access)
+        const { data: contactInfo } = await supabase.rpc("get_contact_info" as any, { 
+          target_user_id: profile.user_id 
+        });
+        
+        return {
+          id: profile.user_id,
+          email: contactInfo?.[0]?.email || 'N/A',
+          full_name: profile.full_name,
+          created_at: profile.created_at,
+          roles: roles?.filter(r => r.user_id === profile.user_id).map(r => r.role) || [],
+          status: 'active' as const
+        };
+      })
+    );
 
     setUsers(usersWithRoles);
   }

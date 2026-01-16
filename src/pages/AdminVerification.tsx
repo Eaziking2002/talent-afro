@@ -34,11 +34,28 @@ export default function AdminVerification() {
       .from("verification_requests")
       .select(`
         *,
-        profiles!verification_requests_talent_id_fkey (full_name, email)
+        profiles!verification_requests_talent_id_fkey (full_name, user_id)
       `)
       .order("created_at", { ascending: false });
 
-    if (data) setRequests(data);
+    if (data) {
+      // Fetch contact info for each request (admin has access)
+      const requestsWithContact = await Promise.all(
+        data.map(async (req) => {
+          const { data: contactInfo } = await supabase.rpc("get_contact_info" as any, { 
+            target_user_id: req.profiles?.user_id 
+          });
+          return {
+            ...req,
+            profiles: {
+              ...req.profiles,
+              email: contactInfo?.[0]?.email || 'N/A'
+            }
+          };
+        })
+      );
+      setRequests(requestsWithContact);
+    }
   };
 
   const handleReview = async (status: "approved" | "rejected") => {
