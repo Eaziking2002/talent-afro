@@ -28,7 +28,6 @@ interface Application {
   applicant_id: string;
   applicant: {
     full_name: string;
-    email: string;
     skills: any;
     rating: number;
   };
@@ -86,12 +85,12 @@ const EmployerDashboard = () => {
       if (jobsError) throw jobsError;
       setJobs(jobsData || []);
 
-      // Get applications for all jobs
+      // Get applications for all jobs - no longer select email from profiles
       const { data: applicationsData, error: appsError } = await supabase
         .from("applications")
         .select(`
           *,
-          applicant:profiles!applications_applicant_id_fkey(full_name, email, skills, rating),
+          applicant:profiles!applications_applicant_id_fkey(full_name, skills, rating),
           job:jobs(title)
         `)
         .in("job_id", (jobsData || []).map(j => j.id))

@@ -140,16 +140,25 @@ export const ContractManager = () => {
         const isEmployer = contract && userId === contract.employer_id;
         const otherPartyId = isEmployer ? contract.talent_id : contract.employer_id;
 
+        // Get profile name (public data)
         const { data: otherPartyProfile } = await supabase
           .from("profiles")
-          .select("email, full_name")
+          .select("full_name, user_id")
           .eq("id", otherPartyId)
           .single();
+        
+        // Get contact info via secure RPC (only works for contract parties/admin)
+        // Using type assertion since the function was just created
+        const { data: contactInfo } = otherPartyProfile?.user_id 
+          ? await supabase.rpc("get_contact_info" as any, { target_user_id: otherPartyProfile.user_id })
+          : { data: null };
+        
+        const otherPartyEmail = contactInfo?.[0]?.email;
 
-        if (otherPartyProfile?.email) {
+        if (otherPartyEmail) {
           await supabase.functions.invoke("send-transaction-email", {
             body: {
-              to: otherPartyProfile.email,
+              to: otherPartyEmail,
               userName: otherPartyProfile.full_name,
               transactionType: "payment_released",
               amount: milestone.amount_minor_units / 100,
@@ -225,16 +234,24 @@ export const ContractManager = () => {
         const isEmployer = userId === contract.employer_id;
         const otherPartyId = isEmployer ? contract.talent_id : contract.employer_id;
 
+        // Get profile name (public data)
         const { data: otherPartyProfile } = await supabase
           .from("profiles")
-          .select("email, full_name")
+          .select("full_name, user_id")
           .eq("id", otherPartyId)
           .single();
+        
+        // Get contact info via secure RPC
+        const { data: disputeContactInfo } = otherPartyProfile?.user_id 
+          ? await supabase.rpc("get_contact_info" as any, { target_user_id: otherPartyProfile.user_id })
+          : { data: null };
+        
+        const disputeEmail = disputeContactInfo?.[0]?.email;
 
-        if (otherPartyProfile?.email) {
+        if (disputeEmail) {
           await supabase.functions.invoke("send-transaction-email", {
             body: {
-              to: otherPartyProfile.email,
+              to: disputeEmail,
               userName: otherPartyProfile.full_name,
               transactionType: "dispute_raised",
               jobTitle: contract.jobs?.title,
