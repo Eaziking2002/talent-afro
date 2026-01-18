@@ -84,8 +84,8 @@ const FAQ = () => {
             </p>
             <p className="text-sm text-muted-foreground">
               Contact us at{" "}
-              <a href="mailto:support@skilllinkafrica.com" className="text-primary font-medium hover:underline">
-                support@skilllinkafrica.com
+              <a href="mailto:skilllinkafrica01@gmail.com" className="text-primary font-medium hover:underline">
+                skilllinkafrica01@gmail.com
               </a>
             </p>
           </div>
