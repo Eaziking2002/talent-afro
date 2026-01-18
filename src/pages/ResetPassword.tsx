@@ -1,12 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Check, X } from "lucide-react";
+
+// Password strength checker
+const getPasswordStrength = (password: string): { score: number; label: string } => {
+  let score = 0;
+  if (password.length >= 8) score += 20;
+  if (password.length >= 12) score += 10;
+  if (/[A-Z]/.test(password)) score += 20;
+  if (/[a-z]/.test(password)) score += 20;
+  if (/[0-9]/.test(password)) score += 15;
+  if (/[^A-Za-z0-9]/.test(password)) score += 15;
+  
+  if (score < 40) return { score, label: "Weak" };
+  if (score < 70) return { score, label: "Fair" };
+  if (score < 90) return { score, label: "Good" };
+  return { score, label: "Strong" };
+};
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -14,6 +31,19 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Password validation state
+  const passwordChecks = useMemo(() => ({
+    minLength: password.length >= 8,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecial: /[^A-Za-z0-9]/.test(password),
+  }), [password]);
+
+  const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
+  const isPasswordValid = Object.values(passwordChecks).every(Boolean);
+  const passwordsMatch = password === confirmPassword;
 
   useEffect(() => {
     // Check if user has a valid session
@@ -28,13 +58,13 @@ const ResetPassword = () => {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
+    if (!passwordsMatch) {
       toast.error("Passwords don't match");
       return;
     }
 
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+    if (!isPasswordValid) {
+      toast.error("Password doesn't meet security requirements");
       return;
     }
 
@@ -74,6 +104,7 @@ const ResetPassword = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
+                  className={password && !isPasswordValid ? "border-destructive" : ""}
                 />
                 <button
                   type="button"
@@ -87,9 +118,52 @@ const ResetPassword = () => {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Use at least 6 characters with a mix of letters, numbers & symbols
-              </p>
+              
+              {/* Password strength indicator */}
+              {password && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Progress value={passwordStrength.score} className="h-2 flex-1" />
+                    <span className={`text-xs font-medium ${
+                      passwordStrength.score < 40 ? 'text-destructive' :
+                      passwordStrength.score < 70 ? 'text-yellow-600' :
+                      passwordStrength.score < 90 ? 'text-blue-600' : 'text-green-600'
+                    }`}>
+                      {passwordStrength.label}
+                    </span>
+                  </div>
+                  
+                  {/* Password requirements checklist */}
+                  <div className="grid grid-cols-2 gap-1 text-xs">
+                    <div className={`flex items-center gap-1 ${passwordChecks.minLength ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordChecks.minLength ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      8+ characters
+                    </div>
+                    <div className={`flex items-center gap-1 ${passwordChecks.hasUppercase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordChecks.hasUppercase ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      Uppercase
+                    </div>
+                    <div className={`flex items-center gap-1 ${passwordChecks.hasLowercase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordChecks.hasLowercase ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      Lowercase
+                    </div>
+                    <div className={`flex items-center gap-1 ${passwordChecks.hasNumber ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordChecks.hasNumber ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      Number
+                    </div>
+                    <div className={`flex items-center gap-1 ${passwordChecks.hasSpecial ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordChecks.hasSpecial ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      Special char
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {!password && (
+                <p className="text-xs text-muted-foreground">
+                  Use at least 8 characters with uppercase, lowercase, numbers & symbols
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -101,10 +175,25 @@ const ResetPassword = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
                 required
+                className={confirmPassword && !passwordsMatch ? "border-destructive" : ""}
               />
+              {confirmPassword && !passwordsMatch && (
+                <p className="text-xs text-destructive flex items-center gap-1">
+                  <X className="w-3 h-3" /> Passwords don't match
+                </p>
+              )}
+              {confirmPassword && passwordsMatch && (
+                <p className="text-xs text-green-600 flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Passwords match
+                </p>
+              )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={loading || !isPasswordValid || !passwordsMatch}
+            >
               {loading ? "Updating..." : "Update Password"}
             </Button>
           </form>
