@@ -115,7 +115,7 @@ const ManualPayment = () => {
                 <h3 className="font-semibold mb-2 text-orange-900 dark:text-orange-100">📱 Orange Money</h3>
                 <div className="text-sm text-orange-800 dark:text-orange-200 space-y-1">
                   <p><strong>Name:</strong> SkillLink Africa</p>
-                  <p><strong>Number:</strong> +232 33 430 315</p>
+                  <p><strong>Number:</strong> +232 76 348 278</p>
                   <p><strong>Reference:</strong> {transactionId}</p>
                 </div>
               </div>
