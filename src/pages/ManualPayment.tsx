@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,11 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useManualPayments } from "@/hooks/useManualPayments";
+import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Upload, FileText } from "lucide-react";
 
 const ManualPayment = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const { submitPaymentProof, uploading } = useManualPayments();
   
   const transactionId = searchParams.get('transactionId');
@@ -20,6 +22,27 @@ const ManualPayment = () => {
   const [file, setFile] = useState<File | null>(null);
   const [bankDetails, setBankDetails] = useState("");
   const [notes, setNotes] = useState("");
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  // Don't render content if not authenticated
+  if (!user) {
+    return null;
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
