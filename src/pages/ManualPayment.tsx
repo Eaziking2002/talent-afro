@@ -99,14 +99,34 @@ const ManualPayment = () => {
               </p>
             </div>
 
-            <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <h3 className="font-semibold mb-2 text-blue-900 dark:text-blue-100">Bank Transfer Instructions</h3>
-              <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                <p><strong>Bank Name:</strong> Vult</p>
-                <p><strong>Account Name:</strong> SkillLink Africa</p>
-                <p><strong>Account Number:</strong> 4934920021252202</p>
-                <p><strong>Currency:</strong> SLE</p>
-                <p><strong>Reference:</strong> {transactionId}</p>
+            <div className="mb-6 space-y-4">
+              <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <h3 className="font-semibold mb-2 text-blue-900 dark:text-blue-100">💳 Bank Transfer</h3>
+                <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                  <p><strong>Bank Name:</strong> Vult</p>
+                  <p><strong>Account Name:</strong> SkillLink Africa</p>
+                  <p><strong>Account Number:</strong> 4934920021252202</p>
+                  <p><strong>Currency:</strong> SLE</p>
+                  <p><strong>Reference:</strong> {transactionId}</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800 rounded-lg">
+                <h3 className="font-semibold mb-2 text-orange-900 dark:text-orange-100">📱 Orange Money</h3>
+                <div className="text-sm text-orange-800 dark:text-orange-200 space-y-1">
+                  <p><strong>Name:</strong> SkillLink Africa</p>
+                  <p><strong>Number:</strong> +232 33 430 315</p>
+                  <p><strong>Reference:</strong> {transactionId}</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
+                <h3 className="font-semibold mb-2 text-green-900 dark:text-green-100">📱 AfriMoney</h3>
+                <div className="text-sm text-green-800 dark:text-green-200 space-y-1">
+                  <p><strong>Name:</strong> SkillLink Africa</p>
+                  <p><strong>Number:</strong> +232 33 430 315</p>
+                  <p><strong>Reference:</strong> {transactionId}</p>
+                </div>
               </div>
             </div>
 
