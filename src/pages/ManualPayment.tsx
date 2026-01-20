@@ -102,9 +102,10 @@ const ManualPayment = () => {
             <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
               <h3 className="font-semibold mb-2 text-blue-900 dark:text-blue-100">Bank Transfer Instructions</h3>
               <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                <p><strong>Bank Name:</strong> Your Bank Name</p>
-                <p><strong>Account Name:</strong> Your Company Name</p>
-                <p><strong>Account Number:</strong> 1234567890</p>
+                <p><strong>Bank Name:</strong> Vult</p>
+                <p><strong>Account Name:</strong> SkillLink Africa</p>
+                <p><strong>Account Number:</strong> 4934920021252202</p>
+                <p><strong>Currency:</strong> SLE</p>
                 <p><strong>Reference:</strong> {transactionId}</p>
               </div>
             </div>
