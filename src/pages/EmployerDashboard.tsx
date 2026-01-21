@@ -37,7 +37,7 @@ interface Application {
 }
 
 const EmployerDashboard = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -45,12 +45,14 @@ const EmployerDashboard = () => {
   const [employerId, setEmployerId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Avoid redirecting while auth is still restoring the session.
+    if (authLoading) return;
     if (!user) {
-      navigate("/auth");
+      navigate("/auth", { replace: true });
       return;
     }
     fetchEmployerData();
-  }, [user]);
+  }, [authLoading, user, navigate]);
 
   const fetchEmployerData = async () => {
     if (!user) return;

@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,8 +50,19 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [showReset, setShowReset] = useState(false);
-  const { signUp, signIn } = useAuth();
+  const { signUp, signIn, user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // If the user is already authenticated, never show the auth screen.
+  // This prevents the "it asked me to log in again" loop when auth state is still restoring.
+  useEffect(() => {
+    if (loading) return;
+    if (!user) return;
+
+    const fromPath = (location.state as any)?.from?.pathname;
+    navigate(fromPath || "/", { replace: true });
+  }, [loading, user, location.state, navigate]);
 
   // Password validation state
   const passwordChecks = useMemo(() => ({
