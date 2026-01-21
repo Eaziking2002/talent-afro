@@ -48,7 +48,7 @@ const Hero = () => {
               className="group"
               asChild
             >
-              <Link to="/auth">
+              <Link to="/auth?role=talent">
                 Get Started as Talent
                 <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
@@ -58,7 +58,7 @@ const Hero = () => {
               size="xl"
               asChild
             >
-              <Link to="/auth">
+              <Link to="/auth?role=employer">
                 I'm Hiring
               </Link>
             </Button>
