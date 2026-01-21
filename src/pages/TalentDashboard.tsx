@@ -50,7 +50,7 @@ interface Bookmark {
 }
 
 const TalentDashboard = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -59,12 +59,14 @@ const TalentDashboard = () => {
   const [profileId, setProfileId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Avoid redirecting while auth is still restoring the session.
+    if (authLoading) return;
     if (!user) {
-      navigate("/auth");
+      navigate("/auth", { replace: true });
       return;
     }
     fetchDashboardData();
-  }, [user]);
+  }, [authLoading, user, navigate]);
 
   const fetchDashboardData = async () => {
     if (!user) return;
