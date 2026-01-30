@@ -2075,6 +2075,41 @@ export type Database = {
         Returns: Json
       }
       cleanup_rate_limits: { Args: never; Returns: number }
+      decrypt_bank_details: {
+        Args: { p_encrypted_data: string; p_user_id: string }
+        Returns: string
+      }
+      encrypt_bank_details: { Args: { p_data: string }; Returns: string }
+      get_payment_proof_with_details: {
+        Args: { p_proof_id: string }
+        Returns: {
+          bank_details: string
+          created_at: string
+          id: string
+          notes: string
+          proof_url: string
+          transaction_id: string
+          updated_at: string
+          user_id: string
+          verified_at: string
+          verified_by: string
+        }[]
+      }
+      get_pending_payment_proofs: {
+        Args: never
+        Returns: {
+          created_at: string
+          has_bank_details: boolean
+          id: string
+          notes: string
+          proof_url: string
+          transaction_id: string
+          updated_at: string
+          user_id: string
+          verified_at: string
+          verified_by: string
+        }[]
+      }
       get_profile_safe: {
         Args: { p_profile_id: string }
         Returns: {

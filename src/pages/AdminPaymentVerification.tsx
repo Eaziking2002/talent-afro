@@ -14,7 +14,8 @@ interface PaymentProof {
   transaction_id: string;
   user_id: string;
   proof_url: string;
-  bank_details: string | null;
+  has_bank_details?: boolean;
+  decrypted_bank_details?: string | null;
   notes: string | null;
   verified_by: string | null;
   verified_at: string | null;
@@ -36,6 +37,7 @@ const AdminPaymentVerification = () => {
   const [selectedProof, setSelectedProof] = useState<string | null>(null);
   const [adminNotes, setAdminNotes] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [loadingBankDetails, setLoadingBankDetails] = useState<string | null>(null);
 
   useEffect(() => {
     checkAdminAndFetchProofs();
@@ -81,7 +83,14 @@ const AdminPaymentVerification = () => {
       const { data, error } = await supabase
         .from('payment_proofs')
         .select(`
-          *,
+          id,
+          transaction_id,
+          user_id,
+          proof_url,
+          notes,
+          verified_by,
+          verified_at,
+          created_at,
           transactions(*)
         `)
         .is('verified_at', null)
@@ -89,7 +98,14 @@ const AdminPaymentVerification = () => {
 
       if (error) throw error;
 
-      setProofs(data || []);
+      // Map the data to include has_bank_details flag
+      const proofsWithFlag = (data || []).map(proof => ({
+        ...proof,
+        has_bank_details: true, // Assume encrypted data exists, will be fetched on demand
+        decrypted_bank_details: null as string | null,
+      }));
+
+      setProofs(proofsWithFlag);
     } catch (error) {
       console.error('Error fetching payment proofs:', error);
       toast({
@@ -97,6 +113,36 @@ const AdminPaymentVerification = () => {
         description: "Failed to load payment proofs",
         variant: "destructive",
       });
+    }
+  };
+
+  const fetchDecryptedBankDetails = async (proofId: string) => {
+    setLoadingBankDetails(proofId);
+    try {
+      const { data, error } = await supabase.rpc('get_payment_proof_with_details', {
+        p_proof_id: proofId,
+      });
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setProofs(prevProofs => 
+          prevProofs.map(p => 
+            p.id === proofId 
+              ? { ...p, decrypted_bank_details: data[0].bank_details }
+              : p
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching bank details:', error);
+      toast({
+        title: "Error",
+        description: "Failed to decrypt bank details",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingBankDetails(null);
     }
   };
 
@@ -184,12 +230,24 @@ const AdminPaymentVerification = () => {
                       <p className="text-muted-foreground">Submitted</p>
                       <p>{new Date(proof.created_at).toLocaleString()}</p>
                     </div>
-                    {proof.bank_details && (
-                      <div className="col-span-2">
-                        <p className="text-muted-foreground">Bank Details</p>
-                        <p>{proof.bank_details}</p>
-                      </div>
-                    )}
+                    <div className="col-span-2">
+                      <p className="text-muted-foreground">Bank Details</p>
+                      {proof.decrypted_bank_details ? (
+                        <p className="font-mono bg-muted p-2 rounded">{proof.decrypted_bank_details}</p>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => fetchDecryptedBankDetails(proof.id)}
+                          disabled={loadingBankDetails === proof.id}
+                        >
+                          {loadingBankDetails === proof.id ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : null}
+                          View Encrypted Bank Details
+                        </Button>
+                      )}
+                    </div>
                     {proof.notes && (
                       <div className="col-span-2">
                         <p className="text-muted-foreground">User Notes</p>
