@@ -106,7 +106,7 @@ const Footer = () => {
               <p className="font-medium text-foreground">Hire Me / Collaborate</p>
               <ul className="space-y-1">
                 <li>📧 <a href="mailto:sesayezekiel81@gmail.com" className="hover:text-primary transition-colors">sesayezekiel81@gmail.com</a></li>
-                <li>📞 +232 31 570010 / +232 74 062138</li>
+                <li>📞 +232 31 570010 / +23233430315</li>
                 <li className="flex gap-3 pt-1">
                   <a href="https://instagram.com/eaziking2" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
                     <Instagram className="w-4 h-4" />
@@ -124,7 +124,7 @@ const Footer = () => {
         <div className="pt-8 border-t">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © 2025 SkillLink Africa. All rights reserved.
+              © 2026 SkillLink Africa. All rights reserved.
             </p>
             <div className="flex gap-4">
               <a 
