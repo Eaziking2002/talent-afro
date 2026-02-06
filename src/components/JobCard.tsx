@@ -7,6 +7,7 @@ import { useJobBookmark } from "@/hooks/useJobBookmark";
 import { useJobView } from "@/hooks/useJobView";
 import { useState } from "react";
 import type { Json } from "@/integrations/supabase/types";
+import SocialShare from "@/components/SocialShare";
 
 interface JobCardProps {
   job: {
@@ -122,7 +123,7 @@ export const JobCard = ({ job, onApply }: JobCardProps) => {
           </div>
         )}
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button 
             className="flex-1" 
             onClick={() => {
@@ -140,6 +141,10 @@ export const JobCard = ({ job, onApply }: JobCardProps) => {
           >
             <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
           </Button>
+          <SocialShare 
+            title={`${job.title} at ${getCompanyName()}`}
+            description={`Check out this job opportunity: ${job.title} - ${job.budget_min}-${job.budget_max} USD`}
+          />
           {job.external_url && (
             <Button variant="outline" asChild>
               <a href={job.external_url} target="_blank" rel="noopener noreferrer">
