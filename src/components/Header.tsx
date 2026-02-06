@@ -5,35 +5,28 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { NavLink } from "@/components/NavLink";
 import { supabase } from "@/integrations/supabase/client";
-
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { user, signOut } = useAuth();
-
+  const {
+    user,
+    signOut
+  } = useAuth();
   useEffect(() => {
     checkAdminStatus();
   }, [user]);
-
   const checkAdminStatus = async () => {
     if (!user) {
       setIsAdmin(false);
       return;
     }
-
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .single();
-
+    const {
+      data
+    } = await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").single();
     setIsAdmin(!!data);
   };
-
-  return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+  return <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container h-16 px-4 md:px-6 flex-col flex items-start justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-hero-gradient shadow-md">
@@ -67,8 +60,7 @@ const Header = () => {
           <Link to="/marketplace" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Marketplace
           </Link>
-          {user && (
-            <>
+          {user && <>
               <Link to="/my-services" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 My Services
               </Link>
@@ -93,8 +85,7 @@ const Header = () => {
               <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Wallet
               </Link>
-              {isAdmin && (
-                <>
+              {isAdmin && <>
                   <NavLink to="/admin/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                     Admin: Jobs
                   </NavLink>
@@ -128,51 +119,41 @@ const Header = () => {
                   <NavLink to="/admin/verification" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                     Verification Review
                   </NavLink>
-                </>
-              )}
+                </>}
               <NavLink to="/talents" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Talents
               </NavLink>
               <Link to="/notifications" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative">
                 Notifications
               </Link>
-            </>
-          )}
+            </>}
         </nav>
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          {user ? (
-            <>
+          {user ? <>
               <span className="text-sm text-muted-foreground">
                 {user.email}
               </span>
               <Button variant="ghost" onClick={signOut}>Sign Out</Button>
-            </>
-          ) : (
-            <>
+            </> : <>
               <Button variant="ghost" asChild>
                 <Link to="/auth">Log In</Link>
               </Button>
               <Button variant="default" asChild>
                 <Link to="/auth">Sign Up</Link>
               </Button>
-            </>
-          )}
+            </>}
         </div>
 
         {/* Mobile Menu Button */}
-        <button
-          className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
+        <button className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           <Menu className="w-6 h-6" />
         </button>
       </div>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t bg-background">
+      {mobileMenuOpen && <div className="md:hidden border-t bg-background">
           <nav className="container py-4 px-4 flex flex-col gap-4">
             <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Features
@@ -192,8 +173,7 @@ const Header = () => {
             <Link to="/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Jobs
             </Link>
-            {user && (
-              <>
+            {user && <>
                 <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Dashboard
                 </Link>
@@ -206,8 +186,7 @@ const Header = () => {
                 <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                   Wallet
                 </Link>
-                {isAdmin && (
-                  <>
+                {isAdmin && <>
                     <NavLink to="/admin/control" className="text-sm font-medium text-primary hover:text-foreground transition-colors font-bold">
                       Control Panel
                     </NavLink>
@@ -229,34 +208,25 @@ const Header = () => {
                     <NavLink to="/templates" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                       Templates
                     </NavLink>
-                  </>
-                )}
-              </>
-            )}
+                  </>}
+              </>}
             <div className="flex flex-col gap-2 pt-4 border-t">
-              {user ? (
-                <>
+              {user ? <>
                   <span className="text-sm text-muted-foreground px-3">
                     {user.email}
                   </span>
                   <Button variant="ghost" className="w-full" onClick={signOut}>Sign Out</Button>
-                </>
-              ) : (
-                <>
+                </> : <>
                   <Button variant="ghost" className="w-full" asChild>
                     <Link to="/auth">Log In</Link>
                   </Button>
                   <Button variant="default" className="w-full" asChild>
                     <Link to="/auth">Sign Up</Link>
                   </Button>
-                </>
-              )}
+                </>}
             </div>
           </nav>
-        </div>
-      )}
-    </header>
-  );
+        </div>}
+    </header>;
 };
-
 export default Header;
