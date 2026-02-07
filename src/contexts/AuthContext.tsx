@@ -53,10 +53,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error, data } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+
+    if (!error && data.user) {
+      // Check if user has a complete profile
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .maybeSingle();
+
+      const userRole = roleData?.role;
+
+      if (userRole === "employer") {
+        const { data: employer } = await supabase
+          .from("employers")
+          .select("company_name")
+          .eq("user_id", data.user.id)
+          .maybeSingle();
+
+        if (!employer?.company_name) {
+          navigate("/profile-setup");
+        } else {
+          navigate("/employer/dashboard");
+        }
+      } else {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name, location, skills")
+          .eq("user_id", data.user.id)
+          .maybeSingle();
+
+        const isComplete = profile?.full_name && profile?.location &&
+          Array.isArray(profile?.skills) && profile.skills.length > 0;
+
+        if (!isComplete) {
+          navigate("/profile-setup");
+        } else {
+          navigate("/dashboard");
+        }
+      }
+    }
+
     return { error };
   };
 
