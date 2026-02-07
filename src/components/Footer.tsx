@@ -1,4 +1,5 @@
 import { Sparkles, Facebook, Twitter, Instagram, Linkedin, Youtube } from "lucide-react";
+import { Link } from "react-router-dom";
 import ezekielPhoto from "@/assets/ezekiel-sesay.jpg";
 
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -15,11 +16,11 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 const Footer = () => {
   return (
-    <footer className="border-t bg-muted/30">
+    <footer className="border-t bg-muted/30 pb-20 md:pb-0">
       <div className="container px-4 md:px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
           {/* Brand */}
-          <div className="space-y-4">
+          <div className="col-span-2 md:col-span-1 space-y-4">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-hero-gradient shadow-md">
                 <Sparkles className="w-4 h-4 text-primary-foreground" />
@@ -31,8 +32,8 @@ const Footer = () => {
             <p className="text-sm text-muted-foreground">
               Connecting Africa's best talent with remote opportunities and instant payouts.
             </p>
-            <a 
-              href="mailto:skilllinkafrica01@gmail.com" 
+            <a
+              href="mailto:skilllinkafrica01@gmail.com"
               className="text-sm text-primary hover:underline"
             >
               skilllinkafrica01@gmail.com
@@ -43,10 +44,11 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">For Talent</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">Find Jobs</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">How It Works</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Success Stories</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Learning</a></li>
+              <li><Link to="/jobs" className="hover:text-foreground transition-colors">Find Jobs</Link></li>
+              <li><Link to="/marketplace" className="hover:text-foreground transition-colors">Marketplace</Link></li>
+              <li><Link to="/verification" className="hover:text-foreground transition-colors">Get Verified</Link></li>
+              <li><Link to="/skill-gap-analysis" className="hover:text-foreground transition-colors">Skill Gap Analysis</Link></li>
+              <li><Link to="/certifications" className="hover:text-foreground transition-colors">Certifications</Link></li>
             </ul>
           </div>
 
@@ -54,21 +56,34 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">For Employers</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">Post a Job</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Find Talent</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Pricing</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Resources</a></li>
+              <li><Link to="/talents" className="hover:text-foreground transition-colors">Find Talent</Link></li>
+              <li><Link to="/employer/dashboard" className="hover:text-foreground transition-colors">Post a Job</Link></li>
+              <li><Link to="/bulk-contracts" className="hover:text-foreground transition-colors">Bulk Import</Link></li>
+              <li><Link to="/templates" className="hover:text-foreground transition-colors">Contract Templates</Link></li>
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Platform */}
           <div>
-            <h3 className="font-semibold mb-4">Company</h3>
+            <h3 className="font-semibold mb-4">Platform</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Contact</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Privacy</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Terms</a></li>
+              <li><Link to="/about" className="hover:text-foreground transition-colors">About Us</Link></li>
+              <li><a href="/#pricing" className="hover:text-foreground transition-colors">Pricing</a></li>
+              <li><a href="/#faq" className="hover:text-foreground transition-colors">FAQ</a></li>
+              <li><a href="/#how-it-works" className="hover:text-foreground transition-colors">How It Works</a></li>
+              <li><Link to="/docs" className="hover:text-foreground transition-colors">Documentation</Link></li>
+              <li><Link to="/referrals" className="hover:text-foreground transition-colors">Referral Program</Link></li>
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h3 className="font-semibold mb-4">Resources</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><Link to="/leaderboard" className="hover:text-foreground transition-colors">Leaderboard</Link></li>
+              <li><Link to="/analytics" className="hover:text-foreground transition-colors">Analytics</Link></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Terms of Service</a></li>
             </ul>
           </div>
         </div>
@@ -77,18 +92,15 @@ const Footer = () => {
         <div className="mt-8 pt-8 border-t">
           <h3 className="font-semibold mb-4 text-lg">Developer</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-            {/* Photo */}
             <div className="flex justify-center md:justify-start">
               <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-primary shadow-lg">
-                <img 
-                  src={ezekielPhoto} 
-                  alt="Ezekiel Sesay - Developer" 
+                <img
+                  src={ezekielPhoto}
+                  alt="Ezekiel Sesay - Developer"
                   className="w-full h-full object-cover"
                 />
               </div>
             </div>
-            
-            {/* Bio */}
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
                 <span className="font-semibold text-foreground">Ezekiel Sesay (Eazi)</span> — Information Systems Professional, Digital Creator & Tech Entrepreneur from Sierra Leone. Founder of SkillLink Africa, connecting Africans to remote jobs and digital opportunities.
@@ -100,8 +112,6 @@ const Footer = () => {
                 <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">Content Creation</span>
               </div>
             </div>
-            
-            {/* Contact */}
             <div className="space-y-2 text-sm text-muted-foreground">
               <p className="font-medium text-foreground">Hire Me / Collaborate</p>
               <ul className="space-y-1">
@@ -127,69 +137,13 @@ const Footer = () => {
               © 2026 SkillLink Africa. All rights reserved.
             </p>
             <div className="flex gap-4">
-              <a 
-                href="https://www.facebook.com/profile.php?id=61584774670112" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a 
-                href="https://x.com/SkilllinkA68742" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="X (Twitter)"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a 
-                href="https://www.instagram.com/skilllink_africa/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a 
-                href="https://www.linkedin.com/in/skilllink-africa-a06008394/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a 
-                href="https://www.tiktok.com/@skilllink_africa" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="TikTok"
-              >
-                <TikTokIcon className="w-5 h-5" />
-              </a>
-              <a 
-                href="http://www.youtube.com/@SkillLinkAfrica-d1e" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="YouTube"
-              >
-                <Youtube className="w-5 h-5" />
-              </a>
-              <a 
-                href="https://wa.me/23233430315" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="WhatsApp"
-              >
-                <WhatsAppIcon className="w-5 h-5" />
-              </a>
+              <a href="https://www.facebook.com/profile.php?id=61584774670112" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Facebook"><Facebook className="w-5 h-5" /></a>
+              <a href="https://x.com/SkilllinkA68742" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" aria-label="X (Twitter)"><Twitter className="w-5 h-5" /></a>
+              <a href="https://www.instagram.com/skilllink_africa/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Instagram"><Instagram className="w-5 h-5" /></a>
+              <a href="https://www.linkedin.com/in/skilllink-africa-a06008394/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" aria-label="LinkedIn"><Linkedin className="w-5 h-5" /></a>
+              <a href="https://www.tiktok.com/@skilllink_africa" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" aria-label="TikTok"><TikTokIcon className="w-5 h-5" /></a>
+              <a href="http://www.youtube.com/@SkillLinkAfrica-d1e" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" aria-label="YouTube"><Youtube className="w-5 h-5" /></a>
+              <a href="https://wa.me/23233430315" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" aria-label="WhatsApp"><WhatsAppIcon className="w-5 h-5" /></a>
             </div>
           </div>
         </div>
