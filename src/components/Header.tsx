@@ -1,31 +1,35 @@
 import { Button } from "@/components/ui/button";
-import { Menu, Rss } from "lucide-react";
+import { Rss } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { NavLink } from "@/components/NavLink";
 import { supabase } from "@/integrations/supabase/client";
+import ProfileDropdown from "@/components/navigation/ProfileDropdown";
+
 const Header = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const {
-    user,
-    signOut
-  } = useAuth();
+  const { user } = useAuth();
+
   useEffect(() => {
     checkAdminStatus();
   }, [user]);
+
   const checkAdminStatus = async () => {
     if (!user) {
       setIsAdmin(false);
       return;
     }
-    const {
-      data
-    } = await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").single();
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .single();
     setIsAdmin(!!data);
   };
-  return <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
@@ -37,196 +41,62 @@ const Header = () => {
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Features
-          </a>
-          <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            How It Works
-          </a>
-          <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Pricing
-          </a>
-          <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            FAQ
-          </a>
-          <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            About
+        {/* Desktop Navigation — Max 4 items */}
+        <nav className="hidden md:flex items-center gap-6">
+          <Link
+            to="/talents"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Find Talent
           </Link>
-          <Link to="/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Jobs
+          <Link
+            to="/jobs"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Find Work
           </Link>
-          <Link to="/marketplace" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <Link
+            to="/marketplace"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
             Marketplace
           </Link>
-          {user && <>
-              <Link to="/my-services" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                My Services
-              </Link>
-              <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Dashboard
-              </Link>
-              <Link to="/employer/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Employer
-              </Link>
-              <Link to="/bulk-contracts" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Bulk Import
-              </Link>
-              <Link to="/verification" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Verification
-              </Link>
-              <Link to="/skill-gap-analysis" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Skill Gap
-              </Link>
-              <Link to="/messages" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Messages
-              </Link>
-              <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Wallet
-              </Link>
-              {isAdmin && <>
-                  <NavLink to="/admin/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Admin: Jobs
-                  </NavLink>
-                  <NavLink to="/admin/disputes" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Admin: Disputes
-                  </NavLink>
-                  <NavLink to="/analytics" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Analytics
-                  </NavLink>
-                  <NavLink to="/leaderboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Leaderboard
-                  </NavLink>
-                  <NavLink to="/templates" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Templates
-                  </NavLink>
-                  <NavLink to="/referrals" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Referrals
-                  </NavLink>
-                  <NavLink to="/certifications" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Certifications
-                  </NavLink>
-                  <NavLink to="/admin/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Admin Dashboard
-                  </NavLink>
-                  <NavLink to="/admin/control" className="text-sm font-medium text-primary hover:text-foreground transition-colors font-bold">
-                    Control Panel
-                  </NavLink>
-                  <NavLink to="/advanced-analytics" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Advanced Analytics
-                  </NavLink>
-                  <NavLink to="/admin/verification" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Verification Review
-                  </NavLink>
-                </>}
-              <NavLink to="/talents" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Talents
-              </NavLink>
-              <Link to="/notifications" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative">
-                Notifications
-              </Link>
-            </>}
         </nav>
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          {user ? <>
-              <span className="text-sm text-muted-foreground">
-                {user.email}
-              </span>
-              <Button variant="ghost" onClick={signOut}>Sign Out</Button>
-            </> : <>
-              <Button variant="ghost" asChild>
+          {user ? (
+            <>
+              <Button variant="hero" size="sm" asChild>
+                <Link to="/employer/dashboard">Post a Job</Link>
+              </Button>
+              <ProfileDropdown isAdmin={isAdmin} />
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
                 <Link to="/auth">Log In</Link>
               </Button>
-              <Button variant="default" asChild>
-                <Link to="/auth">Sign Up</Link>
+              <Button variant="hero" size="default" asChild>
+                <Link to="/auth?role=talent">Get Started Free</Link>
               </Button>
-            </>}
+            </>
+          )}
         </div>
 
-        {/* Mobile Menu Button */}
-        <button className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-          <Menu className="w-6 h-6" />
-        </button>
+        {/* Mobile — only show logo + CTA, bottom nav handles the rest */}
+        <div className="md:hidden flex items-center gap-2">
+          {user ? (
+            <ProfileDropdown isAdmin={isAdmin} />
+          ) : (
+            <Button variant="hero" size="sm" asChild>
+              <Link to="/auth">Get Started</Link>
+            </Button>
+          )}
+        </div>
       </div>
-
-      {/* Mobile Menu */}
-      {mobileMenuOpen && <div className="md:hidden border-t bg-background">
-          <nav className="container py-4 px-4 flex flex-col gap-4">
-            <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Features
-            </a>
-            <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              How It Works
-            </a>
-            <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Pricing
-            </a>
-            <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              FAQ
-            </a>
-            <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              About
-            </Link>
-            <Link to="/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Jobs
-            </Link>
-            {user && <>
-                <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  Dashboard
-                </Link>
-                <Link to="/employer/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  Employer
-                </Link>
-                <Link to="/messages" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  Messages
-                </Link>
-                <Link to="/wallet" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  Wallet
-                </Link>
-                {isAdmin && <>
-                    <NavLink to="/admin/control" className="text-sm font-medium text-primary hover:text-foreground transition-colors font-bold">
-                      Control Panel
-                    </NavLink>
-                    <NavLink to="/admin/jobs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                      Admin: Jobs
-                    </NavLink>
-                    <NavLink to="/admin/employers" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                      Admin: Employers
-                    </NavLink>
-                    <NavLink to="/admin/disputes" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                      Admin: Disputes
-                    </NavLink>
-                    <NavLink to="/analytics" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                      Analytics
-                    </NavLink>
-                    <NavLink to="/leaderboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                      Leaderboard
-                    </NavLink>
-                    <NavLink to="/templates" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                      Templates
-                    </NavLink>
-                  </>}
-              </>}
-            <div className="flex flex-col gap-2 pt-4 border-t">
-              {user ? <>
-                  <span className="text-sm text-muted-foreground px-3">
-                    {user.email}
-                  </span>
-                  <Button variant="ghost" className="w-full" onClick={signOut}>Sign Out</Button>
-                </> : <>
-                  <Button variant="ghost" className="w-full" asChild>
-                    <Link to="/auth">Log In</Link>
-                  </Button>
-                  <Button variant="default" className="w-full" asChild>
-                    <Link to="/auth">Sign Up</Link>
-                  </Button>
-                </>}
-            </div>
-          </nav>
-        </div>}
-    </header>;
+    </header>
+  );
 };
+
 export default Header;
