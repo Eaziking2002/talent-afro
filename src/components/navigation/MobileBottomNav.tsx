@@ -51,32 +51,37 @@ const MobileBottomNav = () => {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t safe-area-bottom">
-      <div className="flex items-center justify-around h-16 px-2">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border/60 safe-area-bottom">
+      <div className="flex items-end justify-around h-[68px] px-1 pb-1">
         {tabs.map((tab) => (
           <Link
             key={tab.label}
             to={tab.to}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 min-w-[56px] py-1 rounded-lg transition-colors",
+              "flex flex-col items-center justify-center gap-0.5 min-w-[60px] rounded-xl transition-all duration-200",
               tab.isPrimary
-                ? "relative -mt-5"
+                ? "relative -mt-4"
                 : tab.active
                 ? "text-primary"
-                : "text-muted-foreground"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             {tab.isPrimary ? (
-              <div className="w-12 h-12 rounded-full bg-hero-gradient flex items-center justify-center shadow-lg">
-                <tab.icon className="w-6 h-6 text-primary-foreground" />
+              <div className="w-[52px] h-[52px] rounded-2xl bg-hero-gradient flex items-center justify-center shadow-lg shadow-primary/25 ring-4 ring-background">
+                <tab.icon className="w-6 h-6 text-primary-foreground" strokeWidth={2.5} />
               </div>
             ) : (
-              <tab.icon className="w-5 h-5" />
+              <div className={cn(
+                "flex items-center justify-center w-10 h-10 rounded-xl transition-colors",
+                tab.active && "bg-primary/10"
+              )}>
+                <tab.icon className={cn("w-[22px] h-[22px]", tab.active && "stroke-[2.5]")} />
+              </div>
             )}
             <span
               className={cn(
-                "text-[10px] font-medium",
-                tab.isPrimary && "mt-0.5"
+                "text-[10px] leading-tight",
+                tab.isPrimary ? "mt-0.5 font-semibold text-primary" : tab.active ? "font-semibold" : "font-medium"
               )}
             >
               {tab.label}

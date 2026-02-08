@@ -110,6 +110,6 @@ All colors MUST be HSL.
 /* Add bottom padding to pages on mobile so content isn't hidden behind bottom nav */
 @media (max-width: 767px) {
   main {
-    padding-bottom: 4.5rem;
+    padding-bottom: 5rem;
   }
 }
