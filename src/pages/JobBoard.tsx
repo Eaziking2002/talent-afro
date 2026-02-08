@@ -1,24 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import Header from "@/components/Header";
-import { Search, MapPin, Briefcase, DollarSign, Star, ExternalLink, Filter, Bell, Bookmark } from "lucide-react";
+import { Search, Filter, Bell, Bookmark, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
-import { VerificationBadge } from "@/components/VerificationBadge";
 import { JobApplicationDialog } from "@/components/JobApplicationDialog";
 import { JobAlertsDialog } from "@/components/JobAlertsDialog";
-import { useJobBookmark } from "@/hooks/useJobBookmark";
 import { JobCard } from "@/components/JobCard";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 
-  interface Job {
+interface Job {
   id: string;
   title: string;
   company_name: string | null;
@@ -34,70 +33,150 @@ import { Label } from "@/components/ui/label";
   external_url: string | null;
   verification_status: string | null;
   created_at: string;
-  employers?: { 
+  employers?: {
     company_name: string;
     verification_level?: "unverified" | "basic" | "verified" | "premium";
     trust_score?: number;
     average_rating?: number;
-  };
+  } | null;
 }
+
+const PAGE_SIZE = 20;
+
+const JobBoardSkeleton = () => (
+  <div className="space-y-4">
+    {[...Array(3)].map((_, i) => (
+      <Card key={i}>
+        <CardContent className="p-6 space-y-4">
+          <div className="flex justify-between">
+            <div className="space-y-2 flex-1">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+            <Skeleton className="h-8 w-28" />
+          </div>
+          <Skeleton className="h-16 w-full" />
+          <div className="flex gap-2">
+            <Skeleton className="h-6 w-16" />
+            <Skeleton className="h-6 w-20" />
+            <Skeleton className="h-6 w-14" />
+          </div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+);
 
 const JobBoard = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
   const [budgetRange, setBudgetRange] = useState([0, 10000]);
   const [showFilters, setShowFilters] = useState(false);
+  const [ratingFilter, setRatingFilter] = useState("0");
+
   const [savedSearches, setSavedSearches] = useState<any[]>([]);
   const [showSaveSearch, setShowSaveSearch] = useState(false);
   const [searchName, setSearchName] = useState("");
-  const [ratingFilter, setRatingFilter] = useState("0");
-  
-  // Application dialog state
+
   const [applicationDialogOpen, setApplicationDialogOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<{ id: string; title: string; companyName: string } | null>(null);
-  
-  // Job alerts dialog state
   const [jobAlertsDialogOpen, setJobAlertsDialogOpen] = useState(false);
 
+  const fetchJobs = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Build query with filters applied server-side
+      let query = supabase
+        .from("jobs")
+        .select("*", { count: "exact" })
+        .eq("status", "open");
+
+      // Apply search filter
+      if (searchQuery.trim()) {
+        query = query.or(
+          `title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,company_name.ilike.%${searchQuery}%`
+        );
+      }
+
+      // Apply type filter
+      if (selectedType === "remote") {
+        query = query.eq("remote", true);
+      } else if (selectedType === "on-site") {
+        query = query.eq("remote", false);
+      }
+
+      // Apply budget filter
+      if (budgetRange[0] > 0) {
+        query = query.gte("budget_min", budgetRange[0]);
+      }
+      if (budgetRange[1] < 10000) {
+        query = query.lte("budget_max", budgetRange[1]);
+      }
+
+      // Apply location filter
+      if (selectedLocation !== "all") {
+        query = query.ilike("location", `%${selectedLocation}%`);
+      }
+
+      // Order and paginate
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      const { data, error, count } = await query
+        .order("is_featured", { ascending: false })
+        .order("created_at", { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
+
+      setJobs(data || []);
+      setTotalCount(count || 0);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load jobs. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [page, searchQuery, selectedLocation, selectedType, budgetRange]);
+
+  // Debounced fetch on filter changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(0);
+      fetchJobs();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, selectedLocation, selectedType, budgetRange, ratingFilter]);
+
+  // Fetch on page change
   useEffect(() => {
     fetchJobs();
+  }, [page]);
+
+  // Fetch saved searches once
+  useEffect(() => {
     fetchSavedSearches();
-
-    // Subscribe to real-time updates
-    const channel = supabase
-      .channel('job-board-jobs')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'jobs',
-          filter: 'status=eq.open'
-        },
-        () => {
-          fetchJobs();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   const fetchSavedSearches = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-
     const { data } = await supabase
       .from("saved_searches")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
-
     if (data) setSavedSearches(data);
   };
 
@@ -106,29 +185,13 @@ const JobBoard = () => {
       toast({ title: "Error", description: "Please enter a name for this search", variant: "destructive" });
       return;
     }
-
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       toast({ title: "Error", description: "Please sign in to save searches", variant: "destructive" });
       return;
     }
-
-    const filters = {
-      searchQuery,
-      selectedLocation,
-      selectedType,
-      budgetRange,
-      ratingFilter
-    };
-
-    const { error } = await supabase
-      .from("saved_searches")
-      .insert({
-        user_id: user.id,
-        name: searchName,
-        filters
-      });
-
+    const filters = { searchQuery, selectedLocation, selectedType, budgetRange, ratingFilter };
+    const { error } = await supabase.from("saved_searches").insert({ user_id: user.id, name: searchName, filters });
     if (error) {
       toast({ title: "Error", description: "Failed to save search", variant: "destructive" });
     } else {
@@ -149,107 +212,31 @@ const JobBoard = () => {
     toast({ title: "Success", description: `Loaded search: ${search.name}` });
   };
 
-  const fetchJobs = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select(`
-          *,
-          employers (company_name)
-        `)
-        .eq("status", "open")
-        .order("is_featured", { ascending: false })
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      setJobs(data || []);
-    } catch (error) {
-      console.error("Error fetching jobs:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load jobs",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getCompanyName = (job: Job) => {
-    return job.company_name || job.employers?.company_name || "Company";
-  };
-
-  const getSkills = (job: Job): string[] => {
-    if (!job.required_skills) return [];
-    if (Array.isArray(job.required_skills)) return job.required_skills as string[];
-    return [];
-  };
-
-  const filteredJobs = jobs.filter((job) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      getCompanyName(job).toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesLocation =
-      selectedLocation === "all" ||
-      (job.location && job.location.toLowerCase().includes(selectedLocation.toLowerCase()));
-
-    const matchesType =
-      selectedType === "all" ||
-      (selectedType === "remote" && job.remote) ||
-      (selectedType === "on-site" && !job.remote);
-
-    const matchesBudget =
-      job.budget_min >= budgetRange[0] && job.budget_max <= budgetRange[1];
-
-    const matchesRating =
-      ratingFilter === "0" ||
-      (job.employers?.average_rating || 0) >= parseFloat(ratingFilter);
-
-    return matchesSearch && matchesLocation && matchesType && matchesBudget && matchesRating;
-  });
-
-  const uniqueLocations = Array.from(
-    new Set(jobs.map((job) => job.location).filter((loc): loc is string => Boolean(loc)))
-  );
-
   const handleApplyClick = (job: Job) => {
     setSelectedJob({
       id: job.id,
       title: job.title,
-      companyName: getCompanyName(job),
+      companyName: job.company_name || "Company",
     });
     setApplicationDialogOpen(true);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-muted-foreground">Loading jobs...</p>
-        </div>
-      </div>
-    );
-  }
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-6 md:py-8">
         {/* Hero Section */}
-        <div className="mb-8 text-center">
-          <div className="flex items-center justify-center gap-4 mb-4 flex-wrap">
-            <h1 className="text-4xl font-bold">Find Your Next Opportunity</h1>
-            <Button onClick={() => setJobAlertsDialogOpen(true)} variant="outline" className="gap-2">
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">Find Your Next Opportunity</h1>
+          <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
+            <Button onClick={() => setJobAlertsDialogOpen(true)} variant="outline" size="sm" className="gap-1.5">
               <Bell className="h-4 w-4" />
               Job Alerts
             </Button>
-            <Button variant="outline" onClick={() => setShowSaveSearch(true)}>
-              <Bookmark className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={() => setShowSaveSearch(true)}>
+              <Bookmark className="h-4 w-4 mr-1.5" />
               Save Search
             </Button>
             {savedSearches.length > 0 && (
@@ -257,71 +244,67 @@ const JobBoard = () => {
                 const search = savedSearches.find(s => s.id === id);
                 if (search) loadSavedSearch(search);
               }}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Load saved search" />
+                <SelectTrigger className="w-[160px] h-9 text-sm">
+                  <SelectValue placeholder="Saved searches" />
                 </SelectTrigger>
                 <SelectContent>
                   {savedSearches.map((search) => (
-                    <SelectItem key={search.id} value={search.id}>
-                      {search.name}
-                    </SelectItem>
+                    <SelectItem key={search.id} value={search.id}>{search.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             )}
           </div>
-          <p className="text-lg text-muted-foreground">
-            Browse {jobs.length} verified job opportunities across Africa and worldwide
+          <p className="text-sm md:text-base text-muted-foreground">
+            Browse {totalCount.toLocaleString()} verified job opportunities across Africa and worldwide
           </p>
         </div>
 
         {/* Search and Filters */}
-        <Card className="mb-8">
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              {/* Search Bar */}
+        <Card className="mb-6">
+          <CardContent className="pt-5 pb-4">
+            <div className="space-y-3">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   placeholder="Search jobs by title, skills, or company..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-12 text-lg"
+                  className="pl-10 h-11"
                 />
               </div>
 
-              {/* Filter Toggle */}
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => setShowFilters(!showFilters)}
-                className="w-full md:w-auto"
               >
-                <Filter className="h-4 w-4 mr-2" />
+                <Filter className="h-4 w-4 mr-1.5" />
                 {showFilters ? "Hide Filters" : "Show Filters"}
               </Button>
 
-              {/* Filters */}
               {showFilters && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t">
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Location</label>
+                    <label className="text-sm font-medium mb-1.5 block">Location</label>
                     <Select value={selectedLocation} onValueChange={setSelectedLocation}>
                       <SelectTrigger>
                         <SelectValue placeholder="All Locations" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Locations</SelectItem>
-                        {uniqueLocations.map((location) => (
-                          <SelectItem key={location} value={location || ""}>
-                            {location}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="Remote">Remote</SelectItem>
+                        <SelectItem value="Nigeria">Nigeria</SelectItem>
+                        <SelectItem value="Kenya">Kenya</SelectItem>
+                        <SelectItem value="South Africa">South Africa</SelectItem>
+                        <SelectItem value="Ghana">Ghana</SelectItem>
+                        <SelectItem value="Sierra Leone">Sierra Leone</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Job Type</label>
+                    <label className="text-sm font-medium mb-1.5 block">Job Type</label>
                     <Select value={selectedType} onValueChange={setSelectedType}>
                       <SelectTrigger>
                         <SelectValue placeholder="All Types" />
@@ -335,23 +318,8 @@ const JobBoard = () => {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Minimum Rating</label>
-                    <Select value={ratingFilter} onValueChange={setRatingFilter}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Rating" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0">All Ratings</SelectItem>
-                        <SelectItem value="3">3+ Stars</SelectItem>
-                        <SelectItem value="4">4+ Stars</SelectItem>
-                        <SelectItem value="4.5">4.5+ Stars</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      Budget Range: ${budgetRange[0]} - ${budgetRange[1]}
+                    <label className="text-sm font-medium mb-1.5 block">
+                      Budget: ${budgetRange[0]} - ${budgetRange[1]}
                     </label>
                     <Slider
                       min={0}
@@ -368,32 +336,103 @@ const JobBoard = () => {
           </CardContent>
         </Card>
 
-        {/* Results Count */}
-        <div className="mb-4 text-sm text-muted-foreground">
-          Showing {filteredJobs.length} of {jobs.length} jobs
+        {/* Results Count + Pagination Info */}
+        <div className="mb-4 flex items-center justify-between text-sm text-muted-foreground">
+          <span>
+            {loading ? "Loading..." : `Showing ${jobs.length} of ${totalCount.toLocaleString()} jobs`}
+          </span>
+          {totalPages > 1 && (
+            <span>Page {page + 1} of {totalPages}</span>
+          )}
         </div>
 
         {/* Job Listings */}
-        <div className="space-y-4">
-          {filteredJobs.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">No jobs found matching your criteria</p>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredJobs.map((job) => (
+        {loading ? (
+          <JobBoardSkeleton />
+        ) : jobs.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground">No jobs found matching your criteria</p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedLocation("all");
+                  setSelectedType("all");
+                  setBudgetRange([0, 10000]);
+                  setRatingFilter("0");
+                }}
+              >
+                Clear all filters
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {jobs.map((job) => (
               <JobCard
                 key={job.id}
                 job={job}
                 onApply={() => handleApplyClick(job)}
               />
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              disabled={page === 0 || loading}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Previous
+            </Button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum: number;
+                if (totalPages <= 5) {
+                  pageNum = i;
+                } else if (page < 3) {
+                  pageNum = i;
+                } else if (page > totalPages - 4) {
+                  pageNum = totalPages - 5 + i;
+                } else {
+                  pageNum = page - 2 + i;
+                }
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={page === pageNum ? "default" : "outline"}
+                    size="sm"
+                    className="w-9 h-9"
+                    onClick={() => setPage(pageNum)}
+                    disabled={loading}
+                  >
+                    {pageNum + 1}
+                  </Button>
+                );
+              })}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+              disabled={page >= totalPages - 1 || loading}
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        )}
       </main>
 
-      {/* Application Dialog */}
       {selectedJob && (
         <JobApplicationDialog
           open={applicationDialogOpen}
@@ -404,20 +443,16 @@ const JobBoard = () => {
         />
       )}
 
-      {/* Job Alerts Dialog */}
       <JobAlertsDialog
         open={jobAlertsDialogOpen}
         onOpenChange={setJobAlertsDialogOpen}
       />
 
-      {/* Save Search Dialog */}
       <Dialog open={showSaveSearch} onOpenChange={setShowSaveSearch}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Save Search</DialogTitle>
-            <DialogDescription>
-              Save your current search filters for quick access later
-            </DialogDescription>
+            <DialogDescription>Save your current search filters for quick access later</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -428,9 +463,7 @@ const JobBoard = () => {
                 placeholder="e.g., Remote Design Jobs"
               />
             </div>
-            <Button onClick={saveCurrentSearch} className="w-full">
-              Save Search
-            </Button>
+            <Button onClick={saveCurrentSearch} className="w-full">Save Search</Button>
           </div>
         </DialogContent>
       </Dialog>
