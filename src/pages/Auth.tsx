@@ -118,6 +118,13 @@ const Auth = () => {
           balance_minor_units: 0,
           currency: "USD",
         });
+
+        // Store contact info securely in profile_private
+        await supabase.from("profile_private").upsert({
+          user_id: newUser.id,
+          email: validated.email,
+          phone_number: validated.phone || null,
+        }, { onConflict: "user_id" });
       }
 
       toast.success("Account created! Let's complete your profile.");

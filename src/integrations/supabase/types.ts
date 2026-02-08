@@ -1347,6 +1347,33 @@ export type Database = {
           },
         ]
       }
+      profile_private: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          phone_number: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone_number?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone_number?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           average_rating: number | null
@@ -2080,6 +2107,13 @@ export type Database = {
         Returns: string
       }
       encrypt_bank_details: { Args: { p_data: string }; Returns: string }
+      get_contact_info: {
+        Args: { target_user_id: string }
+        Returns: {
+          email: string
+          phone_number: string
+        }[]
+      }
       get_payment_proof_with_details: {
         Args: { p_proof_id: string }
         Returns: {
