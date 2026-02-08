@@ -59,42 +59,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     if (!error && data.user) {
-      // Check if user has a complete profile
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", data.user.id)
-        .maybeSingle();
+      // Fetch role and profile in parallel to avoid waterfall
+      const userId = data.user.id;
+      const [roleResult, profileResult, employerResult] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle(),
+        supabase.from("profiles").select("full_name, location, skills").eq("user_id", userId).maybeSingle(),
+        supabase.from("employers").select("company_name").eq("user_id", userId).maybeSingle(),
+      ]);
 
-      const userRole = roleData?.role;
+      const userRole = roleResult.data?.role;
 
       if (userRole === "employer") {
-        const { data: employer } = await supabase
-          .from("employers")
-          .select("company_name")
-          .eq("user_id", data.user.id)
-          .maybeSingle();
-
-        if (!employer?.company_name) {
-          navigate("/profile-setup");
-        } else {
-          navigate("/employer/dashboard");
-        }
+        navigate(employerResult.data?.company_name ? "/employer/dashboard" : "/profile-setup");
       } else {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name, location, skills")
-          .eq("user_id", data.user.id)
-          .maybeSingle();
-
-        const isComplete = profile?.full_name && profile?.location &&
-          Array.isArray(profile?.skills) && profile.skills.length > 0;
-
-        if (!isComplete) {
-          navigate("/profile-setup");
-        } else {
-          navigate("/dashboard");
-        }
+        const p = profileResult.data;
+        const isComplete = p?.full_name && p?.location && Array.isArray(p?.skills) && p.skills.length > 0;
+        navigate(isComplete ? "/dashboard" : "/profile-setup");
       }
     }
 
