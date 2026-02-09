@@ -8,17 +8,22 @@ import FAQ from "@/components/FAQ";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
 import FeedbackWidget from "@/components/FeedbackWidget";
+import FeaturedJobs from "@/components/FeaturedJobs";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
         <Hero />
+        {user && <FeaturedJobs />}
         <Features />
         <HowItWorks />
         <Testimonials />
-        <Pricing />
+        {!user && <Pricing />}
         <FAQ />
         <CTA />
       </main>
