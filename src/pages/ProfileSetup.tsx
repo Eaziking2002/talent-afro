@@ -178,9 +178,22 @@ const ProfileSetup = () => {
       const { error } = await supabase.from("profiles").update(profileData).eq("id", existingProfileId);
       if (error) throw error;
     } else {
-      const { data, error } = await supabase.from("profiles").insert(profileData).select("id").single();
-      if (error) throw error;
-      if (data) setExistingProfileId(data.id);
+      // Check if profile already exists (might have been created by another flow)
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existing) {
+        setExistingProfileId(existing.id);
+        const { error } = await supabase.from("profiles").update(profileData).eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from("profiles").insert(profileData).select("id").single();
+        if (error) throw error;
+        if (data) setExistingProfileId(data.id);
+      }
     }
   };
 
@@ -197,9 +210,22 @@ const ProfileSetup = () => {
       const { error } = await supabase.from("employers").update(employerData).eq("id", existingEmployerId);
       if (error) throw error;
     } else {
-      const { data, error } = await supabase.from("employers").insert(employerData).select("id").single();
-      if (error) throw error;
-      if (data) setExistingEmployerId(data.id);
+      // Check if employer profile already exists
+      const { data: existing } = await supabase
+        .from("employers")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existing) {
+        setExistingEmployerId(existing.id);
+        const { error } = await supabase.from("employers").update(employerData).eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from("employers").insert(employerData).select("id").single();
+        if (error) throw error;
+        if (data) setExistingEmployerId(data.id);
+      }
     }
   };
 
@@ -233,8 +259,9 @@ const ProfileSetup = () => {
       if (err instanceof z.ZodError) {
         toast.error(err.errors[0].message);
       } else {
-        console.error("Profile save error:", err);
-        toast.error("Failed to save profile. Please try again.");
+        const msg = err instanceof Error ? err.message : "Unknown error";
+        console.error("Profile save error:", msg, err);
+        toast.error(`Failed to save profile: ${msg}`);
       }
     } finally {
       setIsLoading(false);
