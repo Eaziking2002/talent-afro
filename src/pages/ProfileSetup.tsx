@@ -73,7 +73,16 @@ const ProfileSetup = () => {
         if (cancelled) return;
 
         // Default to "talent" if no role assigned yet (new signup)
-        const userRole = (roleData?.role as UserRole) || "talent";
+        let userRole: UserRole = (roleData?.role as UserRole) || "talent";
+        
+        // If no role exists, create one now (handles failed signup role assignment)
+        if (!roleData) {
+          await supabase.from("user_roles").insert({
+            user_id: user.id,
+            role: userRole,
+          });
+        }
+        
         setRole(userRole);
 
         if (userRole === "employer") {
@@ -255,12 +264,13 @@ const ProfileSetup = () => {
         toast.success("Profile completed!");
         navigate("/dashboard");
       }
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof z.ZodError) {
         toast.error(err.errors[0].message);
       } else {
-        const msg = err instanceof Error ? err.message : "Unknown error";
-        console.error("Profile save error:", msg, err);
+        // Supabase errors are plain objects with .message, not Error instances
+        const msg = err?.message || err?.error_description || String(err);
+        console.error("Profile save error:", err);
         toast.error(`Failed to save profile: ${msg}`);
       }
     } finally {
