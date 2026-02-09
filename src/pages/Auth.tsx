@@ -106,25 +106,29 @@ const Auth = () => {
       const { data: { user: newUser } } = await supabase.auth.getUser();
 
       if (newUser && selectedRole) {
-        // Assign role immediately
-        await supabase.from("user_roles").insert({
+        // Assign role — errors here should not block signup
+        const roleToAssign = selectedRole === "employer" ? "employer" : "talent";
+        const { error: roleError } = await supabase.from("user_roles").insert({
           user_id: newUser.id,
-          role: selectedRole === "employer" ? "employer" : "talent",
+          role: roleToAssign,
         });
+        if (roleError) console.error("Role assignment failed:", roleError.message);
 
         // Create wallet
-        await supabase.from("wallets").insert({
+        const { error: walletError } = await supabase.from("wallets").insert({
           user_id: newUser.id,
           balance_minor_units: 0,
           currency: "USD",
         });
+        if (walletError) console.error("Wallet creation failed:", walletError.message);
 
         // Store contact info securely in profile_private
-        await supabase.from("profile_private").upsert({
+        const { error: contactError } = await supabase.from("profile_private").upsert({
           user_id: newUser.id,
           email: validated.email,
           phone_number: validated.phone || null,
         }, { onConflict: "user_id" });
+        if (contactError) console.error("Contact info save failed:", contactError.message);
       }
 
       toast.success("Account created! Let's complete your profile.");
