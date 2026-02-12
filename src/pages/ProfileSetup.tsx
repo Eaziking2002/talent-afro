@@ -166,8 +166,10 @@ const ProfileSetup = () => {
         await saveTalentProfile();
       }
       toast.success("Progress saved!");
-    } catch {
-      toast.error("Failed to save progress. Please try again.");
+    } catch (err: any) {
+      const msg = err?.message || err?.error_description || String(err);
+      console.error("Save draft error:", err);
+      toast.error(`Failed to save progress: ${msg}`);
     } finally {
       setIsSavingDraft(false);
     }
