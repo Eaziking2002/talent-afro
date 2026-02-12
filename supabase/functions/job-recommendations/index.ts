@@ -116,16 +116,20 @@ Return top 10 matches sorted by score descending.`
       }),
     });
 
-    if (!aiResponse.ok) {
-      console.error('AI API error:', await aiResponse.text());
-      throw new Error('Failed to get AI recommendations');
-    }
+    let recommendations = [];
 
-    const aiData = await aiResponse.json();
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    const recommendations = toolCall?.function?.arguments 
-      ? JSON.parse(toolCall.function.arguments).recommendations 
-      : [];
+    if (!aiResponse.ok) {
+      const errText = await aiResponse.text();
+      console.warn('AI API unavailable, using local matching:', errText);
+      // Fallback: simple skill-based matching
+      recommendations = localMatch(profile, jobs);
+    } else {
+      const aiData = await aiResponse.json();
+      const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+      recommendations = toolCall?.function?.arguments 
+        ? JSON.parse(toolCall.function.arguments).recommendations 
+        : localMatch(profile, jobs);
+    }
 
     return new Response(JSON.stringify({ recommendations }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -139,3 +143,30 @@ Return top 10 matches sorted by score descending.`
     });
   }
 });
+
+// Local skill-based matching fallback
+function localMatch(profile: any, jobs: any[]) {
+  const userSkills: string[] = Array.isArray(profile.skills)
+    ? profile.skills.map((s: string) => s.toLowerCase())
+    : [];
+
+  return jobs
+    .map((job) => {
+      const reqSkills: string[] = Array.isArray(job.required_skills)
+        ? job.required_skills.map((s: string) => s.toLowerCase())
+        : [];
+      const overlap = reqSkills.filter((s) => userSkills.includes(s));
+      const score = reqSkills.length > 0
+        ? Math.round((overlap.length / reqSkills.length) * 100)
+        : 10;
+      return {
+        job_id: job.id,
+        match_score: score,
+        reason: overlap.length
+          ? `Your skills match: ${overlap.join(', ')}`
+          : 'This job may interest you based on availability.',
+      };
+    })
+    .sort((a, b) => b.match_score - a.match_score)
+    .slice(0, 10);
+}
