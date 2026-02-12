@@ -2088,6 +2088,7 @@ export type Database = {
         }
         Returns: number
       }
+      can_view_profile: { Args: { _profile_user_id: string }; Returns: boolean }
       check_milestone_dependencies: {
         Args: { milestone_id: string }
         Returns: boolean
