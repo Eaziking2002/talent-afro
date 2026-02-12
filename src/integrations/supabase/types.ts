@@ -709,14 +709,70 @@ export type Database = {
           },
         ]
       }
+      education: {
+        Row: {
+          created_at: string | null
+          degree: string
+          description: string | null
+          end_date: string | null
+          field_of_study: string | null
+          id: string
+          institution: string
+          is_current: boolean | null
+          profile_id: string
+          start_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          degree: string
+          description?: string | null
+          end_date?: string | null
+          field_of_study?: string | null
+          id?: string
+          institution: string
+          is_current?: boolean | null
+          profile_id: string
+          start_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          degree?: string
+          description?: string | null
+          end_date?: string | null
+          field_of_study?: string | null
+          id?: string
+          institution?: string
+          is_current?: boolean | null
+          profile_id?: string
+          start_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employers: {
         Row: {
           average_rating: number | null
           company_description: string | null
           company_name: string
+          company_size: string | null
           created_at: string
           id: string
+          industry: string | null
           last_active_at: string | null
+          logo_url: string | null
           successful_hires: number | null
           total_jobs_posted: number | null
           total_reviews: number | null
@@ -734,9 +790,12 @@ export type Database = {
           average_rating?: number | null
           company_description?: string | null
           company_name: string
+          company_size?: string | null
           created_at?: string
           id?: string
+          industry?: string | null
           last_active_at?: string | null
+          logo_url?: string | null
           successful_hires?: number | null
           total_jobs_posted?: number | null
           total_reviews?: number | null
@@ -754,9 +813,12 @@ export type Database = {
           average_rating?: number | null
           company_description?: string | null
           company_name?: string
+          company_size?: string | null
           created_at?: string
           id?: string
+          industry?: string | null
           last_active_at?: string | null
+          logo_url?: string | null
           successful_hires?: number | null
           total_jobs_posted?: number | null
           total_reviews?: number | null
@@ -1376,17 +1438,22 @@ export type Database = {
       }
       profiles: {
         Row: {
+          availability_status: string | null
+          avatar_url: string | null
           average_rating: number | null
           bio: string | null
           created_at: string
+          cv_url: string | null
           email: string | null
           full_name: string
           id: string
           id_verified: boolean | null
+          job_title: string | null
           last_active_at: string | null
           location: string | null
           phone_number: string | null
           portfolio_links: Json | null
+          profile_visibility: string | null
           rating: number | null
           skills: Json | null
           total_gigs_completed: number | null
@@ -1396,17 +1463,22 @@ export type Database = {
           video_intro_url: string | null
         }
         Insert: {
+          availability_status?: string | null
+          avatar_url?: string | null
           average_rating?: number | null
           bio?: string | null
           created_at?: string
+          cv_url?: string | null
           email?: string | null
           full_name: string
           id?: string
           id_verified?: boolean | null
+          job_title?: string | null
           last_active_at?: string | null
           location?: string | null
           phone_number?: string | null
           portfolio_links?: Json | null
+          profile_visibility?: string | null
           rating?: number | null
           skills?: Json | null
           total_gigs_completed?: number | null
@@ -1416,17 +1488,22 @@ export type Database = {
           video_intro_url?: string | null
         }
         Update: {
+          availability_status?: string | null
+          avatar_url?: string | null
           average_rating?: number | null
           bio?: string | null
           created_at?: string
+          cv_url?: string | null
           email?: string | null
           full_name?: string
           id?: string
           id_verified?: boolean | null
+          job_title?: string | null
           last_active_at?: string | null
           location?: string | null
           phone_number?: string | null
           portfolio_links?: Json | null
+          profile_visibility?: string | null
           rating?: number | null
           skills?: Json | null
           total_gigs_completed?: number | null
@@ -2015,6 +2092,59 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      work_experience: {
+        Row: {
+          company_name: string
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          is_current: boolean | null
+          job_title: string
+          location: string | null
+          profile_id: string
+          start_date: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          company_name: string
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_current?: boolean | null
+          job_title: string
+          location?: string | null
+          profile_id: string
+          start_date: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          company_name?: string
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_current?: boolean | null
+          job_title?: string
+          location?: string | null
+          profile_id?: string
+          start_date?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_experience_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
