@@ -42,6 +42,8 @@ import EmployerDashboard from "./pages/EmployerDashboard";
 import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 import Documentation from "./pages/Documentation";
+import TalentProfile from "./pages/TalentProfile";
+import EmployerProfile from "./pages/EmployerProfile";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +90,10 @@ const App = () => (
             <Route path="/admin/verification" element={<AdminVerification />} />
             <Route path="/skill-gap-analysis" element={<SkillGapAnalysis />} />
             <Route path="/docs" element={<Documentation />} />
+            <Route path="/profile" element={<TalentProfile />} />
+            <Route path="/profile/:userId" element={<TalentProfile />} />
+            <Route path="/company" element={<EmployerProfile />} />
+            <Route path="/company/:employerId" element={<EmployerProfile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

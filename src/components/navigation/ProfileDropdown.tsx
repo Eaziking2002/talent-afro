@@ -64,6 +64,12 @@ const ProfileDropdown = ({ isAdmin }: ProfileDropdownProps) => {
 
         {/* Core navigation */}
         <DropdownMenuItem asChild>
+          <Link to="/profile" className="cursor-pointer">
+            <User className="mr-2 h-4 w-4" />
+            My Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link to="/dashboard" className="cursor-pointer">
             <LayoutDashboard className="mr-2 h-4 w-4" />
             Talent Dashboard
