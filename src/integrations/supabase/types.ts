@@ -2180,6 +2180,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_employer_owner: { Args: { _employer_id: string }; Returns: boolean }
       is_ip_blocked: { Args: { p_ip_address: string }; Returns: boolean }
       record_abuse_and_maybe_block: {
         Args: { p_ip_address: string; p_reason?: string; p_threshold?: number }
