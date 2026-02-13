@@ -834,6 +834,48 @@ export type Database = {
         }
         Relationships: []
       }
+      identity_verifications: {
+        Row: {
+          admin_notes: string | null
+          back_image_url: string | null
+          created_at: string
+          document_type: string
+          front_image_url: string | null
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          back_image_url?: string | null
+          created_at?: string
+          document_type: string
+          front_image_url?: string | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          back_image_url?: string | null
+          created_at?: string
+          document_type?: string
+          front_image_url?: string | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       job_alerts: {
         Row: {
           active: boolean | null
