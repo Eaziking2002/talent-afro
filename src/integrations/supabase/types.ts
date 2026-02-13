@@ -1484,6 +1484,7 @@ export type Database = {
           avatar_url: string | null
           average_rating: number | null
           bio: string | null
+          cover_url: string | null
           created_at: string
           cv_url: string | null
           email: string | null
@@ -1509,6 +1510,7 @@ export type Database = {
           avatar_url?: string | null
           average_rating?: number | null
           bio?: string | null
+          cover_url?: string | null
           created_at?: string
           cv_url?: string | null
           email?: string | null
@@ -1534,6 +1536,7 @@ export type Database = {
           avatar_url?: string | null
           average_rating?: number | null
           bio?: string | null
+          cover_url?: string | null
           created_at?: string
           cv_url?: string | null
           email?: string | null

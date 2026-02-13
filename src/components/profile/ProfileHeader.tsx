@@ -1,18 +1,24 @@
+import { useState, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 import {
-  MapPin, CheckCircle, Download, Link as LinkIcon, MessageSquare, Briefcase, Globe, Eye, EyeOff,
+  MapPin, CheckCircle, Download, MessageSquare, Briefcase, Eye, EyeOff, Camera, Loader2,
 } from "lucide-react";
 
 interface TalentHeaderProps {
   profile: {
+    id: string;
+    user_id: string;
     full_name: string;
     job_title?: string | null;
     location?: string | null;
     avatar_url?: string | null;
+    cover_url?: string | null;
     availability_status?: string | null;
     profile_visibility?: string | null;
     id_verified?: boolean | null;
@@ -27,7 +33,11 @@ interface TalentHeaderProps {
   isOwner: boolean;
   onMessage?: () => void;
   onToggleVisibility?: () => void;
+  onProfileUpdate?: (updates: Record<string, any>) => void;
 }
+
+const MAX_SIZE = 5 * 1024 * 1024;
+const ALLOWED = ["image/jpeg", "image/png", "image/webp"];
 
 export const TalentProfileHeader = ({
   profile,
@@ -35,7 +45,13 @@ export const TalentProfileHeader = ({
   isOwner,
   onMessage,
   onToggleVisibility,
+  onProfileUpdate,
 }: TalentHeaderProps) => {
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const avatarRef = useRef<HTMLInputElement>(null);
+  const coverRef = useRef<HTMLInputElement>(null);
+
   const initials = profile.full_name
     ?.split(" ")
     .map((n) => n[0])
@@ -45,19 +61,136 @@ export const TalentProfileHeader = ({
 
   const isPublic = profile.profile_visibility !== "private";
 
+  const uploadImage = async (
+    file: File,
+    type: "avatar" | "cover"
+  ) => {
+    if (!ALLOWED.includes(file.type)) {
+      toast.error("Only JPG, PNG, and WebP images are allowed");
+      return;
+    }
+    if (file.size > MAX_SIZE) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    const setter = type === "avatar" ? setUploadingAvatar : setUploadingCover;
+    setter(true);
+
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${profile.user_id}/${type}_${Date.now()}.${ext}`;
+
+      const { error: uploadErr } = await supabase.storage
+        .from("profile-images")
+        .upload(path, file, { cacheControl: "3600", upsert: false });
+
+      if (uploadErr) throw uploadErr;
+
+      const { data: urlData } = supabase.storage
+        .from("profile-images")
+        .getPublicUrl(path);
+
+      const column = type === "avatar" ? "avatar_url" : "cover_url";
+      const { error: updateErr } = await supabase
+        .from("profiles")
+        .update({ [column]: urlData.publicUrl })
+        .eq("id", profile.id);
+
+      if (updateErr) throw updateErr;
+
+      onProfileUpdate?.({ [column]: urlData.publicUrl });
+      toast.success(`${type === "avatar" ? "Profile" : "Cover"} photo updated!`);
+    } catch (err: any) {
+      toast.error("Upload failed: " + err.message);
+    } finally {
+      setter(false);
+    }
+  };
+
   return (
     <div className="bg-card border rounded-xl overflow-hidden">
-      {/* Cover gradient */}
-      <div className="h-32 sm:h-40 bg-hero-gradient" />
+      {/* Cover photo */}
+      <div className="relative h-32 sm:h-48 group">
+        {profile.cover_url ? (
+          <img
+            src={profile.cover_url}
+            alt="Cover"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-hero-gradient" />
+        )}
+        {isOwner && (
+          <>
+            <button
+              onClick={() => coverRef.current?.click()}
+              disabled={uploadingCover}
+              className="absolute inset-0 flex items-center justify-center bg-foreground/0 group-hover:bg-foreground/30 transition-colors cursor-pointer"
+            >
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-white text-sm font-medium bg-foreground/50 px-3 py-1.5 rounded-full">
+                {uploadingCover ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Camera className="h-4 w-4" />
+                )}
+                {uploadingCover ? "Uploading..." : "Change Cover"}
+              </span>
+            </button>
+            <input
+              ref={coverRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) uploadImage(f, "cover");
+                e.target.value = "";
+              }}
+            />
+          </>
+        )}
+      </div>
 
       <div className="px-4 sm:px-8 pb-6 -mt-16 sm:-mt-20">
         <div className="flex flex-col sm:flex-row sm:items-end gap-4">
-          <Avatar className="h-28 w-28 sm:h-32 sm:w-32 border-4 border-card shadow-lg">
-            <AvatarImage src={profile.avatar_url || undefined} alt={profile.full_name} />
-            <AvatarFallback className="text-2xl font-bold bg-muted text-muted-foreground">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          {/* Avatar with upload */}
+          <div className="relative group">
+            <Avatar className="h-28 w-28 sm:h-32 sm:w-32 border-4 border-card shadow-lg">
+              <AvatarImage src={profile.avatar_url || undefined} alt={profile.full_name} />
+              <AvatarFallback className="text-2xl font-bold bg-muted text-muted-foreground">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            {isOwner && (
+              <>
+                <button
+                  onClick={() => avatarRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="absolute inset-0 flex items-center justify-center rounded-full bg-foreground/0 group-hover:bg-foreground/40 transition-colors cursor-pointer"
+                >
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    {uploadingAvatar ? (
+                      <Loader2 className="h-5 w-5 text-white animate-spin" />
+                    ) : (
+                      <Camera className="h-5 w-5 text-white" />
+                    )}
+                  </span>
+                </button>
+                <input
+                  ref={avatarRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) uploadImage(f, "avatar");
+                    e.target.value = "";
+                  }}
+                />
+              </>
+            )}
+          </div>
 
           <div className="flex-1 min-w-0 pt-2 sm:pt-0">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
@@ -152,7 +285,7 @@ export const TalentProfileHeader = ({
 // Skeleton loader
 export const ProfileHeaderSkeleton = () => (
   <div className="bg-card border rounded-xl overflow-hidden">
-    <Skeleton className="h-32 sm:h-40 w-full rounded-none" />
+    <Skeleton className="h-32 sm:h-48 w-full rounded-none" />
     <div className="px-4 sm:px-8 pb-6 -mt-16 sm:-mt-20">
       <div className="flex flex-col sm:flex-row sm:items-end gap-4">
         <Skeleton className="h-28 w-28 sm:h-32 sm:w-32 rounded-full" />
