@@ -81,7 +81,7 @@ async function fetchRemotiveJobs(): Promise<JobListing[]> {
   return jobs;
 }
 
-// Fetch from Adzuna if keys available
+// Fetch from Adzuna if keys available — use direct listing page URLs (not redirect)
 async function fetchAdzunaJobs(appId: string, appKey: string): Promise<JobListing[]> {
   const jobs: JobListing[] = [];
   const countries = ["gb", "us", "za"];
@@ -96,7 +96,11 @@ async function fetchAdzunaJobs(appId: string, appKey: string): Promise<JobListin
         const data = await response.json();
 
         for (const result of data.results || []) {
-          const applyUrl = result.redirect_url || "";
+          // Use the Adzuna listing page URL (stable) instead of redirect_url (often broken)
+          const adzunaId = result.id;
+          const applyUrl = adzunaId
+            ? `https://www.adzuna.com/details/${adzunaId}`
+            : result.redirect_url || "";
           if (!applyUrl) continue;
 
           const salaryMin = result.salary_min || 30000;
@@ -341,12 +345,16 @@ serve(async (req) => {
           continue;
         }
 
-        // Validate URL is alive
-        const urlOk = await isUrlValid(job.url);
-        if (!urlOk) {
-          console.log(`Rejected dead URL: ${job.url}`);
-          logEntry.jobs_rejected++;
-          continue;
+        // Validate URL is alive — skip for trusted sources with stable URLs
+        const trustedSources = ["remotive", "jsearch"];
+        const isTrusted = trustedSources.includes(job.source) || job.url.includes("adzuna.com/details/");
+        if (!isTrusted) {
+          const urlOk = await isUrlValid(job.url);
+          if (!urlOk) {
+            console.log(`Rejected dead URL: ${job.url}`);
+            logEntry.jobs_rejected++;
+            continue;
+          }
         }
 
         // Calculate expiration (30 days from now)
