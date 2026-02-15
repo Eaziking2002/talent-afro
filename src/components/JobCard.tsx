@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Briefcase, DollarSign, Star, ExternalLink, Bookmark } from "lucide-react";
+import { MapPin, Briefcase, DollarSign, Star, ExternalLink, Bookmark, Clock, Calendar } from "lucide-react";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { useJobBookmark } from "@/hooks/useJobBookmark";
 import { useJobView } from "@/hooks/useJobView";
@@ -23,6 +23,10 @@ interface JobCardProps {
     is_featured: boolean | null;
     ai_scraped: boolean | null;
     external_url: string | null;
+    job_type?: string | null;
+    expires_at?: string | null;
+    date_posted?: string | null;
+    created_at?: string;
     employers?: {
       company_name: string;
       verification_level?: "unverified" | "basic" | "verified" | "premium";
@@ -59,8 +63,11 @@ export const JobCard = ({ job, onApply }: JobCardProps) => {
               Featured
             </Badge>
           )}
+          {job.job_type && (
+            <Badge variant="outline" className="text-xs capitalize">{job.job_type.replace('-', ' ')}</Badge>
+          )}
           {job.remote && <Badge variant="outline" className="text-xs">Remote</Badge>}
-          {job.ai_scraped && <Badge variant="secondary" className="text-xs">Verified</Badge>}
+          {job.ai_scraped && <Badge variant="secondary" className="text-xs">Verified Source</Badge>}
         </div>
 
         {/* Title + budget row */}
@@ -90,6 +97,22 @@ export const JobCard = ({ job, onApply }: JobCardProps) => {
             </div>
             <p className="text-xs text-muted-foreground">USD</p>
           </div>
+        </div>
+
+        {/* Date & Expiry */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2 flex-wrap">
+          {(job.date_posted || job.created_at) && (
+            <span className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              Posted {new Date(job.date_posted || job.created_at || '').toLocaleDateString()}
+            </span>
+          )}
+          {job.expires_at && (
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              Expires {new Date(job.expires_at).toLocaleDateString()}
+            </span>
+          )}
         </div>
 
         {/* Description */}

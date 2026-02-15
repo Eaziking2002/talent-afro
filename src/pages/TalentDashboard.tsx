@@ -9,6 +9,7 @@ import { Briefcase, Bookmark, Bell, ExternalLink, Trash2, Clock, CheckCircle, XC
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useRoleGuard } from "@/hooks/useRoleGuard";
 import { JobAlertsDialog } from "@/components/JobAlertsDialog";
 import JobRecommendations from "@/components/JobRecommendations";
 import { PortfolioUpload } from "@/components/PortfolioUpload";
@@ -52,6 +53,7 @@ interface Bookmark {
 const TalentDashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { allowed, loading: roleLoading } = useRoleGuard("talent");
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState<Application[]>([]);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
@@ -59,14 +61,10 @@ const TalentDashboard = () => {
   const [profileId, setProfileId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Avoid redirecting while auth is still restoring the session.
-    if (authLoading) return;
-    if (!user) {
-      navigate("/auth", { replace: true });
-      return;
-    }
+    if (authLoading || roleLoading) return;
+    if (!user || !allowed) return;
     fetchDashboardData();
-  }, [authLoading, user, navigate]);
+  }, [authLoading, roleLoading, user, allowed, navigate]);
 
   const fetchDashboardData = async () => {
     if (!user) return;
@@ -196,7 +194,7 @@ const TalentDashboard = () => {
     }
   };
 
-  if (loading) {
+  if (loading || roleLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -206,6 +204,8 @@ const TalentDashboard = () => {
       </div>
     );
   }
+
+  if (!allowed) return null;
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">

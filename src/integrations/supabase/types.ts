@@ -1085,13 +1085,16 @@ export type Database = {
           budget_min: number
           company_name: string | null
           created_at: string
+          date_posted: string | null
           description: string
           duration_days: number | null
           employer_id: string | null
+          expires_at: string | null
           external_url: string | null
           featured_until: string | null
           id: string
           is_featured: boolean | null
+          job_type: string | null
           location: string | null
           milestones: Json | null
           remote: boolean | null
@@ -1108,13 +1111,16 @@ export type Database = {
           budget_min: number
           company_name?: string | null
           created_at?: string
+          date_posted?: string | null
           description: string
           duration_days?: number | null
           employer_id?: string | null
+          expires_at?: string | null
           external_url?: string | null
           featured_until?: string | null
           id?: string
           is_featured?: boolean | null
+          job_type?: string | null
           location?: string | null
           milestones?: Json | null
           remote?: boolean | null
@@ -1131,13 +1137,16 @@ export type Database = {
           budget_min?: number
           company_name?: string | null
           created_at?: string
+          date_posted?: string | null
           description?: string
           duration_days?: number | null
           employer_id?: string | null
+          expires_at?: string | null
           external_url?: string | null
           featured_until?: string | null
           id?: string
           is_featured?: boolean | null
+          job_type?: string | null
           location?: string | null
           milestones?: Json | null
           remote?: boolean | null
@@ -2251,6 +2260,7 @@ export type Database = {
       }
     }
     Functions: {
+      auto_expire_jobs: { Args: never; Returns: number }
       calculate_employer_trust_score: {
         Args: { employer_id: string }
         Returns: number
@@ -2357,6 +2367,10 @@ export type Database = {
       }
       is_employer_owner: { Args: { _employer_id: string }; Returns: boolean }
       is_ip_blocked: { Args: { p_ip_address: string }; Returns: boolean }
+      mark_job_filled: {
+        Args: { p_employer_user_id: string; p_job_id: string }
+        Returns: boolean
+      }
       record_abuse_and_maybe_block: {
         Args: { p_ip_address: string; p_reason?: string; p_threshold?: number }
         Returns: Json

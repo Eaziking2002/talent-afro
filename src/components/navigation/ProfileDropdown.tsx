@@ -10,26 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  User,
-  LayoutDashboard,
-  Briefcase,
-  ShieldCheck,
-  BarChart3,
-  FileText,
-  Wallet,
-  MessageSquare,
-  Bell,
-  Settings,
-  LogOut,
-  Trophy,
-  Award,
-  Users,
-  ChevronDown,
-  Upload,
-  TrendingUp,
-  Eye,
-  Gavel,
-  SlidersHorizontal,
+  User, LayoutDashboard, Briefcase, ShieldCheck, BarChart3, FileText, Wallet,
+  MessageSquare, Bell, Settings, LogOut, Trophy, Award, Users, ChevronDown,
+  Upload, TrendingUp, Eye, Gavel, SlidersHorizontal,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,8 +23,22 @@ interface ProfileDropdownProps {
 
 const ProfileDropdown = ({ isAdmin }: ProfileDropdownProps) => {
   const { user, signOut } = useAuth();
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setRole(data?.role ?? null));
+  }, [user]);
 
   if (!user) return null;
+
+  const isTalent = role === "talent" || (!role && !isAdmin);
+  const isEmployer = role === "employer";
 
   return (
     <DropdownMenu>
@@ -59,90 +56,95 @@ const ProfileDropdown = ({ isAdmin }: ProfileDropdownProps) => {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <p className="text-sm font-medium truncate">{user.email}</p>
+          <p className="text-xs text-muted-foreground capitalize">{role || "User"}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        {/* Core navigation */}
+        {/* Profile */}
         <DropdownMenuItem asChild>
-          <Link to="/profile" className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" />
-            My Profile
+          <Link to={isEmployer ? "/company" : "/profile"} className="cursor-pointer">
+            <User className="mr-2 h-4 w-4" /> My Profile
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/dashboard" className="cursor-pointer">
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            Talent Dashboard
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/employer/dashboard" className="cursor-pointer">
-            <Briefcase className="mr-2 h-4 w-4" />
-            Employer Dashboard
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/my-services" className="cursor-pointer">
-            <Settings className="mr-2 h-4 w-4" />
-            My Services
-          </Link>
-        </DropdownMenuItem>
+
+        {/* Role-specific dashboard */}
+        {isTalent && (
+          <DropdownMenuItem asChild>
+            <Link to="/dashboard" className="cursor-pointer">
+              <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+            </Link>
+          </DropdownMenuItem>
+        )}
+        {isEmployer && (
+          <DropdownMenuItem asChild>
+            <Link to="/employer/dashboard" className="cursor-pointer">
+              <Briefcase className="mr-2 h-4 w-4" /> Dashboard
+            </Link>
+          </DropdownMenuItem>
+        )}
 
         <DropdownMenuSeparator />
 
-        {/* Activity */}
+        {/* Shared navigation */}
         <DropdownMenuItem asChild>
           <Link to="/messages" className="cursor-pointer">
-            <MessageSquare className="mr-2 h-4 w-4" />
-            Messages
+            <MessageSquare className="mr-2 h-4 w-4" /> Messages
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/wallet" className="cursor-pointer">
-            <Wallet className="mr-2 h-4 w-4" />
-            Wallet
+            <Wallet className="mr-2 h-4 w-4" /> Wallet
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/notifications" className="cursor-pointer">
-            <Bell className="mr-2 h-4 w-4" />
-            Notifications
+            <Bell className="mr-2 h-4 w-4" /> Notifications
           </Link>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 
-        {/* Tools */}
-        <DropdownMenuItem asChild>
-          <Link to="/verification" className="cursor-pointer">
-            <ShieldCheck className="mr-2 h-4 w-4" />
-            Verification
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/skill-gap-analysis" className="cursor-pointer">
-            <TrendingUp className="mr-2 h-4 w-4" />
-            Skill Gap Analysis
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/bulk-contracts" className="cursor-pointer">
-            <Upload className="mr-2 h-4 w-4" />
-            Bulk Import
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/certifications" className="cursor-pointer">
-            <Award className="mr-2 h-4 w-4" />
-            Certifications
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/talents" className="cursor-pointer">
-            <Users className="mr-2 h-4 w-4" />
-            Talent Showcase
-          </Link>
-        </DropdownMenuItem>
+        {/* Talent-only tools */}
+        {isTalent && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link to="/verification" className="cursor-pointer">
+                <ShieldCheck className="mr-2 h-4 w-4" /> Verification
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/skill-gap-analysis" className="cursor-pointer">
+                <TrendingUp className="mr-2 h-4 w-4" /> Skill Gap Analysis
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/certifications" className="cursor-pointer">
+                <Award className="mr-2 h-4 w-4" /> Certifications
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/my-services" className="cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" /> My Services
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
+
+        {/* Employer-only tools */}
+        {isEmployer && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link to="/employer/analytics" className="cursor-pointer">
+                <BarChart3 className="mr-2 h-4 w-4" /> Analytics
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/templates" className="cursor-pointer">
+                <FileText className="mr-2 h-4 w-4" /> Contract Templates
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
 
         {/* Admin section */}
         {isAdmin && (
@@ -159,62 +161,42 @@ const ProfileDropdown = ({ isAdmin }: ProfileDropdownProps) => {
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/admin/dashboard" className="cursor-pointer">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                Admin Dashboard
+                <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Dashboard
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/admin/jobs" className="cursor-pointer">
-                <FileText className="mr-2 h-4 w-4" />
-                Manage Jobs
+                <FileText className="mr-2 h-4 w-4" /> Manage Jobs
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/admin/disputes" className="cursor-pointer">
-                <Gavel className="mr-2 h-4 w-4" />
-                Disputes
+                <Gavel className="mr-2 h-4 w-4" /> Disputes
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/admin/employers" className="cursor-pointer">
-                <Eye className="mr-2 h-4 w-4" />
-                Employer Verification
+                <Eye className="mr-2 h-4 w-4" /> Employer Verification
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/admin/verification" className="cursor-pointer">
-                <ShieldCheck className="mr-2 h-4 w-4" />
-                Verification Review
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/analytics" className="cursor-pointer">
-                <BarChart3 className="mr-2 h-4 w-4" />
-                Analytics
+                <ShieldCheck className="mr-2 h-4 w-4" /> Verification Review
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/advanced-analytics" className="cursor-pointer">
-                <TrendingUp className="mr-2 h-4 w-4" />
-                Advanced Analytics
+                <TrendingUp className="mr-2 h-4 w-4" /> Advanced Analytics
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/leaderboard" className="cursor-pointer">
-                <Trophy className="mr-2 h-4 w-4" />
-                Leaderboard
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/templates" className="cursor-pointer">
-                <FileText className="mr-2 h-4 w-4" />
-                Templates
+                <Trophy className="mr-2 h-4 w-4" /> Leaderboard
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/referrals" className="cursor-pointer">
-                <Users className="mr-2 h-4 w-4" />
-                Referrals
+                <Users className="mr-2 h-4 w-4" /> Referrals
               </Link>
             </DropdownMenuItem>
           </>
@@ -225,8 +207,7 @@ const ProfileDropdown = ({ isAdmin }: ProfileDropdownProps) => {
           onClick={signOut}
           className="cursor-pointer text-destructive focus:text-destructive"
         >
-          <LogOut className="mr-2 h-4 w-4" />
-          Sign Out
+          <LogOut className="mr-2 h-4 w-4" /> Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
