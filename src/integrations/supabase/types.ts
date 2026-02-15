@@ -2379,7 +2379,15 @@ export type Database = {
     Enums: {
       app_role: "talent" | "employer" | "admin"
       application_status: "pending" | "accepted" | "rejected" | "completed"
-      job_status: "draft" | "open" | "in_progress" | "completed" | "cancelled"
+      job_status:
+        | "draft"
+        | "open"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
+        | "expired"
+        | "filled"
+        | "closed"
       transaction_status: "pending" | "completed" | "failed" | "cancelled"
       transaction_type: "escrow" | "release" | "payout" | "refund"
     }
@@ -2511,7 +2519,16 @@ export const Constants = {
     Enums: {
       app_role: ["talent", "employer", "admin"],
       application_status: ["pending", "accepted", "rejected", "completed"],
-      job_status: ["draft", "open", "in_progress", "completed", "cancelled"],
+      job_status: [
+        "draft",
+        "open",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "expired",
+        "filled",
+        "closed",
+      ],
       transaction_status: ["pending", "completed", "failed", "cancelled"],
       transaction_type: ["escrow", "release", "payout", "refund"],
     },
