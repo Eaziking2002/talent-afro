@@ -129,6 +129,8 @@ const JobBoard = () => {
         query = query.eq("remote", true);
       } else if (selectedType === "on-site") {
         query = query.eq("remote", false);
+      } else if (selectedType !== "all") {
+        query = query.eq("job_type", selectedType);
       }
 
       if (budgetRange[0] > 0) {
@@ -342,7 +344,7 @@ const JobBoard = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
+                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Job Type</label>
                     <Select value={selectedType} onValueChange={setSelectedType}>
                       <SelectTrigger><SelectValue placeholder="All Types" /></SelectTrigger>
@@ -350,6 +352,10 @@ const JobBoard = () => {
                         <SelectItem value="all">All Types</SelectItem>
                         <SelectItem value="remote">Remote</SelectItem>
                         <SelectItem value="on-site">On-site</SelectItem>
+                        <SelectItem value="full-time">Full-time</SelectItem>
+                        <SelectItem value="part-time">Part-time</SelectItem>
+                        <SelectItem value="contract">Contract</SelectItem>
+                        <SelectItem value="freelance">Freelance</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

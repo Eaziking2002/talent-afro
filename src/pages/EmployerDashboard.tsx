@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRoleGuard } from "@/hooks/useRoleGuard";
 import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Briefcase, Eye, Users, MessageSquare, CheckCircle, XCircle } from "lucide-react";
+import { Briefcase, Eye, Users, MessageSquare, CheckCircle, XCircle, Archive } from "lucide-react";
 
 interface Job {
   id: string;
@@ -39,20 +40,17 @@ interface Application {
 const EmployerDashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { allowed, loading: roleLoading } = useRoleGuard("employer");
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [employerId, setEmployerId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Avoid redirecting while auth is still restoring the session.
-    if (authLoading) return;
-    if (!user) {
-      navigate("/auth", { replace: true });
-      return;
-    }
+    if (authLoading || roleLoading) return;
+    if (!user || !allowed) return;
     fetchEmployerData();
-  }, [authLoading, user, navigate]);
+  }, [authLoading, roleLoading, user, allowed, navigate]);
 
   const fetchEmployerData = async () => {
     if (!user) return;
@@ -173,7 +171,22 @@ const EmployerDashboard = () => {
     navigate(`/messages?recipient=${applicantId}&application=${applicationId}`);
   };
 
-  if (loading) {
+  const markJobFilled = async (jobId: string) => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase.rpc("mark_job_filled", {
+        p_job_id: jobId,
+        p_employer_user_id: user.id,
+      });
+      if (error) throw error;
+      toast({ title: "Job marked as filled", description: "This job will be removed from public listings." });
+      fetchEmployerData();
+    } catch (err: any) {
+      toast({ title: "Error", description: "Failed to mark job as filled", variant: "destructive" });
+    }
+  };
+
+  if (loading || roleLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -183,6 +196,8 @@ const EmployerDashboard = () => {
       </div>
     );
   }
+
+  if (!allowed) return null;
 
   const pendingApps = applications.filter(a => a.status === "pending");
   const activeJobs = jobs.filter(j => j.status === "open");
@@ -358,12 +373,24 @@ const EmployerDashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex gap-4 text-sm text-muted-foreground">
-                      <span>Posted {new Date(job.created_at).toLocaleDateString()}</span>
-                      <span>•</span>
-                      <span>
-                        {applications.filter(a => a.job_id === job.id).length} applications
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-4 text-sm text-muted-foreground">
+                        <span>Posted {new Date(job.created_at).toLocaleDateString()}</span>
+                        <span>•</span>
+                        <span>
+                          {applications.filter(a => a.job_id === job.id).length} applications
+                        </span>
+                      </div>
+                      {job.status === "open" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5"
+                          onClick={() => markJobFilled(job.id)}
+                        >
+                          <Archive className="h-3.5 w-3.5" /> Mark Filled
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
