@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         const p = profileResult.data;
         const isComplete = p?.full_name && p?.location && Array.isArray(p?.skills) && p.skills.length > 0;
-        navigate(isComplete ? "/dashboard" : "/profile-setup");
+        navigate(isComplete ? "/profile" : "/profile-setup");
       }
     }
 
