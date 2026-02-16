@@ -12,7 +12,7 @@ import {
 import {
   User, LayoutDashboard, Briefcase, ShieldCheck, BarChart3, FileText, Wallet,
   MessageSquare, Bell, Settings, LogOut, Trophy, Award, Users, ChevronDown,
-  Upload, TrendingUp, Eye, Gavel, SlidersHorizontal,
+  Upload, TrendingUp, Eye, Gavel, SlidersHorizontal, Building,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,32 +60,39 @@ const ProfileDropdown = ({ isAdmin }: ProfileDropdownProps) => {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        {/* Profile */}
+        {/* My Profile — default landing */}
         <DropdownMenuItem asChild>
           <Link to={isEmployer ? "/company" : "/profile"} className="cursor-pointer">
             <User className="mr-2 h-4 w-4" /> My Profile
           </Link>
         </DropdownMenuItem>
 
-        {/* Role-specific dashboard */}
+        {/* Role-specific dashboards */}
         {isTalent && (
           <DropdownMenuItem asChild>
             <Link to="/dashboard" className="cursor-pointer">
-              <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
+              <LayoutDashboard className="mr-2 h-4 w-4" /> Talent Dashboard
             </Link>
           </DropdownMenuItem>
         )}
         {isEmployer && (
           <DropdownMenuItem asChild>
             <Link to="/employer/dashboard" className="cursor-pointer">
-              <Briefcase className="mr-2 h-4 w-4" /> Dashboard
+              <Building className="mr-2 h-4 w-4" /> Employer Dashboard
             </Link>
           </DropdownMenuItem>
         )}
 
+        {/* My Services */}
+        <DropdownMenuItem asChild>
+          <Link to="/my-services" className="cursor-pointer">
+            <Settings className="mr-2 h-4 w-4" /> My Services
+          </Link>
+        </DropdownMenuItem>
+
         <DropdownMenuSeparator />
 
-        {/* Shared navigation */}
+        {/* Communication */}
         <DropdownMenuItem asChild>
           <Link to="/messages" className="cursor-pointer">
             <MessageSquare className="mr-2 h-4 w-4" /> Messages
@@ -104,7 +111,7 @@ const ProfileDropdown = ({ isAdmin }: ProfileDropdownProps) => {
 
         <DropdownMenuSeparator />
 
-        {/* Talent-only tools */}
+        {/* Talent tools */}
         {isTalent && (
           <>
             <DropdownMenuItem asChild>
@@ -118,19 +125,24 @@ const ProfileDropdown = ({ isAdmin }: ProfileDropdownProps) => {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
+              <Link to="/bulk-contracts" className="cursor-pointer">
+                <Upload className="mr-2 h-4 w-4" /> Bulk Import
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link to="/certifications" className="cursor-pointer">
                 <Award className="mr-2 h-4 w-4" /> Certifications
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/my-services" className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" /> My Services
+              <Link to="/talents" className="cursor-pointer">
+                <Users className="mr-2 h-4 w-4" /> Talent Showcase
               </Link>
             </DropdownMenuItem>
           </>
         )}
 
-        {/* Employer-only tools */}
+        {/* Employer tools */}
         {isEmployer && (
           <>
             <DropdownMenuItem asChild>

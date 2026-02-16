@@ -43,7 +43,7 @@ export const useRoleGuard = (requiredRole: Role) => {
         }
       } else if (requiredRole === "employer") {
         if (userRole === "talent") {
-          navigate("/dashboard", { replace: true });
+          navigate("/profile", { replace: true });
           setAllowed(false);
         } else {
           setAllowed(true);

@@ -38,8 +38,8 @@ const MobileBottomNav = () => {
     {
       label: "Profile",
       icon: User,
-      to: user ? "/dashboard" : "/auth",
-      active: isActive(["/dashboard", "/wallet", "/notifications", "/my-services", "/verification", "/profile-setup"]),
+      to: user ? "/profile" : "/auth",
+      active: isActive(["/profile", "/dashboard", "/wallet", "/notifications", "/my-services", "/verification", "/profile-setup"]),
     },
   ];
 
