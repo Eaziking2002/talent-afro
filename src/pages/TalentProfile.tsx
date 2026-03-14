@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Award, Settings, Shield } from "lucide-react";
+import ProfileSubNav from "@/components/profile/ProfileSubNav";
 
 const TalentProfile = () => {
   const { userId: paramUserId } = useParams<{ userId: string }>();
