@@ -21,7 +21,7 @@ export function RealtimeChat({ roomId, currentUserId }: RealtimeChatProps) {
   const [typing, setTyping] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     fetchMessages();
