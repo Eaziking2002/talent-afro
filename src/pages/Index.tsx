@@ -323,7 +323,7 @@ const TalentCard = ({ talent }: { talent: any }) => {
     <Card className="overflow-hidden hover:shadow-card-hover transition-shadow">
       <CardContent className="p-5 flex flex-col h-full">
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-12 h-12 rounded-full bg-muted overflow-hidden flex-shrink-0">
+        <div className="w-12 h-12 rounded-full bg-muted overflow-hidden flex-shrink-0">
             {talent.avatar_url ? (
               <img src={talent.avatar_url} alt={talent.full_name} className="w-full h-full object-cover" />
             ) : (
