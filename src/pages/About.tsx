@@ -1,5 +1,12 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Hero from "@/components/Hero";
+import Features from "@/components/Features";
+import HowItWorks from "@/components/HowItWorks";
+import Testimonials from "@/components/Testimonials";
+import Pricing from "@/components/Pricing";
+import FAQ from "@/components/FAQ";
+import CTA from "@/components/CTA";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -63,15 +70,23 @@ const About = () => {
   ];
 
   useEffect(() => {
-    document.title = "About Ezekiel Sesay | SkillLink Africa Founder";
+    document.title = "About SkillLink Africa | Connecting Africa's Best Talent";
   }, []);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
+      {/* Landing page sections */}
+      <Hero />
+      <Features />
+      <HowItWorks />
+      <Testimonials />
+      <Pricing />
+      <FAQ />
+
       <main className="container mx-auto px-4 py-12">
-        {/* Hero Section */}
+        {/* Founder Section */}
         <section className="grid md:grid-cols-2 gap-12 items-center mb-16">
           <div className="relative">
             <div className="w-64 h-64 md:w-80 md:h-80 mx-auto rounded-full overflow-hidden border-4 border-primary shadow-xl">
@@ -87,7 +102,7 @@ const About = () => {
           </div>
           
           <div className="space-y-6">
-            <h1 className="text-4xl md:text-5xl font-bold">Ezekiel Sesay</h1>
+            <h2 className="text-4xl md:text-5xl font-bold">Ezekiel Sesay</h2>
             <p className="text-xl text-primary font-medium">Known as "Eazi"</p>
             <p className="text-lg text-muted-foreground leading-relaxed">
               A passionate Information Systems professional, digital creator, and tech-driven entrepreneur from <strong>Sierra Leone</strong>. 
@@ -116,7 +131,7 @@ const About = () => {
           </div>
         </section>
 
-        {/* SkillLink Africa Mission */}
+        {/* Mission */}
         <section className="mb-16">
           <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
             <CardContent className="p-8 md:p-12">
@@ -126,7 +141,6 @@ const About = () => {
                   Empowering Africans through technology and connecting them to global opportunities
                 </p>
               </div>
-              
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="text-center p-6 bg-background rounded-xl">
                   <Target className="w-12 h-12 text-primary mx-auto mb-4" />
@@ -149,13 +163,6 @@ const About = () => {
                   <p className="text-sm text-muted-foreground">Driving digital innovation and transformation across Africa</p>
                 </div>
               </div>
-              
-              <p className="text-center mt-8 text-lg max-w-4xl mx-auto leading-relaxed">
-                Through <strong>SkillLink Africa</strong> and <strong>SkillConnect Africa</strong>, we are building platforms designed to 
-                connect Africans—especially Sierra Leoneans—to remote jobs, micro-gigs, internships, and global digital opportunities. 
-                Our mission is to use technology to empower young people, create access to global income opportunities, 
-                and drive digital transformation across Africa.
-              </p>
             </CardContent>
           </Card>
         </section>
@@ -166,105 +173,61 @@ const About = () => {
             <h2 className="text-2xl font-bold mb-6">Skills & Expertise</h2>
             <div className="flex flex-wrap gap-3">
               {skills.map((skill) => (
-                <Badge key={skill} variant="secondary" className="text-sm py-2 px-4">
-                  {skill}
-                </Badge>
+                <Badge key={skill} variant="secondary" className="text-sm py-2 px-4">{skill}</Badge>
               ))}
             </div>
           </div>
-          
           <div>
             <h2 className="text-2xl font-bold mb-6">Work Experience</h2>
             <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-primary mt-2" />
-                <div>
-                  <p className="font-medium">Social Media Manager & Canva Designer</p>
-                  <p className="text-sm text-muted-foreground">UK-Based Marketing Company</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-primary mt-2" />
-                <div>
-                  <p className="font-medium">Blogger / Content Writer</p>
-                  <p className="text-sm text-muted-foreground">Born 2 Blog</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-primary mt-2" />
-                <div>
-                  <p className="font-medium">IT Manager / IT Officer</p>
-                  <p className="text-sm text-muted-foreground">Construction & Enterprise Companies</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-primary mt-2" />
-                <div>
-                  <p className="font-medium">Data Entry & System Operations</p>
-                  <p className="text-sm text-muted-foreground">Various Organizations</p>
-                </div>
-              </li>
+              {[
+                { title: "Social Media Manager & Canva Designer", company: "UK-Based Marketing Company" },
+                { title: "Blogger / Content Writer", company: "Born 2 Blog" },
+                { title: "IT Manager / IT Officer", company: "Construction & Enterprise Companies" },
+                { title: "Data Entry & System Operations", company: "Various Organizations" },
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                  <div>
+                    <p className="font-medium">{item.title}</p>
+                    <p className="text-sm text-muted-foreground">{item.company}</p>
+                  </div>
+                </li>
+              ))}
             </ul>
           </div>
         </section>
 
+        {/* CTA */}
+        <CTA />
+
         {/* Contact Form */}
-        <section id="contact" className="max-w-2xl mx-auto">
+        <section id="contact" className="max-w-2xl mx-auto mt-16">
           <Card>
             <CardContent className="p-8">
               <h2 className="text-2xl font-bold mb-2 text-center">Get In Touch</h2>
               <p className="text-muted-foreground text-center mb-8">
                 Interested in collaborations, remote opportunities, partnerships, or innovative projects? Reach out!
               </p>
-              
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Your Name</Label>
-                    <Input 
-                      id="name" 
-                      placeholder="John Doe" 
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required 
-                    />
+                    <Input id="name" placeholder="John Doe" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="john@example.com" 
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      required 
-                    />
+                    <Input id="email" type="email" placeholder="john@example.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
                   </div>
                 </div>
-                
                 <div className="space-y-2">
                   <Label htmlFor="subject">Subject</Label>
-                  <Input 
-                    id="subject" 
-                    placeholder="How can I help you?" 
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    required 
-                  />
+                  <Input id="subject" placeholder="How can I help you?" value={formData.subject} onChange={(e) => setFormData({ ...formData, subject: e.target.value })} required />
                 </div>
-                
                 <div className="space-y-2">
                   <Label htmlFor="message">Message</Label>
-                  <Textarea 
-                    id="message" 
-                    placeholder="Tell me about your project or opportunity..." 
-                    rows={5}
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    required 
-                  />
+                  <Textarea id="message" placeholder="Tell me about your project or opportunity..." rows={5} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} required />
                 </div>
-                
                 <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
                   <Send className="w-4 h-4 mr-2" />
                   {isSubmitting ? "Sending..." : "Send Message"}

@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Award, Settings, Shield } from "lucide-react";
+import ProfileSubNav from "@/components/profile/ProfileSubNav";
 
 const TalentProfile = () => {
   const { userId: paramUserId } = useParams<{ userId: string }>();
@@ -137,16 +138,19 @@ const TalentProfile = () => {
       <main className="flex-1 container mx-auto px-4 py-6 max-w-5xl space-y-6">
         {/* Owner toolbar */}
         {isOwner && (
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">My Profile</h2>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => navigate("/profile-setup")}>
-                <Settings className="h-4 w-4" /> Edit Profile
-              </Button>
-              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => navigate("/verification")}>
-                <Shield className="h-4 w-4" /> Verification
-              </Button>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">My Profile</h2>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={() => navigate("/profile-setup")}>
+                  <Settings className="h-4 w-4" /> Edit Profile
+                </Button>
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={() => navigate("/verification")}>
+                  <Shield className="h-4 w-4" /> Verification
+                </Button>
+              </div>
             </div>
+            <ProfileSubNav isOwner={isOwner} />
           </div>
         )}
 
