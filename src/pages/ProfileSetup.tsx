@@ -281,7 +281,7 @@ const ProfileSetup = () => {
   };
 
   const handleSkip = () => {
-    navigate(role === "employer" ? "/employer/dashboard" : "/dashboard");
+    navigate("/profile");
   };
 
   if (authLoading || pageLoading) {

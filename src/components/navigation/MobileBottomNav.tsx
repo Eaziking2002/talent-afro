@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Briefcase, MessageSquare, User } from "lucide-react";
+import { Home, Search, Briefcase, Users, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
@@ -8,38 +8,38 @@ const MobileBottomNav = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const isActive = (paths: string[]) => paths.some(p => currentPath === p);
+  const isActive = (paths: string[]) => paths.some(p => currentPath === p || currentPath.startsWith(p + "/"));
 
   const tabs = [
     {
       label: "Home",
       icon: Home,
       to: "/",
-      active: isActive(["/"]),
+      active: currentPath === "/",
     },
     {
       label: "Jobs",
-      icon: Search,
-      to: "/jobs",
-      active: isActive(["/jobs", "/marketplace"]),
-    },
-    {
-      label: "Post",
       icon: Briefcase,
-      to: user ? "/employer/dashboard" : "/auth?role=employer",
-      active: isActive(["/employer/dashboard"]),
+      to: "/jobs",
+      active: isActive(["/jobs"]),
     },
     {
-      label: "Messages",
-      icon: MessageSquare,
-      to: user ? "/messages" : "/auth",
-      active: isActive(["/messages"]),
+      label: "Talents",
+      icon: Users,
+      to: "/talents",
+      active: isActive(["/talents"]),
+    },
+    {
+      label: "Search",
+      icon: Search,
+      to: "/marketplace",
+      active: isActive(["/marketplace"]),
     },
     {
       label: "Profile",
       icon: User,
       to: user ? "/profile" : "/auth",
-      active: isActive(["/profile", "/dashboard", "/wallet", "/notifications", "/my-services", "/verification", "/profile-setup"]),
+      active: isActive(["/profile", "/wallet", "/notifications", "/verification", "/profile-setup", "/certifications"]),
     },
   ];
 
