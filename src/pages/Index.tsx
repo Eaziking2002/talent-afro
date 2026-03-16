@@ -72,7 +72,7 @@ const Index = () => {
       const { data, error } = await supabase
         .from("profiles")
         .select(`
-          id, full_name, job_title, bio, location, avatar_url, skills,
+          id, user_id, full_name, job_title, bio, location, avatar_url, skills,
           average_rating, total_gigs_completed, total_reviews,
           certifications (id, certificate_name, verified),
           portfolio_items (id, title, file_url, file_type)
@@ -383,7 +383,7 @@ const TalentCard = ({ talent }: { talent: any }) => {
         </div>
 
         <Button size="sm" className="w-full mt-3" variant="outline" asChild>
-          <Link to={`/profile/${talent.user_id || talent.id}`}>View Profile</Link>
+          <Link to={`/profile/${talent.user_id}`}>View Profile</Link>
         </Button>
       </CardContent>
     </Card>
