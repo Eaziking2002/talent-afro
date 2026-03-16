@@ -383,7 +383,7 @@ const TalentCard = ({ talent }: { talent: any }) => {
         </div>
 
         <Button size="sm" className="w-full mt-3" variant="outline" asChild>
-          <Link to={`/profile/${talent.user_id || talent.id}`}>View Profile</Link>
+          <Link to={`/profile/${talent.user_id}`}>View Profile</Link>
         </Button>
       </CardContent>
     </Card>
