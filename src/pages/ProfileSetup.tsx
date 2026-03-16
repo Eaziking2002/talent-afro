@@ -260,11 +260,11 @@ const ProfileSetup = () => {
       if (role === "employer") {
         await saveEmployerProfile();
         toast.success("Company profile completed!");
-        navigate("/employer/dashboard");
+        navigate("/profile");
       } else {
         await saveTalentProfile();
         toast.success("Profile completed!");
-        navigate("/dashboard");
+        navigate("/profile");
       }
     } catch (err: any) {
       if (err instanceof z.ZodError) {
