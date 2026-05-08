@@ -59,6 +59,7 @@ const AdminJobManagement = () => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [featuredDays, setFeaturedDays] = useState("7");
   const [isRunningScraper, setIsRunningScraper] = useState(false);
+  const [isRunningFirecrawl, setIsRunningFirecrawl] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
