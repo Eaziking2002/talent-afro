@@ -44,6 +44,7 @@ import NotFound from "./pages/NotFound";
 import Documentation from "./pages/Documentation";
 import TalentProfile from "./pages/TalentProfile";
 import EmployerProfile from "./pages/EmployerProfile";
+import PostJob from "./pages/PostJob";
 
 const queryClient = new QueryClient();
 
