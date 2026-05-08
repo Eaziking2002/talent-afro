@@ -225,6 +225,28 @@ const AdminJobManagement = () => {
     }
   };
 
+  const runFirecrawl = async () => {
+    setIsRunningFirecrawl(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("firecrawl-career-crawler");
+      if (error) throw error;
+      toast({
+        title: "Career Crawler Complete",
+        description: `Found ${data.jobs_found || 0}, created ${data.jobs_created || 0}, rejected ${data.jobs_rejected || 0}`,
+      });
+      fetchJobs();
+      fetchScrapingLogs();
+    } catch (error) {
+      toast({
+        title: "Crawler Failed",
+        description: error instanceof Error ? error.message : "Failed to run crawler",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRunningFirecrawl(false);
+    }
+  };
+
   const getCompanyName = (job: Job) => {
     return job.company_name || job.employers?.company_name || "Unknown";
   };
