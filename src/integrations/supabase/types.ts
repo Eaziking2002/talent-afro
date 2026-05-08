@@ -1837,6 +1837,42 @@ export type Database = {
           },
         ]
       }
+      target_companies: {
+        Row: {
+          careers_url: string
+          company_name: string
+          created_at: string
+          id: string
+          is_active: boolean
+          last_crawled_at: string | null
+          last_jobs_found: number | null
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          careers_url: string
+          company_name: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_crawled_at?: string | null
+          last_jobs_found?: number | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          careers_url?: string
+          company_name?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_crawled_at?: string | null
+          last_jobs_found?: number | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tester_feedback: {
         Row: {
           created_at: string

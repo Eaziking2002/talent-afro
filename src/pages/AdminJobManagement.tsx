@@ -59,6 +59,7 @@ const AdminJobManagement = () => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [featuredDays, setFeaturedDays] = useState("7");
   const [isRunningScraper, setIsRunningScraper] = useState(false);
+  const [isRunningFirecrawl, setIsRunningFirecrawl] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -224,6 +225,28 @@ const AdminJobManagement = () => {
     }
   };
 
+  const runFirecrawl = async () => {
+    setIsRunningFirecrawl(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("firecrawl-career-crawler");
+      if (error) throw error;
+      toast({
+        title: "Career Crawler Complete",
+        description: `Found ${data.jobs_found || 0}, created ${data.jobs_created || 0}, rejected ${data.jobs_rejected || 0}`,
+      });
+      fetchJobs();
+      fetchScrapingLogs();
+    } catch (error) {
+      toast({
+        title: "Crawler Failed",
+        description: error instanceof Error ? error.message : "Failed to run crawler",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRunningFirecrawl(false);
+    }
+  };
+
   const getCompanyName = (job: Job) => {
     return job.company_name || job.employers?.company_name || "Unknown";
   };
@@ -303,20 +326,16 @@ const AdminJobManagement = () => {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Job Aggregator</CardTitle>
-            <CardDescription>Fetch jobs from free APIs (Remotive, Adzuna, JSearch)</CardDescription>
+            <CardDescription>Fetch jobs from APIs (Remotive, Adzuna, JSearch) and Firecrawl career-page crawler. Both run automatically every 6 hours.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button
-              onClick={runScraper}
-              disabled={isRunningScraper}
-              className="gap-2"
-            >
-              {isRunningScraper ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-              {isRunningScraper ? "Fetching Jobs..." : "Fetch Jobs Now"}
+          <CardContent className="flex flex-wrap gap-3">
+            <Button onClick={runScraper} disabled={isRunningScraper} className="gap-2">
+              {isRunningScraper ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              {isRunningScraper ? "Fetching APIs..." : "Run API Aggregator"}
+            </Button>
+            <Button onClick={runFirecrawl} disabled={isRunningFirecrawl} variant="secondary" className="gap-2">
+              {isRunningFirecrawl ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              {isRunningFirecrawl ? "Crawling Careers..." : "Run Career Crawler"}
             </Button>
           </CardContent>
         </Card>

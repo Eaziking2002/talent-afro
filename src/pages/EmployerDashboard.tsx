@@ -206,11 +206,16 @@ const EmployerDashboard = () => {
     <div className="min-h-screen flex flex-col bg-muted/30">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Employer Dashboard</h1>
-          <p className="text-lg text-muted-foreground">
-            Manage your job postings and review applications
-          </p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Employer Dashboard</h1>
+            <p className="text-lg text-muted-foreground">
+              Manage your job postings and review applications
+            </p>
+          </div>
+          <Button size="lg" onClick={() => navigate("/post-job")}>
+            <Briefcase className="h-4 w-4 mr-2" /> Post a Job
+          </Button>
         </div>
 
         {/* Summary Cards */}
