@@ -326,20 +326,16 @@ const AdminJobManagement = () => {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Job Aggregator</CardTitle>
-            <CardDescription>Fetch jobs from free APIs (Remotive, Adzuna, JSearch)</CardDescription>
+            <CardDescription>Fetch jobs from APIs (Remotive, Adzuna, JSearch) and Firecrawl career-page crawler. Both run automatically every 6 hours.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button
-              onClick={runScraper}
-              disabled={isRunningScraper}
-              className="gap-2"
-            >
-              {isRunningScraper ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-              {isRunningScraper ? "Fetching Jobs..." : "Fetch Jobs Now"}
+          <CardContent className="flex flex-wrap gap-3">
+            <Button onClick={runScraper} disabled={isRunningScraper} className="gap-2">
+              {isRunningScraper ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              {isRunningScraper ? "Fetching APIs..." : "Run API Aggregator"}
+            </Button>
+            <Button onClick={runFirecrawl} disabled={isRunningFirecrawl} variant="secondary" className="gap-2">
+              {isRunningFirecrawl ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              {isRunningFirecrawl ? "Crawling Careers..." : "Run Career Crawler"}
             </Button>
           </CardContent>
         </Card>
