@@ -57,6 +57,8 @@ const Index = () => {
         .from("jobs")
         .select("id, title, company_name, description, location, budget_min, budget_max, required_skills, remote, is_featured, created_at")
         .eq("status", "open")
+        .eq("verification_status", "verified")
+        .in("source", ["remotive", "firecrawl", "manual", "jsearch"])
         .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(12);
