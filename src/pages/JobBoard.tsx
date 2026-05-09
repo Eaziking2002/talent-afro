@@ -113,11 +113,13 @@ const JobBoard = () => {
     setLoading(true);
     setError(null);
 
-    try {
-      let query = supabase
-        .from("jobs")
-        .select("*", { count: "exact" })
-        .eq("status", "open");
+      try {
+        let query = supabase
+          .from("jobs")
+          .select("*", { count: "exact" })
+          .eq("status", "open")
+          .eq("verification_status", "verified")
+          .in("source", ["remotive", "firecrawl", "manual", "jsearch"]);
 
       if (searchQuery.trim()) {
         query = query.or(
@@ -262,7 +264,7 @@ const JobBoard = () => {
             <div>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Job Board</h1>
               <p className="text-sm text-muted-foreground mt-1">
-                {loading ? "Loading opportunities…" : `${totalCount.toLocaleString()} verified opportunities`}
+                 {loading ? "Loading opportunities…" : `${totalCount.toLocaleString()} live opportunities`}
               </p>
             </div>
             <div className="flex items-center gap-2">
