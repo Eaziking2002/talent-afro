@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Rss } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ProfileDropdown from "@/components/navigation/ProfileDropdown";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { AfricaLogoLite } from "@/components/AfricaLogoLite";
 
 const Header = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -29,15 +30,16 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 glass-strong">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-hero-gradient shadow-md">
-            <Rss className="w-5 h-5 text-primary-foreground bg-primary" />
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <div className="w-9 h-9 transition-transform group-hover:scale-110">
+            <AfricaLogoLite className="w-full h-full" />
           </div>
-          <span className="text-xl font-bold">
-            Skill<span className="text-primary">Link</span> Africa
+          <span className="font-display text-lg md:text-xl font-bold tracking-tight">
+            Skill<span className="text-gradient-emerald">Link</span>
+            <span className="text-muted-foreground font-normal hidden sm:inline"> Africa</span>
           </span>
         </Link>
 
