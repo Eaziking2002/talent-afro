@@ -448,7 +448,7 @@ const JobBoard = () => {
       </main>
 
       {selectedJob && (
-        <JobApplicationDialog
+        <ApplicationWorkflow
           open={applicationDialogOpen}
           onOpenChange={setApplicationDialogOpen}
           jobId={selectedJob.id}
