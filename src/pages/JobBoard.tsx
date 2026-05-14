@@ -9,7 +9,7 @@ import Header from "@/components/Header";
 import { Search, SlidersHorizontal, Bell, Bookmark, ChevronLeft, ChevronRight, Briefcase } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
-import { JobApplicationDialog } from "@/components/JobApplicationDialog";
+import { ApplicationWorkflow } from "@/components/application/ApplicationWorkflow";
 import { JobAlertsDialog } from "@/components/JobAlertsDialog";
 import { JobCard } from "@/components/JobCard";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -448,7 +448,7 @@ const JobBoard = () => {
       </main>
 
       {selectedJob && (
-        <JobApplicationDialog
+        <ApplicationWorkflow
           open={applicationDialogOpen}
           onOpenChange={setApplicationDialogOpen}
           jobId={selectedJob.id}

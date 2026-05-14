@@ -68,33 +68,113 @@ export type Database = {
         }
         Relationships: []
       }
+      application_status_history: {
+        Row: {
+          application_id: string
+          changed_by: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          note: string | null
+          to_status: string
+        }
+        Insert: {
+          application_id: string
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          to_status: string
+        }
+        Update: {
+          application_id?: string
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_status_history_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           applicant_id: string
+          availability: string | null
+          country: string | null
+          cover_letter: string | null
           created_at: string
+          cv_url: string | null
+          github_url: string | null
           id: string
           job_id: string
+          linkedin_url: string | null
+          portfolio_links: Json | null
           proposal_text: string
+          remote_preference: string | null
+          salary_currency: string | null
+          salary_expectation_minor_units: number | null
           status: Database["public"]["Enums"]["application_status"]
+          status_updated_at: string | null
+          tracking_status: string
           updated_at: string
+          viewed_at: string | null
+          years_experience: number | null
         }
         Insert: {
           applicant_id: string
+          availability?: string | null
+          country?: string | null
+          cover_letter?: string | null
           created_at?: string
+          cv_url?: string | null
+          github_url?: string | null
           id?: string
           job_id: string
+          linkedin_url?: string | null
+          portfolio_links?: Json | null
           proposal_text: string
+          remote_preference?: string | null
+          salary_currency?: string | null
+          salary_expectation_minor_units?: number | null
           status?: Database["public"]["Enums"]["application_status"]
+          status_updated_at?: string | null
+          tracking_status?: string
           updated_at?: string
+          viewed_at?: string | null
+          years_experience?: number | null
         }
         Update: {
           applicant_id?: string
+          availability?: string | null
+          country?: string | null
+          cover_letter?: string | null
           created_at?: string
+          cv_url?: string | null
+          github_url?: string | null
           id?: string
           job_id?: string
+          linkedin_url?: string | null
+          portfolio_links?: Json | null
           proposal_text?: string
+          remote_preference?: string | null
+          salary_currency?: string | null
+          salary_expectation_minor_units?: number | null
           status?: Database["public"]["Enums"]["application_status"]
+          status_updated_at?: string | null
+          tracking_status?: string
           updated_at?: string
+          viewed_at?: string | null
+          years_experience?: number | null
         }
         Relationships: [
           {
@@ -1083,12 +1163,14 @@ export type Database = {
           ai_scraped: boolean | null
           budget_max: number
           budget_min: number
+          company_logo_url: string | null
           company_name: string | null
           created_at: string
           date_posted: string | null
           description: string
           duration_days: number | null
           employer_id: string | null
+          experience_level: string | null
           expires_at: string | null
           external_url: string | null
           featured_until: string | null
@@ -1099,22 +1181,27 @@ export type Database = {
           milestones: Json | null
           remote: boolean | null
           required_skills: Json | null
+          salary_currency: string | null
           source: string | null
           status: Database["public"]["Enums"]["job_status"]
+          tags: Json | null
           title: string
           updated_at: string
           verification_status: string | null
+          visa_sponsorship: boolean | null
         }
         Insert: {
           ai_scraped?: boolean | null
           budget_max: number
           budget_min: number
+          company_logo_url?: string | null
           company_name?: string | null
           created_at?: string
           date_posted?: string | null
           description: string
           duration_days?: number | null
           employer_id?: string | null
+          experience_level?: string | null
           expires_at?: string | null
           external_url?: string | null
           featured_until?: string | null
@@ -1125,22 +1212,27 @@ export type Database = {
           milestones?: Json | null
           remote?: boolean | null
           required_skills?: Json | null
+          salary_currency?: string | null
           source?: string | null
           status?: Database["public"]["Enums"]["job_status"]
+          tags?: Json | null
           title: string
           updated_at?: string
           verification_status?: string | null
+          visa_sponsorship?: boolean | null
         }
         Update: {
           ai_scraped?: boolean | null
           budget_max?: number
           budget_min?: number
+          company_logo_url?: string | null
           company_name?: string | null
           created_at?: string
           date_posted?: string | null
           description?: string
           duration_days?: number | null
           employer_id?: string | null
+          experience_level?: string | null
           expires_at?: string | null
           external_url?: string | null
           featured_until?: string | null
@@ -1151,11 +1243,14 @@ export type Database = {
           milestones?: Json | null
           remote?: boolean | null
           required_skills?: Json | null
+          salary_currency?: string | null
           source?: string | null
           status?: Database["public"]["Enums"]["job_status"]
+          tags?: Json | null
           title?: string
           updated_at?: string
           verification_status?: string | null
+          visa_sponsorship?: boolean | null
         }
         Relationships: [
           {
@@ -1671,6 +1766,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      saved_applications: {
+        Row: {
+          created_at: string
+          draft_data: Json
+          id: string
+          job_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          draft_data?: Json
+          id?: string
+          job_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          draft_data?: Json
+          id?: string
+          job_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       saved_searches: {
         Row: {

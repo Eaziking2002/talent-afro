@@ -46,6 +46,8 @@ import Documentation from "./pages/Documentation";
 import TalentProfile from "./pages/TalentProfile";
 import EmployerProfile from "./pages/EmployerProfile";
 import PostJob from "./pages/PostJob";
+import MyApplications from "./pages/MyApplications";
+import EmployerApplications from "./pages/EmployerApplications";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +73,8 @@ const App = () => (
             <Route path="/employer/analytics" element={<EmployerAnalytics />} />
             <Route path="/employer/dashboard" element={<EmployerDashboard />} />
             <Route path="/post-job" element={<PostJob />} />
+            <Route path="/applications" element={<MyApplications />} />
+            <Route path="/employer/applications" element={<EmployerApplications />} />
             <Route path="/messages" element={<ChatRooms />} />
             <Route path="/chat" element={<ChatRoom />} />
             <Route path="/admin/jobs" element={<AdminJobManagement />} />
