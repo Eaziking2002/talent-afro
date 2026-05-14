@@ -1,72 +1,86 @@
-# SkillLink Africa — Premium Transformation Plan
+# Job Application System Overhaul
 
-You picked everything, so I'll ship in 4 waves. Each wave is reviewable on its own; you approve, I move to the next. This avoids a 50-file mega-PR that breaks things silently.
+This is a large, multi-area change. I'll ship it in 4 sequential waves so each wave is reviewable and the app stays working between waves.
 
-## Wave 1 — Visual foundation + 3D Africa logo (this turn)
+## Wave 1 — Data foundation (DB migration)
 
-**Design system (`index.css`, `tailwind.config.ts`)**
-- New palette: deep blue `#0A1F44`, emerald `#10B981`, soft black `#0F1116`, white accents
-- Glassmorphism utilities (`.glass`, `.glass-strong`)
-- Premium gradients (`--gradient-aurora`, `--gradient-emerald`, `--gradient-deep`)
-- Typography: Inter (body) + Space Grotesk (display) via Google Fonts
-- Dark mode tokens refined; ThemeProvider + toggle in header
-- Animation tokens: `fade-up`, `glow-pulse`, `float`, `shimmer`
+Schema additions on `applications`:
+- `cv_url`, `cover_letter`, `portfolio_links` (jsonb), `linkedin_url`, `github_url`
+- `salary_expectation_minor_units`, `salary_currency`
+- `availability` (immediate / 2_weeks / 1_month / negotiable)
+- `country`, `years_experience` (int), `remote_preference` (remote/hybrid/onsite/any)
+- `tracking_status` enum extension: `submitted | viewed | shortlisted | interview | rejected | hired` (kept alongside legacy `status` for back-compat; new column `tracking_status`)
+- `viewed_at`, `status_updated_at`
+- Unique index `(job_id, applicant_id)` to prevent duplicates (already partially enforced via 23505)
 
-**3D Africa Logo (react-three-fiber@^8.18, three, @react-three/drei@^9.122)**
-- New `src/components/AfricaLogo3D.tsx`: extruded Africa silhouette, ~12 glowing emerald nodes at major cities, animated connecting lines, slow auto-rotate, hover-tilt
-- Lite SVG fallback for low-data mode and mobile <768px
+Schema additions on `jobs`:
+- `visa_sponsorship` (bool), `experience_level` (entry/mid/senior/lead), `salary_currency`, `tags` (jsonb), `company_logo_url`
 
-**Hero redesign (`Hero.tsx`)**
-- Split layout: copy left, 3D logo right (stacks on mobile)
-- Glass stat cards, gradient headline, subtle particle bg
-- New CTAs: "Find Talent" / "Find Work"
+New table `saved_applications` (drafts): `user_id, job_id, draft_data jsonb, updated_at`
 
-**Header**: theme toggle, refined nav, logo lockup
+Storage bucket: `application-cvs` (private; RLS: owner + employer of job can read).
 
-## Wave 2 — Trust & content pages
+RLS:
+- Talent inserts/updates own application drafts
+- Employer can read applications for their jobs and update `tracking_status` only
+- Trigger: when employer first views, set `viewed_at` + `tracking_status='viewed'`
+- Trigger: send notification on status change (uses existing notifications table)
 
-- Rebuild `/about` with founder story (Eazi), mission, team, employer logo wall
-- `/privacy`, `/terms` pages (legal templates customized for SLA)
-- Testimonials section + Success Stories section on `/`
-- Verified employer logo strip (placeholder logos)
-- Routes added to `App.tsx`, footer links
+## Wave 2 — Application workflow UI (talent side)
 
-## Wave 3 — AI features
+Replace `JobApplicationDialog` with a multi-step `ApplicationWorkflow` (Sheet on mobile, Dialog on desktop):
 
-- Edge function `ai-cv-builder`: takes profile JSON → returns formatted CV (Lovable AI Gateway, Gemini)
-- Page `/cv-builder`: form + live preview + PDF export
-- Edge function `ai-talent-match`: employer posts criteria → ranked talent list
-- Skill recommendations widget on profile (uses existing skill-gap function, new UI)
+1. **Profile & contact** — country, years exp, availability, remote preference
+2. **CV & links** — CV upload (PDF/DOCX, 5MB max, dropzone), LinkedIn, GitHub, portfolio links (dynamic list)
+3. **Cover letter & salary** — textarea + AI generator button (calls existing `ai-job-matching` edge fn extended, or new `ai-cover-letter` fn using LOVABLE_API_KEY/Gemini), salary expectation + currency
+4. **Review & submit** — summary, duplicate check, spam honeypot + min-time guard
 
-## Wave 4 — Job features
+Premium UI: glassmorphism panels, progress stepper, smooth Framer-style transitions (Tailwind animate), mobile-first sheet.
 
-DB migration:
-- `saved_jobs` table (user_id, job_id, RLS)
-- `job_alerts` table (criteria, frequency)
-- `jobs.is_remote`, `jobs.visa_sponsorship`, `jobs.experience_level` columns
-- `applications.tracking_status` enum extension (applied → reviewed → interview → offer → hired/rejected)
+Save draft on each step → `saved_applications` so users can resume.
 
-UI:
-- One-click apply button (uses saved profile)
-- `/saved` page, `/alerts` page, `/applications` tracker
-- JobBoard filters: Remote / Visa Sponsorship / Experience
-- Application kanban for talents
+## Wave 3 — Tracking dashboards & notifications
 
-## Tech notes
+**Talent** (`/applications`): Kanban + list toggle showing applications grouped by `tracking_status`. Cards show company logo, job title, salary, status badge, last update. Filters & search.
 
-- WhatsApp via Twilio: deferred — will scaffold notification preferences UI but no sending until Twilio connector is added
-- Mobile money: existing manual flow untouched
-- Low-data mode: a `useDataSaverMode` hook + body class that disables 3D, heavy images, animations
-- All colors stay semantic tokens — no hex in components
-- React 18 versions pinned for r3f
+**Employer** (`/employer/applications/:jobId` + dashboard widget): Pipeline view (columns per status), drag-to-update status, candidate detail drawer with CV preview, cover letter, profile, contact reveal. Bulk actions (shortlist/reject).
 
-## What I'll execute now (Wave 1 only)
+**Notifications**:
+- Realtime via existing notifications table + Supabase Realtime channel
+- Email via existing Resend integration: new `send-application-email` edge fn triggered on status change (submission confirm to talent, new applicant to employer, status updates to talent)
 
-1. Install `three`, `@react-three/fiber@^8.18`, `@react-three/drei@^9.122.0`
-2. Update `index.css` + `tailwind.config.ts` with new tokens
-3. Create `AfricaLogo3D.tsx` + `AfricaLogoLite.tsx` + `useDataSaverMode.ts`
-4. Create `ThemeProvider` + theme toggle
-5. Rewrite `Hero.tsx`, refresh `Header.tsx`
-6. Update memory with new design tokens
+## Wave 4 — Job board redesign + filters
 
-After you confirm Wave 1 looks right, I'll proceed to Wave 2.
+Redesign `JobCard`:
+- Company logo, salary range with currency, remote badge, visa-sponsor badge, verified-employer badge, tags pills, posted-time
+- Quick "Save" + "Apply" with hover/press animations
+- Glass card on dark/light
+
+Filter sidebar/sheet (mobile bottom-sheet):
+- Remote (remote/hybrid/onsite)
+- Salary range (dual slider)
+- Experience level (chips)
+- Visa sponsorship (toggle)
+- Country (combobox)
+- Job type (chips: full-time/part-time/contract/freelance)
+- Verified employers only (toggle)
+- AI-matched only (toggle — uses `job_matches` table for current user)
+- Active filter chips at top, "Clear all"
+
+Smooth transitions, sticky filter bar on mobile, results count + sort.
+
+## Technical notes
+
+- Spam: honeypot field + min 3s submit time + rate-limit via existing `check_rate_limit` RPC (`endpoint='application_submit'`, 10/hour/user)
+- Duplicate prevention: rely on unique `(job_id, applicant_id)` + pre-submit query
+- AI cover letter: new edge fn `ai-cover-letter` using `google/gemini-2.5-flash` via Lovable AI Gateway (no key needed)
+- All colors via existing semantic tokens (`primary`, `secondary`, `glass`, etc.)
+- React Query for server state, optimistic updates on status changes
+- Mobile: bottom sheets, large tap targets, safe-area aware
+
+## Files (high-level)
+
+New: `ApplicationWorkflow.tsx`, `ApplicationStepper.tsx`, `CVUpload.tsx`, `ApplicationCard.tsx`, `ApplicationKanban.tsx`, `JobFilters.tsx`, `pages/MyApplications.tsx`, `pages/EmployerApplications.tsx`, `supabase/functions/ai-cover-letter/index.ts`, `supabase/functions/send-application-email/index.ts`
+Edited: `JobCard.tsx`, `JobBoard.tsx`, `EmployerDashboard.tsx`, `TalentDashboard.tsx`, `App.tsx` (routes)
+
+Reply **"go"** to approve and I'll start with Wave 1 (the migration).
