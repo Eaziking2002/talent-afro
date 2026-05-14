@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ProfileDropdown from "@/components/navigation/ProfileDropdown";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { AfricaLogoLite } from "@/components/AfricaLogoLite";
+import skilllinkIcon from "@/assets/skilllink-icon.png";
 
 const Header = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -33,13 +33,19 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 glass-strong">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 transition-transform group-hover:scale-110">
-            <AfricaLogoLite className="w-full h-full" />
+        <Link to="/" className="flex items-center gap-2.5 group shrink-0" aria-label="SkillLink Africa home">
+          <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-xl overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10 ring-1 ring-border/50 shadow-sm transition-transform group-hover:scale-105">
+            <img
+              src={skilllinkIcon}
+              alt="SkillLink Africa"
+              width={64}
+              height={64}
+              className="w-full h-full object-contain"
+            />
           </div>
-          <span className="font-display text-lg md:text-xl font-bold tracking-tight">
-            Skill<span className="text-gradient-emerald">Link</span>
-            <span className="text-muted-foreground font-normal hidden sm:inline"> Africa</span>
+          <span className="font-display text-base sm:text-lg md:text-xl font-bold tracking-tight leading-none">
+            <span className="text-foreground">Skill</span><span className="text-gradient-emerald">Link</span>
+            <span className="text-muted-foreground font-medium hidden sm:inline"> Africa</span>
           </span>
         </Link>
 
