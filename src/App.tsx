@@ -48,6 +48,10 @@ import EmployerProfile from "./pages/EmployerProfile";
 import PostJob from "./pages/PostJob";
 import MyApplications from "./pages/MyApplications";
 import EmployerApplications from "./pages/EmployerApplications";
+import AICVBuilder from "./pages/AICVBuilder";
+import ResumeScore from "./pages/ResumeScore";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 const queryClient = new QueryClient();
 
