@@ -106,6 +106,10 @@ const App = () => (
             <Route path="/profile/:userId" element={<TalentProfile />} />
             <Route path="/company" element={<EmployerProfile />} />
             <Route path="/company/:employerId" element={<EmployerProfile />} />
+            <Route path="/ai-cv-builder" element={<AICVBuilder />} />
+            <Route path="/resume-score" element={<ResumeScore />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
