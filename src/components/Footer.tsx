@@ -1,5 +1,6 @@
-import { Sparkles, Facebook, Twitter, Instagram, Linkedin, Youtube } from "lucide-react";
+import { Facebook, Twitter, Instagram, Linkedin, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
+import { BrandLogo } from "@/components/BrandLogo";
 import ezekielPhoto from "@/assets/ezekiel-sesay.jpg";
 
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -21,16 +22,9 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-hero-gradient shadow-md">
-                <Sparkles className="w-4 h-4 text-primary-foreground" />
-              </div>
-              <span className="text-lg font-bold">
-                Skill<span className="text-primary">Link</span>
-              </span>
-            </div>
+            <BrandLogo asLink size="md" tagline />
             <p className="text-sm text-muted-foreground">
-              Connecting Africa's best talent with remote opportunities and instant payouts.
+              Africa's AI-powered talent infrastructure — connecting professionals, freelancers and employers across the continent and the world.
             </p>
             <a
               href="mailto:skilllinkafrica01@gmail.com"
