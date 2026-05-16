@@ -12,6 +12,7 @@ import skilllinkIcon from "@/assets/skilllink-icon.png";
 const Header = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const { user } = useAuth();
+  const { enabled: dataSaver, toggle: toggleDataSaver } = useDataSaverMode();
 
   useEffect(() => {
     checkAdminStatus();
@@ -75,6 +76,15 @@ const Header = () => {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleDataSaver}
+            title={dataSaver ? "Data saver on — tap to disable" : "Enable data saver"}
+            aria-label="Toggle data saver"
+          >
+            {dataSaver ? <ZapOff className="h-4 w-4 text-secondary" /> : <Zap className="h-4 w-4" />}
+          </Button>
           {user ? (
             <>
               <Button size="sm" className="bg-aurora text-primary-foreground" asChild>
@@ -98,6 +108,9 @@ const Header = () => {
 
         {/* Mobile */}
         <div className="md:hidden flex items-center gap-1">
+          <Button variant="ghost" size="icon" onClick={toggleDataSaver} aria-label="Toggle data saver">
+            {dataSaver ? <ZapOff className="h-4 w-4 text-secondary" /> : <Zap className="h-4 w-4" />}
+          </Button>
           <ThemeToggle />
           {user ? (
             <ProfileDropdown isAdmin={isAdmin} />
