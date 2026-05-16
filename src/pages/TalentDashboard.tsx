@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 import { JobAlertsDialog } from "@/components/JobAlertsDialog";
 import JobRecommendations from "@/components/JobRecommendations";
+import ProfileCompletionWidget from "@/components/profile/ProfileCompletionWidget";
 import { PortfolioUpload } from "@/components/PortfolioUpload";
 import { PortfolioGallery } from "@/components/PortfolioGallery";
 import { ContractManager } from "@/components/ContractManager";
@@ -218,9 +219,10 @@ const TalentDashboard = () => {
           </p>
         </div>
 
-        {/* AI Recommendations */}
-        <div className="mb-8">
-          <JobRecommendations />
+        {/* Top row: Profile strength + AI recs */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-1"><ProfileCompletionWidget /></div>
+          <div className="lg:col-span-2"><JobRecommendations /></div>
         </div>
 
         <Tabs defaultValue="applications" className="space-y-6">

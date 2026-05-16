@@ -5,6 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import ProfileDropdown from "@/components/navigation/ProfileDropdown";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useDataSaverMode } from "@/hooks/useDataSaverMode";
+import { Zap, ZapOff } from "lucide-react";
 import skilllinkIcon from "@/assets/skilllink-icon.png";
 
 const Header = () => {
