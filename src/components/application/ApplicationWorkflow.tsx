@@ -197,6 +197,15 @@ function Inner({
       } else {
         // delete draft
         await supabase.from("saved_applications").delete().eq("user_id", user.id).eq("job_id", jobId);
+        // fire-and-forget confirmation email (don't block UX on failure)
+        supabase.functions.invoke("send-application-email", {
+          body: {
+            type: "submitted",
+            to: user.email,
+            jobTitle,
+            companyName,
+          },
+        }).catch((err) => console.warn("email confirm failed:", err?.message));
         toast({ title: "Application submitted! 🎉", description: "We'll notify you when the employer responds." });
         onOpenChange(false);
       }
