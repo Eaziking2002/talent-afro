@@ -11,6 +11,7 @@ import { z } from "zod";
 import { Eye, EyeOff, Check, X, Briefcase, User, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
+import { BrandLogo } from "@/components/BrandLogo";
 
 // Strong password validation schema
 const passwordSchema = z.string()
@@ -195,7 +196,8 @@ const Auth = () => {
   // Role selection screen
   if (!selectedRole) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4">
+        <div className="mb-6"><BrandLogo asLink size="lg" tagline /></div>
         <Card className="w-full max-w-lg">
           <CardHeader className="text-center space-y-2">
             <CardTitle className="text-2xl font-bold">Join SkillLink Africa</CardTitle>
@@ -294,7 +296,8 @@ const Auth = () => {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4">
+      <div className="mb-6"><BrandLogo asLink size="lg" /></div>
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-2">
           <button

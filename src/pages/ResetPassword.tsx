@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { Eye, EyeOff, Check, X } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 
 // Password strength checker
 const getPasswordStrength = (password: string): { score: number; label: string } => {
@@ -86,7 +87,8 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4">
+      <div className="mb-6"><BrandLogo asLink size="lg" /></div>
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Reset Password</CardTitle>

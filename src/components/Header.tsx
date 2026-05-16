@@ -7,7 +7,7 @@ import ProfileDropdown from "@/components/navigation/ProfileDropdown";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useDataSaverMode } from "@/hooks/useDataSaverMode";
 import { Zap, ZapOff } from "lucide-react";
-import skilllinkIcon from "@/assets/skilllink-icon.png";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const Header = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -35,22 +35,7 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 glass-strong">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group shrink-0" aria-label="SkillLink Africa home">
-          <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-xl overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10 ring-1 ring-border/50 shadow-sm transition-transform group-hover:scale-105">
-            <img
-              src={skilllinkIcon}
-              alt="SkillLink Africa"
-              width={64}
-              height={64}
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <span className="font-display text-base sm:text-lg md:text-xl font-bold tracking-tight leading-none">
-            <span className="text-foreground">Skill</span><span className="text-gradient-emerald">Link</span>
-            <span className="text-muted-foreground font-medium hidden sm:inline"> Africa</span>
-          </span>
-        </Link>
+        <BrandLogo asLink size="md" />
 
         {/* Desktop Navigation — Max 4 items */}
         <nav className="hidden md:flex items-center gap-6">
