@@ -26,11 +26,20 @@ Deno.serve(async (req) => {
     }
 
     const secretHash = Deno.env.get('FLUTTERWAVE_WEBHOOK_SECRET_HASH');
+    if (!secretHash) {
+      console.error('FLUTTERWAVE_WEBHOOK_SECRET_HASH not configured - rejecting webhook');
+      return new Response(
+        JSON.stringify({ error: 'Server misconfiguration' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     const signature = req.headers.get('verif-hash');
-    
-    if (secretHash && signature !== secretHash) {
+    if (!signature || signature !== secretHash) {
       console.error('Invalid webhook signature');
-      throw new Error('Invalid signature');
+      return new Response(
+        JSON.stringify({ error: 'Invalid signature' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Process payment confirmation
