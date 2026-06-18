@@ -1591,14 +1591,12 @@ export type Database = {
           cover_url: string | null
           created_at: string
           cv_url: string | null
-          email: string | null
           full_name: string
           id: string
           id_verified: boolean | null
           job_title: string | null
           last_active_at: string | null
           location: string | null
-          phone_number: string | null
           portfolio_links: Json | null
           profile_visibility: string | null
           rating: number | null
@@ -1617,14 +1615,12 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           cv_url?: string | null
-          email?: string | null
           full_name: string
           id?: string
           id_verified?: boolean | null
           job_title?: string | null
           last_active_at?: string | null
           location?: string | null
-          phone_number?: string | null
           portfolio_links?: Json | null
           profile_visibility?: string | null
           rating?: number | null
@@ -1643,14 +1639,12 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           cv_url?: string | null
-          email?: string | null
           full_name?: string
           id?: string
           id_verified?: boolean | null
           job_title?: string | null
           last_active_at?: string | null
           location?: string | null
-          phone_number?: string | null
           portfolio_links?: Json | null
           profile_visibility?: string | null
           rating?: number | null
