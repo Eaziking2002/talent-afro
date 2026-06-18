@@ -1,7 +1,7 @@
 project_id = "lgdrrlrzcoedozfjwjnr"
 
 [functions.notify-admin-new-jobs]
-verify_jwt = false
+verify_jwt = true
 
 [functions.payment-initialize]
 verify_jwt = true
@@ -25,36 +25,52 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.job-scraper]
-verify_jwt = false
+verify_jwt = true
 
 [functions.job-aggregator]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-transaction-email]
 verify_jwt = false
 
+[functions.send-application-email]
+verify_jwt = true
+
 [functions.send-job-alerts]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-milestone-reminders]
-verify_jwt = false
+verify_jwt = true
 
 [functions.escalate-disputes]
-verify_jwt = false
+verify_jwt = true
 
 [functions.job-recommendations]
-verify_jwt = false
+verify_jwt = true
 
 [functions.webrtc-signaling]
 verify_jwt = false
 
 [functions.ai-job-matching]
-verify_jwt = false
+verify_jwt = true
+
+[functions.ai-cv-builder]
+verify_jwt = true
+
+[functions.ai-resume-score]
+verify_jwt = true
+
+[functions.ai-interview-prep]
+verify_jwt = true
+
+[functions.ai-cover-letter]
+verify_jwt = true
 
 [functions.skill-gap-analysis]
 verify_jwt = true
 
 [functions.send-contact-email]
 verify_jwt = false
+
 [functions.firecrawl-career-crawler]
-verify_jwt = false
+verify_jwt = true

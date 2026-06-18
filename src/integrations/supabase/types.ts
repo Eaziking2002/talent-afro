@@ -2533,6 +2533,10 @@ export type Database = {
         Args: { p_ip_address: string; p_reason?: string; p_threshold?: number }
         Returns: Json
       }
+      wallet_atomic_debit: {
+        Args: { p_amount: number; p_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "talent" | "employer" | "admin"
