@@ -103,12 +103,12 @@ jane@example.com,Logo Design,500,2024-01-15,2024-02-15,Create brand identity`;
 
       for (const contract of contracts) {
         try {
-          // Find talent by email
-          const { data: talentProfile, error: talentError } = await supabase
-            .from("profiles")
-            .select("id, user_id")
-            .eq("email", contract.talent_email)
-            .single();
+          // Find talent by email via secure lookup
+          const { data: lookup, error: talentError } = await supabase
+            .rpc("find_profile_id_by_email", { p_email: contract.talent_email })
+            .maybeSingle();
+
+          const talentProfile = lookup ? { id: lookup.profile_id, user_id: lookup.user_id } : null;
 
           if (talentError || !talentProfile) {
             processedResults.push({
@@ -118,6 +118,7 @@ jane@example.com,Logo Design,500,2024-01-15,2024-02-15,Create brand identity`;
             });
             continue;
           }
+
 
           // Create job
           const { data: job, error: jobError } = await supabase
