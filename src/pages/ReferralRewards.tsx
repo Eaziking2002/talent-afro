@@ -29,7 +29,7 @@ export default function ReferralRewards() {
         .single();
       
       if (error) throw error;
-      return data;
+      return { ...data, authUserId: user.id };
     },
   });
 
@@ -38,11 +38,7 @@ export default function ReferralRewards() {
     queryFn: async () => {
       if (!profile?.id) return [];
       
-      const { data, error } = await supabase
-        .from("referrals")
-        .select("*")
-        .eq("referrer_id", profile.id)
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.rpc("get_my_referrals_safe");
       
       if (error) throw error;
       return data;
@@ -52,21 +48,15 @@ export default function ReferralRewards() {
 
   const createReferral = useMutation({
     mutationFn: async ({ email, type }: { email: string; type: string }) => {
-      if (!profile?.id) throw new Error("Profile not found");
+      if (!profile?.authUserId) throw new Error("Profile not found");
 
-      const { data, error } = await supabase
-        .from("referrals")
-        .insert({
-          referrer_id: profile.id,
-          referred_email: email,
-          referred_type: type,
-          reward_credits: 50,
-        })
-        .select()
-        .single();
+      const { error } = await supabase.rpc("create_referral", {
+        p_referred_email: email,
+        p_referred_type: type,
+      });
 
       if (error) throw error;
-      return data;
+      return true;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["referrals"] });
@@ -218,7 +208,7 @@ export default function ReferralRewards() {
                     className="flex items-center justify-between p-4 border rounded-lg"
                   >
                     <div className="flex-1">
-                      <p className="font-medium">{referral.referred_email}</p>
+                      <p className="font-medium">Private invitee</p>
                       <p className="text-sm text-muted-foreground">
                         {referral.referred_type} • {new Date(referral.created_at).toLocaleDateString()}
                       </p>

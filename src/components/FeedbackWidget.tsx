@@ -38,13 +38,16 @@ const FeedbackWidget = () => {
     setIsSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("Please sign in before submitting feedback.");
+      }
       
       const { error } = await supabase.from("tester_feedback").insert({
         type: selectedType,
         title: title.trim().slice(0, 200),
         description: description.trim().slice(0, 2000),
         page_url: window.location.href,
-        user_id: user?.id || null,
+        user_id: user.id,
       });
 
       if (error) throw error;

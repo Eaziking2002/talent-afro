@@ -71,10 +71,7 @@ export default function AdminEmployerVerification() {
 
   const fetchEmployers = async () => {
     try {
-      const { data, error } = await supabase
-        .from("employers")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.rpc("get_employers_admin");
 
       if (error) throw error;
       setEmployers((data || []) as Employer[]);
@@ -95,16 +92,12 @@ export default function AdminEmployerVerification() {
     setIsVerifying(true);
 
     try {
-      const { error } = await supabase
-        .from("employers")
-        .update({
-          verified: true,
-          verification_level: verificationLevel,
-          verification_date: new Date().toISOString(),
-          verified_by: user.id,
-          verification_notes: verificationNotes,
-        })
-        .eq("id", employer.id);
+      const { error } = await supabase.rpc("update_employer_verification", {
+        p_employer_id: employer.id,
+        p_verified: true,
+        p_verification_level: verificationLevel,
+        p_verification_notes: verificationNotes,
+      });
 
       if (error) throw error;
 
@@ -133,14 +126,12 @@ export default function AdminEmployerVerification() {
     setIsVerifying(true);
 
     try {
-      const { error } = await supabase
-        .from("employers")
-        .update({
-          verified: false,
-          verification_level: "unverified",
-          verification_notes: verificationNotes,
-        })
-        .eq("id", employer.id);
+      const { error } = await supabase.rpc("update_employer_verification", {
+        p_employer_id: employer.id,
+        p_verified: false,
+        p_verification_level: "unverified",
+        p_verification_notes: verificationNotes,
+      });
 
       if (error) throw error;
 

@@ -842,6 +842,38 @@ export type Database = {
           },
         ]
       }
+      employer_verification_private: {
+        Row: {
+          employer_id: string
+          updated_at: string
+          verification_date: string | null
+          verification_notes: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          employer_id: string
+          updated_at?: string
+          verification_date?: string | null
+          verification_notes?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          employer_id?: string
+          updated_at?: string
+          verification_date?: string | null
+          verification_notes?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employer_verification_private_employer_id_fkey"
+            columns: ["employer_id"]
+            isOneToOne: true
+            referencedRelation: "employers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employers: {
         Row: {
           average_rating: number | null
@@ -859,11 +891,8 @@ export type Database = {
           trust_score: number | null
           updated_at: string
           user_id: string
-          verification_date: string | null
           verification_level: string | null
-          verification_notes: string | null
           verified: boolean | null
-          verified_by: string | null
           website: string | null
         }
         Insert: {
@@ -882,11 +911,8 @@ export type Database = {
           trust_score?: number | null
           updated_at?: string
           user_id: string
-          verification_date?: string | null
           verification_level?: string | null
-          verification_notes?: string | null
           verified?: boolean | null
-          verified_by?: string | null
           website?: string | null
         }
         Update: {
@@ -905,11 +931,8 @@ export type Database = {
           trust_score?: number | null
           updated_at?: string
           user_id?: string
-          verification_date?: string | null
           verification_level?: string | null
-          verification_notes?: string | null
           verified?: boolean | null
-          verified_by?: string | null
           website?: string | null
         }
         Relationships: []
@@ -1684,12 +1707,37 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_invite_contacts: {
+        Row: {
+          created_at: string
+          referral_id: string
+          referred_email: string
+        }
+        Insert: {
+          created_at?: string
+          referral_id: string
+          referred_email: string
+        }
+        Update: {
+          created_at?: string
+          referral_id?: string
+          referred_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_invite_contacts_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: true
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referrals: {
         Row: {
           completed_at: string | null
           created_at: string | null
           id: string
-          referred_email: string
           referred_id: string | null
           referred_type: string
           referrer_id: string
@@ -1700,7 +1748,6 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           id?: string
-          referred_email: string
           referred_id?: string | null
           referred_type: string
           referrer_id: string
@@ -1711,7 +1758,6 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           id?: string
-          referred_email?: string
           referred_id?: string | null
           referred_type?: string
           referrer_id?: string
@@ -2440,6 +2486,10 @@ export type Database = {
         Returns: Json
       }
       cleanup_rate_limits: { Args: never; Returns: number }
+      create_referral: {
+        Args: { p_referred_email: string; p_referred_type: string }
+        Returns: string
+      }
       decrypt_bank_details: {
         Args: { p_encrypted_data: string; p_user_id: string }
         Returns: string
@@ -2457,6 +2507,44 @@ export type Database = {
         Returns: {
           email: string
           phone_number: string
+        }[]
+      }
+      get_employers_admin: {
+        Args: never
+        Returns: {
+          average_rating: number
+          company_description: string
+          company_name: string
+          company_size: string
+          created_at: string
+          id: string
+          industry: string
+          last_active_at: string
+          logo_url: string
+          successful_hires: number
+          total_jobs_posted: number
+          total_reviews: number
+          trust_score: number
+          updated_at: string
+          user_id: string
+          verification_date: string
+          verification_level: string
+          verification_notes: string
+          verified: boolean
+          verified_by: string
+          website: string
+        }[]
+      }
+      get_my_referrals_safe: {
+        Args: never
+        Returns: {
+          completed_at: string
+          created_at: string
+          id: string
+          referred_type: string
+          referrer_id: string
+          reward_credits: number
+          status: string
         }[]
       }
       get_payment_proof_with_details: {
@@ -2533,6 +2621,15 @@ export type Database = {
       record_abuse_and_maybe_block: {
         Args: { p_ip_address: string; p_reason?: string; p_threshold?: number }
         Returns: Json
+      }
+      update_employer_verification: {
+        Args: {
+          p_employer_id: string
+          p_verification_level: string
+          p_verification_notes?: string
+          p_verified: boolean
+        }
+        Returns: boolean
       }
       wallet_atomic_debit: {
         Args: { p_amount: number; p_user_id: string }
