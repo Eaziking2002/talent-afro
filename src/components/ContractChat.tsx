@@ -276,21 +276,21 @@ export const ContractChat = ({ contractId, currentUserId }: ContractChatProps) =
                             ) : (
                               <FileText className="w-4 h-4" />
                             )}
-                            <a
-                              href={message.file_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm hover:underline flex-1 truncate"
+                            <button
+                              type="button"
+                              onClick={() => openSignedUrl(message.file_url!, undefined)}
+                              className="text-sm hover:underline flex-1 truncate text-left"
                             >
                               {message.file_name}
-                            </a>
-                            <a
-                              href={message.file_url}
-                              download={message.file_name}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => openSignedUrl(message.file_url!, message.file_name)}
                               className="text-sm hover:underline"
+                              aria-label="Download"
                             >
                               <Download className="w-4 h-4" />
-                            </a>
+                            </button>
                           </div>
                         )}
                       </div>
