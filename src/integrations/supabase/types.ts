@@ -2445,6 +2445,13 @@ export type Database = {
         Returns: string
       }
       encrypt_bank_details: { Args: { p_data: string }; Returns: string }
+      find_profile_id_by_email: {
+        Args: { p_email: string }
+        Returns: {
+          profile_id: string
+          user_id: string
+        }[]
+      }
       get_contact_info: {
         Args: { target_user_id: string }
         Returns: {
