@@ -133,15 +133,14 @@ export const ContractChat = ({ contractId, currentUserId }: ContractChatProps) =
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("contract-files")
-        .getPublicUrl(filePath);
-
+      // Store the storage path (not a public URL) so we can mint short-lived
+      // signed URLs on demand. This prevents permanent shareable links and
+      // ensures access revocation when a user leaves the contract.
       const { error: messageError } = await supabase.from("contract_messages").insert({
         contract_id: contractId,
         sender_id: currentUserId,
         message_text: `Shared a file: ${file.name}`,
-        file_url: publicUrl,
+        file_url: filePath,
         file_name: file.name,
         file_type: file.type,
       });
@@ -163,6 +162,23 @@ export const ContractChat = ({ contractId, currentUserId }: ContractChatProps) =
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+    }
+  };
+
+  const openSignedUrl = async (filePath: string, download?: string) => {
+    try {
+      // Legacy rows may have stored a full public URL — fall back to opening it
+      if (/^https?:\/\//i.test(filePath)) {
+        window.open(filePath, "_blank", "noopener,noreferrer");
+        return;
+      }
+      const { data, error } = await supabase.storage
+        .from("contract-files")
+        .createSignedUrl(filePath, 3600, download ? { download } : undefined);
+      if (error || !data?.signedUrl) throw error ?? new Error("Could not create link");
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message ?? "Could not open file", variant: "destructive" });
     }
   };
 
