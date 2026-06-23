@@ -1,16 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 250">
   <defs>
     <linearGradient id="f" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#0EA5E9"/>
+      <stop offset="55%" stop-color="#0EA5E9" stop-opacity="0.92"/>
       <stop offset="100%" stop-color="#10B981"/>
     </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#34D399" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0.4"/>
+    </linearGradient>
   </defs>
-  <path d="M95 12 C75 14 60 28 55 48 C50 60 42 70 38 86 C34 102 30 116 36 132 C40 148 48 160 56 174 C62 188 70 200 82 214 C92 226 108 232 120 224 C132 216 138 200 142 186 C148 172 156 162 162 148 C168 130 170 110 164 92 C160 76 152 64 144 50 C136 36 124 22 110 16 C105 13 100 12 95 12 Z" fill="url(#f)"/>
+  <path d="M118 18 C132 20 144 28 150 40 L162 44 C168 48 170 56 168 64 L160 78 C158 86 162 92 168 98 L176 110 C180 120 178 132 172 142 L162 156 C156 168 158 180 152 192 L142 208 C134 220 122 228 108 230 C96 232 84 226 78 216 L70 202 C64 192 56 184 50 174 L42 158 C36 146 32 132 34 118 L38 100 C40 88 44 78 50 68 L56 56 C60 46 68 38 78 32 L92 24 C100 20 110 17 118 18 Z" fill="url(#f)"/>
+  <path d="M118 18 C132 20 144 28 150 40 L162 44 C168 48 170 56 168 64 L160 78 C158 86 162 92 168 98 L176 110 C180 120 178 132 172 142 L162 156 C156 168 158 180 152 192 L142 208 C134 220 122 228 108 230 C96 232 84 226 78 216 L70 202 C64 192 56 184 50 174 L42 158 C36 146 32 132 34 118 L38 100 C40 88 44 78 50 68 L56 56 C60 46 68 38 78 32 L92 24 C100 20 110 17 118 18 Z" fill="none" stroke="url(#rim)" stroke-width="1.6" stroke-linejoin="round"/>
   <g fill="#34D399">
-    <circle cx="80" cy="50" r="6"/>
-    <circle cx="120" cy="90" r="6"/>
-    <circle cx="70" cy="130" r="6"/>
-    <circle cx="130" cy="160" r="6"/>
-    <circle cx="100" cy="200" r="6"/>
+    <circle cx="138" cy="42" r="4"/>
+    <circle cx="118" cy="66" r="4.5"/>
+    <circle cx="96" cy="118" r="5"/>
+    <circle cx="150" cy="158" r="4.5"/>
+    <circle cx="124" cy="200" r="4"/>
   </g>
 </svg>
