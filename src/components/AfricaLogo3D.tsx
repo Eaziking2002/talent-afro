@@ -14,30 +14,55 @@ import { AfricaLogoLite } from "./AfricaLogoLite";
  *  - reduced motion is preferred
  */
 
-// Africa silhouette in 2D (approximate, normalized coordinates centered near 0)
+// Africa silhouette — accurate normalized coordinates (-1..1) centered at origin
+// Traced clockwise from Tunisia → Horn of Africa → Cape → West Coast → Morocco
 const AFRICA_PATH: [number, number][] = [
-  [-0.05, 1.0], [-0.4, 0.95], [-0.65, 0.78], [-0.78, 0.55], [-0.92, 0.3],
-  [-1.05, 0.0], [-1.0, -0.25], [-0.9, -0.5], [-0.78, -0.7], [-0.6, -0.85],
-  [-0.35, -0.95], [-0.1, -1.0], [0.15, -0.95], [0.35, -0.78], [0.5, -0.55],
-  [0.6, -0.3], [0.7, -0.05], [0.85, 0.15], [0.95, 0.35], [0.85, 0.55],
-  [0.7, 0.7], [0.55, 0.78], [0.4, 0.85], [0.35, 1.0], [0.2, 1.05],
-  [0.05, 1.0],
+  [0.18, 0.95],   // Tunisia
+  [0.42, 0.92],   // Libya N
+  [0.62, 0.88],   // Egypt N
+  [0.72, 0.78],   // Sinai
+  [0.78, 0.62],   // Red Sea
+  [0.88, 0.50],   // Eritrea
+  [1.00, 0.40],   // Horn (Somalia tip)
+  [0.95, 0.22],   // Somalia coast
+  [0.78, 0.10],   // Kenya coast
+  [0.70, -0.10],  // Tanzania coast
+  [0.62, -0.32],  // Mozambique
+  [0.58, -0.55],  // Mozambique S
+  [0.42, -0.78],  // Natal
+  [0.18, -0.92],  // Cape coast E
+  [-0.05, -0.98], // Cape Agulhas
+  [-0.22, -0.92], // Cape Town
+  [-0.30, -0.72], // Namibia coast
+  [-0.38, -0.48], // Namibia N
+  [-0.45, -0.25], // Angola
+  [-0.42, -0.05], // Congo coast
+  [-0.55, 0.10],  // Gabon
+  [-0.78, 0.18],  // Nigeria delta
+  [-0.95, 0.30],  // Ghana/Côte d'Ivoire
+  [-1.05, 0.42],  // West bulge
+  [-1.00, 0.58],  // Senegal
+  [-0.88, 0.68],  // Mauritania coast
+  [-0.78, 0.82],  // W Sahara
+  [-0.55, 0.92],  // Morocco
+  [-0.30, 0.98],  // N Morocco
+  [-0.05, 0.96],  // Algeria N
 ];
 
-// Major hubs (city positions in same normalized space)
+// Major hubs (city positions in same normalized space, z = front face)
 const HUBS: { name: string; pos: [number, number, number] }[] = [
-  { name: "Cairo", pos: [0.3, 0.85, 0.18] },
-  { name: "Lagos", pos: [-0.45, 0.05, 0.18] },
-  { name: "Nairobi", pos: [0.45, -0.2, 0.18] },
-  { name: "Accra", pos: [-0.6, 0.15, 0.18] },
-  { name: "Johannesburg", pos: [0.15, -0.78, 0.18] },
-  { name: "Cape Town", pos: [-0.1, -0.92, 0.18] },
-  { name: "Dakar", pos: [-0.95, 0.3, 0.18] },
-  { name: "Addis Ababa", pos: [0.55, -0.05, 0.18] },
-  { name: "Casablanca", pos: [-0.55, 0.78, 0.18] },
-  { name: "Kinshasa", pos: [0.0, -0.3, 0.18] },
-  { name: "Algiers", pos: [-0.2, 0.85, 0.18] },
-  { name: "Khartoum", pos: [0.4, 0.4, 0.18] },
+  { name: "Tunis",        pos: [ 0.18,  0.82, 0.18] },
+  { name: "Cairo",        pos: [ 0.58,  0.72, 0.18] },
+  { name: "Casablanca",   pos: [-0.55,  0.82, 0.18] },
+  { name: "Dakar",        pos: [-0.92,  0.45, 0.18] },
+  { name: "Lagos",        pos: [-0.42,  0.08, 0.18] },
+  { name: "Addis Ababa",  pos: [ 0.62,  0.28, 0.18] },
+  { name: "Nairobi",      pos: [ 0.55, -0.05, 0.18] },
+  { name: "Kinshasa",     pos: [-0.10, -0.18, 0.18] },
+  { name: "Luanda",       pos: [-0.35, -0.38, 0.18] },
+  { name: "Johannesburg", pos: [ 0.20, -0.62, 0.18] },
+  { name: "Cape Town",    pos: [-0.15, -0.88, 0.18] },
+  { name: "Accra",        pos: [-0.72,  0.18, 0.18] },
 ];
 
 function AfricaShape() {
