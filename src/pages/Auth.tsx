@@ -568,7 +568,7 @@ const Auth = () => {
                         <div className="relative">
                           <Input
                             id="signin-password"
-                            type={showPassword ? "text" : "password"
+                            type={showPassword ? "text" : "password"}
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -679,7 +679,7 @@ const Auth = () => {
                       <div className="relative">
                         <Input
                           id="signup-password"
-                          type={showPassword ? "text" : "password"
+                          type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
