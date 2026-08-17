@@ -381,7 +381,7 @@ const Auth = () => {
       <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-14">
 
         {/* ── LEFT: Lamp + branding ── */}
-        <div className="flex flex-col items-center lg:items-start lg:flex-1">
+        <div className="hidden lg:flex flex-col items-start lg:flex-1 lg:py-12">
           {/* Logo */}
           <div className="mb-8 lg:mb-10">
             <BrandLogo asLink size="lg" tagline />
@@ -406,6 +406,11 @@ const Auth = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Mobile lamp — visible only below lg */}
+        <div className="flex flex-col items-center lg:hidden w-full mb-2">
+          <DeskLamp state={lampState} className="w-32 h-36" />
         </div>
 
         {/* ── RIGHT: Auth form card ── */}
