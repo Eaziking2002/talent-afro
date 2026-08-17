@@ -12,29 +12,22 @@ export function DeskLamp({ state, className }: DeskLampProps) {
   const isWarm = state === "warm";
   const isOn = state === "on";
 
-  // Reduced motion support
   const prefersReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const tx = prefersReducedMotion ? "0ms" : "700ms";
-  const ts = (extra = "") =>
-    `all ${tx} ease-in-out${extra ? ", " + extra : ""}`;
+  const dur = prefersReducedMotion ? "0ms" : "650ms";
+  const t = `all ${dur} ease-in-out`;
 
-  // Metal parts
-  const metalFill = isOff ? "#1B2C42" : "#243650";
-  const metalStroke = isOff ? "#1B2C42" : "#243650";
-
-  // Shade
-  const shadeFill = isOff ? "#1A2B40" : isWarm ? "#6B500F" : "#B87C10";
-  const shadeRim = isOff ? "#1E3050" : isWarm ? "#8A6818" : "#D4952A";
-
-  // Bulb
-  const bulbOpacity = isOff ? 0 : isWarm ? 0.5 : 1;
-
-  // Light cone and ambient glow
-  const coneOpacity = isOff ? 0 : isWarm ? 0.1 : 0.28;
-  const glowOpacity = isOff ? 0 : isWarm ? 0.14 : 0.42;
+  // Colors
+  const bodyColor = isOff ? "#1B2C42" : isWarm ? "#243650" : "#2E4A6A";
+  const domeColor = isOff ? "#1E3050" : isWarm ? "#7A5C1E" : "#C8881A";
+  const domeInner = isOff ? "#161E2E" : isWarm ? "#5A4010" : "#E8A830";
+  const rimColor = isOff ? "#253248" : isWarm ? "#9A7828" : "#F0B840";
+  const bulbOpacity = isOff ? 0 : isWarm ? 0.45 : 1;
+  const coneOpacity = isOff ? 0 : isWarm ? 0.08 : 0.3;
+  const glowOpacity = isOff ? 0 : isWarm ? 0.18 : 0.5;
+  const beadColor = isOff ? "#F5A623" : isWarm ? "#F5A623" : "#FFD080";
 
   return (
     <div
@@ -42,153 +35,129 @@ export function DeskLamp({ state, className }: DeskLampProps) {
       aria-hidden="true"
       role="presentation"
     >
-      {/* Ambient glow behind SVG */}
+      {/* Ambient glow */}
       <div
-        className="absolute inset-0 pointer-events-none rounded-full"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse 80% 60% at 55% 30%, rgba(245,166,35,${glowOpacity}), transparent 70%)`,
-          filter: "blur(28px)",
-          transition: `opacity ${tx} ease`,
+          background: `radial-gradient(ellipse 70% 55% at 50% 38%, rgba(245,166,35,${glowOpacity}), transparent 70%)`,
+          filter: "blur(22px)",
+          transition: `background ${dur} ease`,
         }}
       />
 
       <svg
-        viewBox="0 0 180 300"
+        viewBox="0 0 200 280"
         xmlns="http://www.w3.org/2000/svg"
         className="relative z-10 w-full h-full"
         aria-hidden="true"
       >
         <defs>
-          {/* Cone of light below shade */}
-          <linearGradient id="lampConeGrad" x1="0" y1="0" x2="0" y2="1">
+          {/* Light cone below dome */}
+          <radialGradient id="coneGrad" cx="50%" cy="0%" r="100%" fx="50%" fy="0%">
             <stop offset="0%" stopColor="#F5C86E" stopOpacity={coneOpacity} />
-            <stop offset="85%" stopColor="#F5C86E" stopOpacity="0" />
-          </linearGradient>
-          {/* Bulb radial glow */}
-          <radialGradient id="lampBulbGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="100%" stopColor="#F5C86E" stopOpacity="0" />
+          </radialGradient>
+          {/* Bulb glow inside dome */}
+          <radialGradient id="bulbGrad" cx="50%" cy="80%" r="60%">
             <stop offset="0%" stopColor="#FFF0C0" stopOpacity={bulbOpacity} />
-            <stop offset="55%" stopColor="#F5C86E" stopOpacity={bulbOpacity * 0.65} />
+            <stop offset="50%" stopColor="#F5C86E" stopOpacity={bulbOpacity * 0.7} />
             <stop offset="100%" stopColor="#D4922C" stopOpacity="0" />
           </radialGradient>
-          {/* Inner shade glow when on */}
-          <radialGradient id="lampShadeGlow" cx="50%" cy="100%" r="80%">
-            <stop offset="0%" stopColor="#F5C86E" stopOpacity={isOn ? 0.25 : 0} />
+          {/* Dome inner glow */}
+          <radialGradient id="domeGlow" cx="50%" cy="100%" r="70%">
+            <stop offset="0%" stopColor="#F5C86E" stopOpacity={isOn ? 0.35 : isWarm ? 0.1 : 0} />
             <stop offset="100%" stopColor="#F5C86E" stopOpacity="0" />
           </radialGradient>
         </defs>
 
-        {/* ── LIGHT CONE (emitted below shade) ── */}
-        <path
-          d="M 60 112 L 16 260 L 148 260 Z"
-          fill="url(#lampConeGrad)"
-          style={{ transition: ts() }}
+        {/* ── LIGHT CONE (emitted downward from dome opening) ── */}
+        <ellipse
+          cx="100" cy="148"
+          rx={isOn ? 70 : isWarm ? 40 : 0}
+          ry={isOn ? 80 : isWarm ? 45 : 0}
+          fill="url(#coneGrad)"
+          style={{ transition: t }}
         />
 
         {/* ── BASE ── */}
         <rect
-          x="38" y="270" width="104" height="16" rx="8"
-          fill={metalFill}
-          style={{ transition: ts() }}
+          x="50" y="255" width="100" height="14" rx="7"
+          fill={bodyColor}
+          style={{ transition: t }}
         />
         <ellipse
-          cx="90" cy="286" rx="54" ry="8"
-          fill={metalFill} opacity="0.45"
+          cx="100" cy="269" rx="52" ry="7"
+          fill={bodyColor} opacity="0.5"
         />
 
-        {/* ── VERTICAL POLE ── */}
+        {/* ── STEM ── */}
         <rect
-          x="83" y="158" width="14" height="116" rx="7"
-          fill={metalFill}
-          style={{ transition: ts() }}
+          x="93" y="148" width="14" height="110" rx="7"
+          fill={bodyColor}
+          style={{ transition: t }}
         />
 
-        {/* ── SHOULDER JOINT ── */}
-        <circle
-          cx="90" cy="158" r="9"
-          fill={metalFill}
-          style={{ transition: ts() }}
-        />
-
-        {/* ── UPPER ARM ── */}
-        <line
-          x1="90" y1="158" x2="80" y2="116"
-          stroke={metalStroke} strokeWidth="11" strokeLinecap="round"
-          style={{ transition: ts() }}
-        />
-
-        {/* ── ELBOW JOINT ── */}
-        <circle
-          cx="80" cy="116" r="8"
-          fill={metalFill}
-          style={{ transition: ts() }}
-        />
-
-        {/* ── LOWER ARM (elbow to shade) ── */}
-        <line
-          x1="80" y1="116" x2="89" y2="90"
-          stroke={metalStroke} strokeWidth="9" strokeLinecap="round"
-          style={{ transition: ts() }}
-        />
-
-        {/* ── WRIST JOINT ── */}
-        <circle
-          cx="89" cy="90" r="6.5"
-          fill={metalFill}
-          style={{ transition: ts() }}
-        />
-
-        {/* ── SHADE (trapezoid, opening downward) ── */}
+        {/* ── DOME SHADE (hemisphere/mushroom) ── */}
+        {/* Main dome shape — ellipse arc top half */}
         <path
-          d="M 54 90 L 42 116 L 138 116 L 126 90 Z"
-          fill={shadeFill}
-          style={{ transition: ts() }}
+          d="M 38 148 Q 38 68 100 68 Q 162 68 162 148 Z"
+          fill={domeColor}
+          style={{ transition: t }}
         />
-        {/* Inner shade glow overlay */}
+        {/* Inner dome glow */}
         <path
-          d="M 54 90 L 42 116 L 138 116 L 126 90 Z"
-          fill="url(#lampShadeGlow)"
-          style={{ transition: ts() }}
+          d="M 38 148 Q 38 68 100 68 Q 162 68 162 148 Z"
+          fill="url(#domeGlow)"
+          style={{ transition: t }}
         />
-        {/* Shade top ridge */}
-        <rect
-          x="52" y="87" width="76" height="7" rx="3.5"
-          fill={shadeRim}
-          style={{ transition: ts() }}
+        {/* Dome highlight (top specular) */}
+        <ellipse
+          cx="84" cy="90" rx="18" ry="10"
+          fill="rgba(255,255,255,0.06)"
+          transform="rotate(-20, 84, 90)"
         />
-        {/* Shade bottom rim */}
-        <rect
-          x="40" y="113" width="100" height="6" rx="3"
-          fill={shadeRim}
+        {/* Dome opening rim (bottom edge) */}
+        <ellipse
+          cx="100" cy="148" rx="62" ry="10"
+          fill={rimColor}
           style={{
-            filter: isOn ? "brightness(1.3)" : "none",
-            transition: ts(),
+            transition: t,
+            filter: isOn ? "brightness(1.25)" : "none",
           }}
         />
-        {/* Shade highlight (left reflection) */}
-        <path
-          d="M 56 92 L 48 114 L 64 114 L 70 92 Z"
-          fill="rgba(255,255,255,0.045)"
-        />
-
-        {/* ── BULB ── */}
+        {/* Dome opening inner rim (dark inside edge) */}
         <ellipse
-          cx="90" cy="105" rx="16" ry="11"
-          fill="url(#lampBulbGrad)"
-          style={{ transition: ts() }}
+          cx="100" cy="148" rx="55" ry="7"
+          fill={domeInner}
+          style={{ transition: t }}
         />
 
-        {/* ── PULL CHAIN (subtle detail) ── */}
-        <line
-          x1="90" y1="120" x2="90" y2="140"
-          stroke={metalFill}
-          strokeWidth="1.5"
-          strokeDasharray="3 3"
-          style={{ transition: ts() }}
+        {/* ── BULB GLOW (inside dome, near opening) ── */}
+        <ellipse
+          cx="100" cy="144" rx="30" ry="18"
+          fill="url(#bulbGrad)"
+          style={{ transition: t }}
         />
+
+        {/* ── PULL CHAIN BEAD ── */}
+        {/* Chain line */}
+        <line
+          x1="100" y1="148" x2="100" y2="168"
+          stroke={bodyColor}
+          strokeWidth="1.5"
+          strokeDasharray="3 2"
+          style={{ transition: t }}
+        />
+        {/* Bead */}
         <circle
-          cx="90" cy="144" r="4"
-          fill={metalFill}
-          style={{ transition: ts() }}
+          cx="100" cy="172" r="5"
+          fill={beadColor}
+          style={{ transition: t }}
+        />
+        {/* Bead shine */}
+        <circle
+          cx="98" cy="170" r="1.5"
+          fill="rgba(255,255,255,0.4)"
         />
       </svg>
     </div>
